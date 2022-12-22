@@ -18,7 +18,8 @@ from prepare_data import (
 # )
 from craft_utilities import (
     load_craft_checkpoint,
-    load_craft_refiner_checkpoint
+    load_craft_refiner_checkpoint,
+    get_text_score_map_and_link_score_map
 )
 from evaluate import (
     get_text_detection_f1_score,
