@@ -97,7 +97,7 @@ def main():
 
         """ Ours """
         text_score_map, link_score_map = get_text_score_map_and_link_score_map(
-            img=img, craft=craft, cuda=False
+            img=img, craft=craft, cuda=args.cuda
         )
 
         rectangles = get_word_level_bounding_boxes(img, text_score_map, link_score_map, thr=300)
