@@ -20,8 +20,8 @@ def load_craft_checkpoint(cuda=False):
     if cuda:
         craft = craft.to("cuda")
 
-    # path_ckpt = Path(__file__).parent/"pretrained/craft.pth"
-    path_ckpt = "/Users/jongbeom.kim/Desktop/workspace/image_processing_server/pretrained/craft.pth"
+    path_ckpt = Path(__file__).parent/"pretrained/craft.pth"
+    # path_ckpt = "/Users/jongbeom.kim/Desktop/workspace/text_spotting/pretrained/craft.pth"
     state = torch.load(path_ckpt, map_location="cuda" if cuda else "cpu")
     craft.load_state_dict(
         copy_state_dict(state), strict=True
@@ -36,8 +36,8 @@ def load_craft_refiner_checkpoint(cuda=False):
     if cuda:
         craft_refiner = craft_refiner.to("cuda")
 
-    # path_ckpt = Path(__file__).parent/"pretrained/craft_refiner.pth"
-    path_ckpt = "/Users/jongbeom.kim/Desktop/workspace/image_processing_server/pretrained/craft_refiner.pth"
+    path_ckpt = Path(__file__).parent/"pretrained/craft_refiner.pth"
+    # path_ckpt = "/Users/jongbeom.kim/Desktop/workspace/text_spotting/pretrained/craft_refiner.pth"
     state = torch.load(path_ckpt, map_location="cuda" if cuda else "cpu")
     craft_refiner.load_state_dict(
         copy_state_dict(state), strict=True
