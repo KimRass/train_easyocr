@@ -43,7 +43,7 @@ def load_craft_refiner_checkpoint(cuda=False):
         copy_state_dict(state), strict=True
     )
 
-    print(f"Loaded pre-trained parameters for 'CRAFT' craft_refiner from checkpoint '{path_ckpt}'.")
+    print(f"Loaded pre-trained parameters for 'CRAFT' refiner from checkpoint '{path_ckpt}'.")
     return craft_refiner
 
 

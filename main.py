@@ -89,7 +89,7 @@ def main():
         ls.append((path_json.stem, f1_score))
 
         df = pd.DataFrame(ls, columns=["file", "f1_score_baseline"])
-        df.to_excel("ocr.xlsx", index=False)
+        df.to_excel(f"{dir}/baseline.xlsx", index=False)
 
         # """ Ours """
 
