@@ -25,6 +25,13 @@ from evaluate import (
     get_text_detection_f1_score,
     get_end_to_end_f1_score
 )
+from detect_texts import (
+    get_word_level_bounding_boxes    
+)
+from recognize_texts import (
+    add_transcript
+)
+
 
 def get_arguments():
     parser = argparse.ArgumentParser(description="ocr")
@@ -100,7 +107,9 @@ def main():
             img=img, craft=craft, cuda=args.cuda
         )
 
-        rectangles = get_word_level_bounding_boxes(img, text_score_map, link_score_map, thr=300)
+        rectangles = get_word_level_bounding_boxes(
+            img=img, text_score_map=text_score_map, link_score_map=link_score_map, thr=300
+        )
         rectangles = add_transcript(img=img, rectangles=rectangles, reader=reader)
 
 
