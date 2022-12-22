@@ -40,3 +40,9 @@ else:
 - `decoder`: `"greedy"` -> `"beam"`?
 ## Image Processing
 ## Fine Tunning
+
+# References
+- Baseline: https://github.com/JaidedAI/EasyOCR
+- CRAFT: https://github.com/clovaai/CRAFT-pytorch
+- Intersection over Union: https://gaussian37.github.io/vision-detection-giou/
+- Metric: https://gist.github.com/tarlen5/008809c3decf19313de216b9208f3734

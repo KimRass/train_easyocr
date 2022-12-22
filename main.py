@@ -84,22 +84,22 @@ def main():
         result = spot_texts_baseline(img=img, reader=reader, rectangle=True)
         result.to_excel(f"{dir.parent}/result/baseline/{path_json.stem}.xlsx", index=False)
 
-        f1_score = get_f1_score(gt, result, iou_thr=0.5, rec=True)
+        f1_det = get_text_detection_f1_score(gt_bboxes=gt, pred_bboxes=result)
+        f1_e2e_true = get_end_to_end_f1_score(gt_bboxes=gt, pred_bboxes=result, iou_thr=0.5, rec=True)
+        f1_e2e_false = get_end_to_end_f1_score(gt_bboxes=gt, pred_bboxes=result, iou_thr=0.5, rec=False)
 
-        ls.append((path_json.stem, f1_score))
+        ls.append((path_json.stem, f1_det, f1_e2e_true, f1_e2e_false))
 
-        df = pd.DataFrame(ls, columns=["file", "f1_score_baseline"])
+        df = pd.DataFrame(ls, columns=["file", "f1_det", "f1_e2e_true", "f1_e22_false"])
         df.to_excel(f"{dir.parent}/result/baseline.xlsx", index=False)
 
-        # """ Ours """
+        """ Ours """
+        text_score_map, link_score_map = get_text_score_map_and_link_score_map(
+            img=img, craft=craft, cuda=False
+        )
 
-        # show_image(img)
-        # text_score_map, link_score_map = get_text_score_map_and_link_score_map(
-        #     img=img, craft=craft, cuda=False
-        # )
-        # show_image(text_score_map, img)
-        # rectangles = get_word_level_bounding_boxes(img, text_score_map, link_score_map, thr=300)
-        # rectangles.head()
+        rectangles = get_word_level_bounding_boxes(img, text_score_map, link_score_map, thr=300)
+        rectangles = add_transcript(img=img, rectangles=rectangles, reader=reader)
 
 
 if __name__ == "__main__":

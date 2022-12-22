@@ -65,17 +65,15 @@ def recognize_texts(img, reader):
     )
     return result
 
-show_image(img)
-bboxes = detect_texts(img=img, reader=reader)
-# drawn = draw_rectangles_on_image(img, rectangles)
-# show_image(drawn)
 
-for xmin, ymin, xmax, ymax in tqdm(bboxes[["xmin", "ymin", "xmax", "ymax"]].values):
-    patch = get_image_cropped_by_rectangle(
-        img=img, xmin=xmin, ymin=ymin, xmax=xmax, ymax=ymax
-    )
-    patch_pil = convert_to_pil(patch)
+def add_transcript(img, rectangles, reader):
+    ls_transcript = list()
+    for xmin, ymin, xmax, ymax in tqdm(rectangles[["xmin", "ymin", "xmax", "ymax"]].values):
+        patch = get_image_cropped_by_rectangle(
+            img=img, xmin=xmin, ymin=ymin, xmax=xmax, ymax=ymax
+        )
+        transcript = recognize_texts(img=patch, reader=reader)
 
-    result = recognize_text(img=patch, reader=reader)
-    text = result[0]
-    print(text)
+        ls_transcript.append(transcript)
+    rectangles["transcript"] = ls_transcript
+    return rectangles

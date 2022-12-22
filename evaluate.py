@@ -44,13 +44,59 @@ def get_giou(bbox1, bbox2):
     return giou
 
 
+def get_text_detection_f1_score(gt_bboxes, pred_bboxes, iou_thr=0.5):
+    gt_boxes = np.array(gt_bboxes[["xmin", "ymin", "xmax", "ymax"]])
+    pred_boxes = np.array(pred_bboxes[["xmin", "ymin", "xmax", "ymax"]])
 
-def get_f1_score(df_label, df_pred, iou_thr=0.5, rec=False):
-    gt_boxes = np.array(df_label[["xmin", "ymin", "xmax", "ymax"]])
-    pred_boxes = np.array(df_pred[["xmin", "ymin", "xmax", "ymax"]])
+    ls_idx_thr_gt = list()
+    ls_idx_thr_pred = list()
+    ls_iou = list()
+    for ipb, pred_box in enumerate(pred_boxes):
+        for igb, gt_box in enumerate(gt_boxes):
+            iou = get_iou(pred_box, gt_box)
+
+            if iou > iou_thr:
+                ls_idx_thr_gt.append(igb)
+                ls_idx_thr_pred.append(ipb)
+                ls_iou.append(iou)
+
+    args_desc = np.argsort(ls_iou)[::-1]
+    # No matches
+    if len(args_desc) == 0:
+        tp = 0
+        fp = len(pred_boxes)
+        fn = len(gt_boxes)
+    else:
+        ls_idx_match_gt = list()
+        ls_idx_match_pred = list()
+        for idx in args_desc:
+            idx_gt = ls_idx_thr_gt[idx]
+            idx_pred = ls_idx_thr_pred[idx]
+
+            if (
+                idx_gt not in ls_idx_match_gt and
+                idx_pred not in ls_idx_match_pred
+            ):
+                ls_idx_match_gt.append(idx_gt)
+                ls_idx_match_pred.append(idx_pred)
+
+        tp = len(ls_idx_match_gt)
+        fp = len(pred_boxes) - len(ls_idx_match_pred)
+        fn = len(gt_boxes) - len(ls_idx_match_gt)
+
+    precision = tp / (tp + fp)
+    recall = tp / (tp + fn)
+    f1_score = 2 * (precision * recall) / (precision + recall)
+    f1_score = round(f1_score, 3)
+    return f1_score
+
+
+def get_end_to_end_f1_score(gt_bboxes, pred_bboxes, iou_thr=0.5, rec=False):
+    gt_boxes = np.array(gt_bboxes[["xmin", "ymin", "xmax", "ymax"]])
+    pred_boxes = np.array(pred_bboxes[["xmin", "ymin", "xmax", "ymax"]])
     
-    gt_labels = np.array(df_label["text"])
-    pred_labels = np.array(df_pred["text"])
+    gt_labels = np.array(gt_bboxes["text"])
+    pred_labels = np.array(pred_bboxes["text"])
 
     ls_idx_thr_gt = list()
     ls_idx_thr_pred = list()

@@ -42,6 +42,8 @@ def get_word_level_bounding_boxes(img, text_score_map, link_score_map, thr=300):
     bboxes["ymax"] = bboxes.apply(
         lambda x: min(img.shape[0], x["ymax"] + x["margin"]), axis=1
     )
+
+    bboxes = bboxes[["xmin", "ymin", "xmax", "ymax"]]
     return bboxes
 
 
