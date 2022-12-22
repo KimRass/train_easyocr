@@ -12,9 +12,13 @@ import argparse
 from prepare_data import (
     get_image_and_label
 )
-from recognize_texts import (
-    get_paddleocr_result,
-    get_easyocr_result
+# from recognize_texts import (
+    # get_paddleocr_result,
+#     get_easyocr_result
+# )
+from craft_utilities import (
+    load_craft_checkpoint,
+    load_craft_refiner_checkpoint
 )
 from evaluate import (
     get_f1_score
