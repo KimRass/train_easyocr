@@ -6,7 +6,7 @@ from torch_utilities import (
 )
 
 
-class RefineNet(nn.Module):
+class CRAFTRefiner(nn.Module):
     def __init__(self):
         super().__init__()
 
