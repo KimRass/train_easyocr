@@ -1,4 +1,4 @@
-from paddleocr import PaddleOCR
+# from paddleocr import PaddleOCR
 import easyocr
 import pandas as pd
 import numpy as np
@@ -10,45 +10,45 @@ from process_image import (
 )
 
 
-def get_paddleocr_result(
-    img,
-    lang="en",
-    text_detection=True,
-    text_recognition=True,
-    rectangle=False
-):
-    if lang == "ko":
-        lang = "korean"
-    elif lang == "ja":
-        lang = "japan"
+# def get_paddleocr_result(
+#     img,
+#     lang="en",
+#     text_detection=True,
+#     text_recognition=True,
+#     rectangle=False
+# ):
+#     if lang == "ko":
+#         lang = "korean"
+#     elif lang == "ja":
+#         lang = "japan"
 
-    ocr = PaddleOCR(lang=lang)
-    result = ocr.ocr(img=img, det=text_detection, rec=text_recognition, cls=False)
+#     ocr = PaddleOCR(lang=lang)
+#     result = ocr.ocr(img=img, det=text_detection, rec=text_recognition, cls=False)
 
-    if text_detection and not text_recognition:
-        df_pred = pd.DataFrame(
-            np.array(result).reshape(-1, 8),
-            columns=["x1", "y1", "x2", "y2", "x3", "y3", "x4", "y4"],
-            dtype="int"
-        )
-    elif not text_detection and text_recognition:
-        return pd.DataFrame(
-            result,
-            columns=["text", "confidence"]
-        )
-    elif text_detection and text_recognition:
-        cols = ["text", "x1", "y1", "x2", "y2", "x3", "y3", "x4", "y4"]
-        if result:
-            df_pred = pd.DataFrame(
-                [(row[1][0], *list(map(int, sum(row[0], [])))) for row in result],
-                columns=cols
-            )
-        else:
-            df_pred = pd.DataFrame(columns=cols)
+#     if text_detection and not text_recognition:
+#         df_pred = pd.DataFrame(
+#             np.array(result).reshape(-1, 8),
+#             columns=["x1", "y1", "x2", "y2", "x3", "y3", "x4", "y4"],
+#             dtype="int"
+#         )
+#     elif not text_detection and text_recognition:
+#         return pd.DataFrame(
+#             result,
+#             columns=["text", "confidence"]
+#         )
+#     elif text_detection and text_recognition:
+#         cols = ["text", "x1", "y1", "x2", "y2", "x3", "y3", "x4", "y4"]
+#         if result:
+#             df_pred = pd.DataFrame(
+#                 [(row[1][0], *list(map(int, sum(row[0], [])))) for row in result],
+#                 columns=cols
+#             )
+#         else:
+#             df_pred = pd.DataFrame(columns=cols)
 
-    if rectangle:
-        df_pred = convert_quadrilaterals_to_rectangles(df_pred)
-    return df_pred
+#     if rectangle:
+#         df_pred = convert_quadrilaterals_to_rectangles(df_pred)
+#     return df_pred
 
 
 def recognize_texts(img, reader):
