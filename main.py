@@ -82,14 +82,14 @@ def main():
 
         """ Baseline """
         result = spot_texts_baseline(img=img, reader=reader, rectangle=True)
-        result.to_excel(f"{dir}/baseline/{path_json.stem}.xlsx", index=False)
+        result.to_excel(f"{dir.parent}/result/baseline/{path_json.stem}.xlsx", index=False)
 
         f1_score = get_f1_score(gt, result, iou_thr=0.5, rec=True)
 
         ls.append((path_json.stem, f1_score))
 
         df = pd.DataFrame(ls, columns=["file", "f1_score_baseline"])
-        df.to_excel(f"{dir}/baseline.xlsx", index=False)
+        df.to_excel(f"{dir.parent}/result/baseline.xlsx", index=False)
 
         # """ Ours """
 
