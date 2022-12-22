@@ -100,3 +100,7 @@ def main():
         # show_image(text_score_map, img)
         # rectangles = get_word_level_bounding_boxes(img, text_score_map, link_score_map, thr=300)
         # rectangles.head()
+
+
+if __name__ == "__main__":
+    main()
