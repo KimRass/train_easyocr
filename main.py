@@ -21,7 +21,8 @@ from craft_utilities import (
     load_craft_refiner_checkpoint
 )
 from evaluate import (
-    get_f1_score
+    get_text_detection_f1_score,
+    get_end_to_end_f1_score
 )
 
 def get_arguments():
@@ -81,17 +82,17 @@ def main():
         img, gt = get_image_and_label(path_json=path_json)
 
         """ Baseline """
-        result = spot_texts_baseline(img=img, reader=reader, rectangle=True)
-        result.to_excel(f"{dir.parent}/result/baseline/{path_json.stem}.xlsx", index=False)
+        # result = spot_texts_baseline(img=img, reader=reader, rectangle=True)
+        # result.to_excel(f"{dir.parent}/result/baseline/{path_json.stem}.xlsx", index=False)
 
-        f1_det = get_text_detection_f1_score(gt_bboxes=gt, pred_bboxes=result)
-        f1_e2e_true = get_end_to_end_f1_score(gt_bboxes=gt, pred_bboxes=result, iou_thr=0.5, rec=True)
-        f1_e2e_false = get_end_to_end_f1_score(gt_bboxes=gt, pred_bboxes=result, iou_thr=0.5, rec=False)
+        # f1_det = get_text_detection_f1_score(gt_bboxes=gt, pred_bboxes=result)
+        # f1_e2e_true = get_end_to_end_f1_score(gt_bboxes=gt, pred_bboxes=result, iou_thr=0.5, rec=True)
+        # f1_e2e_false = get_end_to_end_f1_score(gt_bboxes=gt, pred_bboxes=result, iou_thr=0.5, rec=False)
 
-        ls.append((path_json.stem, f1_det, f1_e2e_true, f1_e2e_false))
+        # ls.append((path_json.stem, f1_det, f1_e2e_true, f1_e2e_false))
 
-        df = pd.DataFrame(ls, columns=["file", "f1_det", "f1_e2e_true", "f1_e22_false"])
-        df.to_excel(f"{dir.parent}/result/baseline.xlsx", index=False)
+        # df = pd.DataFrame(ls, columns=["file", "f1_det", "f1_e2e_true", "f1_e22_false"])
+        # df.to_excel(f"{dir.parent}/result/baseline.xlsx", index=False)
 
         """ Ours """
         text_score_map, link_score_map = get_text_score_map_and_link_score_map(
