@@ -81,6 +81,7 @@ def main():
 
     # reader = easyocr.Reader(lang_list=["ko", "en"], gpu=False)
     reader = easyocr.Reader(lang_list=["ko", "en"], gpu=args.cuda)
+    reader.recognize
 
     # dir = Path("/Users/jongbeom.kim/Documents/New_sample/라벨링데이터")
     dir = Path(args.dir)

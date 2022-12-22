@@ -66,14 +66,34 @@ def recognize_texts(img, reader):
     return result
 
 
+# def add_transcript(img, rectangles, reader):
+#     ls_transcript = list()
+#     for xmin, ymin, xmax, ymax in tqdm(rectangles[["xmin", "ymin", "xmax", "ymax"]].values):
+#         patch = get_image_cropped_by_rectangle(
+#             img=img, xmin=xmin, ymin=ymin, xmax=xmax, ymax=ymax
+#         )
+#         transcript = recognize_texts(img=patch, reader=reader)
+
+#         ls_transcript.append(transcript)
+#     rectangles["transcript"] = ls_transcript
+#     return rectangles
+
+
 def add_transcript(img, rectangles, reader):
-    ls_transcript = list()
+    # ls_transcript = list()
+    ls_patch = list()
     for xmin, ymin, xmax, ymax in tqdm(rectangles[["xmin", "ymin", "xmax", "ymax"]].values):
         patch = get_image_cropped_by_rectangle(
             img=img, xmin=xmin, ymin=ymin, xmax=xmax, ymax=ymax
         )
-        transcript = recognize_texts(img=patch, reader=reader)
 
-        ls_transcript.append(transcript)
-    rectangles["transcript"] = ls_transcript
-    return rectangles
+        ls_patch.append(patch)
+
+    # temp = reader.detect(img)
+    temp[0][0][: 2]
+    rectangles.values.tolist()[: 2]
+
+    reader.recognize(img_cv_grey=img, horizontal_list=rectangles.values.tolist()[: 2], free_list=temp[1][0])
+    reader.recognize(img_cv_grey=img, horizontal_list=temp[0][0][: 1], free_list=temp[1][0])
+    
+    reader.recognize(img_cv_grey=img, horizontal_list=[[0, 0, 200, 300]], free_list=temp[1][0])
