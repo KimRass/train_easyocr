@@ -36,13 +36,11 @@ def create_dataset(dir, dir_save) -> None:
     dir_save = Path(dir_save)
     
     for path_json in tqdm(list(dir.glob("**/*.json"))):
-        path_json
         try:
             img, gt = get_image_and_label(path_json)
         except Exception:
             continue
 
-        # ls_line = list()
         for idx, (text, xmin, ymin, xmax, ymax) in enumerate(gt.values):
             remainder = idx % 5
             if remainder in [0, 1, 2, 3]:
@@ -63,13 +61,33 @@ def create_dataset(dir, dir_save) -> None:
             save_image(img=patch, path=dir_save/split1/split2/"images"/fname)
 
             with open(dir_save/split1/split2/"gt.txt", mode="a") as f:
-                f.write(f"images/{fname}\t{text}\n")
+                # f.write(f"images/{fname}\t{text}\n")
+                f.write(f"{fname}\t{text}\n")
                 f.close()
 
-        #     ls_line.append(f"{dir_save.stem/fname}\t{text}\n")
-        # with open(dir_save/split1/split2/"gt.txt", mode="a") as f:
-        #     f.writelines(ls_line)
-        #     f.close()
+    for path_txt in dir_save.glob("**/*.txt"):
+        df = pd.DataFrame(
+            [line.strip().split("\t") for line in open(path_txt, mode="r").readlines()],
+            columns=["filename", "words"]
+        )
+        df.to_csv(path_txt.parent/"labels.csv", index=False)
+
+
+# from collections import Counter
+
+# counter = Counter()
+# dir = Path("/Users/jongbeom.kim/Documents/lmdb")
+# for path_csv in dir.glob("**/*.csv"):
+#     df = pd.read_csv(path_csv)
+#     counter += Counter(
+#         "".join(df["words"].astype("str").tolist())
+#     )
+# "".join(
+#     [k for k, v in counter.most_common(1009)]
+# )
+
+# counter.most_common(1009)[-1]
+# counter.most_common(900)[-1]
 
 
 create_dataset(
