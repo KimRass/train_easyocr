@@ -8,7 +8,7 @@
 
 # EasyOCR
 - Text detection: CRAFT (Default), DBNet
-- Text recognition: CRNN (ResNet as a feature extractor, LSTM as a sequence labeling, CTC decoder)
+- Text recognition: (None-VGG-BiLSTM-CTC)
 
 ```python
 if self.detect_network == 'craft':

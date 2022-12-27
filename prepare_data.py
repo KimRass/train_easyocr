@@ -1,11 +1,13 @@
 import json
 import pandas as pd
 from pathlib import Path
+from tqdm.auto import tqdm
 
 from process_image import (
     load_image_as_array,
-    show_image,
-    draw_rectangles_on_image
+    save_image,
+    get_image_cropped_by_rectangle
+    # show_image,
 )
 
 
@@ -29,22 +31,48 @@ def get_image_and_label(path_json):
     return img, df_label
 
 
-# def change_data_structure(dir) -> None:
-#     dir = Path(dir)
+def create_dataset(dir, dir_save) -> None:
+    dir = Path(dir)
+    dir_save = Path(dir_save)
+    
+    for path_json in tqdm(list(dir.glob("**/*.json"))):
+        path_json
+        try:
+            img, gt = get_image_and_label(path_json)
+        except Exception:
+            continue
 
-#     # path_json = "/Users/jongbeom.kim/Documents/New_sample/라벨링데이터/인.허가/5350109/1994/5350109-1994-0001-0017.json"
-#     for path_json in dir.glob("**/*.json"):
-#         with open(path_json, mode="r") as f:
-#             label_ori = json.load(f)
+        # ls_line = list()
+        for idx, (text, xmin, ymin, xmax, ymax) in enumerate(gt.values):
+            remainder = idx % 5
+            if remainder in [0, 1, 2, 3]:
+                split1 = "training"
+            else:
+                split1 = "validation"
+            
+            remainder = idx % 2
+            if remainder == 0:
+                split2 = "MJ"
+            else:
+                split2 = "ST"
 
-#         label_changed = [
-#             ", ".join(map(str, i["annotation.bbox"])) +\
-#             ', "' +\
-#             i["annotation.text"] +\
-#             '"\n'
-#             for i
-#             in label_ori["annotations"]
-#         ]
+            patch = get_image_cropped_by_rectangle(
+                img=img, xmin=xmin, ymin=ymin, xmax=xmax, ymax=ymax
+            )
+            fname = Path(f"{path_json.stem}_{xmin}-{ymin}-{xmax}-{ymax}.png")
+            save_image(img=patch, path=dir_save/split1/split2/"images"/fname)
 
-#         with open (f"{path_json.parent/path_json.stem}.txt", mode="w") as f:
-#             f.writelines(label_changed)
+            with open(dir_save/split1/split2/"gt.txt", mode="a") as f:
+                f.write(f"images/{fname}\t{text}\n")
+                f.close()
+
+        #     ls_line.append(f"{dir_save.stem/fname}\t{text}\n")
+        # with open(dir_save/split1/split2/"gt.txt", mode="a") as f:
+        #     f.writelines(ls_line)
+        #     f.close()
+
+
+create_dataset(
+    dir="/Users/jongbeom.kim/Documents/New_sample",
+    dir_save=f"/Users/jongbeom.kim/Documents/output/"
+)
