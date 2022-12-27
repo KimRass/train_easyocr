@@ -228,7 +228,7 @@ def train(opt, show_number=2, amp=False):
             optimizer.step()
         loss_avg.add(cost)
 
-        # validation part
+        # Validation part
         if (i % opt.valInterval == 0) and (i!=0):
             print('training time: ', time.time()-t1)
             t1=time.time()
@@ -241,13 +241,13 @@ def train(opt, show_number=2, amp=False):
                     infer_time, length_of_data = validation(model, criterion, valid_loader, converter, opt, device)
                 model.train()
 
-                # training loss and validation loss
+                # Training loss and validation loss
                 loss_log = f'[{i}/{opt.num_iter}] Train loss: {loss_avg.val():0.5f}, Valid loss: {valid_loss:0.5f}, Elapsed_time: {elapsed_time:0.5f}'
                 loss_avg.reset()
 
                 current_model_log = f'{"Current_accuracy":17s}: {current_accuracy:0.3f}, {"Current_norm_ED":17s}: {current_norm_ED:0.4f}'
 
-                # keep best accuracy model (on valid dataset)
+                # Keep best accuracy model (on validation set)
                 if current_accuracy > best_accuracy:
                     best_accuracy = current_accuracy
                     torch.save(model.state_dict(), f'./saved_models/{opt.experiment_name}/best_accuracy.pth')
@@ -260,12 +260,12 @@ def train(opt, show_number=2, amp=False):
                 print(loss_model_log)
                 log.write(loss_model_log + '\n')
 
-                # show some predicted results
+                # Show some predicted results.
                 dashed_line = '-' * 80
                 head = f'{"Ground Truth":25s} | {"Prediction":25s} | Confidence Score & T/F'
                 predicted_result_log = f'{dashed_line}\n{head}\n{dashed_line}\n'
                 
-                #show_number = min(show_number, len(labels))
+                # show_number = min(show_number, len(labels))
                 
                 start = random.randint(0,len(labels) - show_number )    
                 for gt, pred, confidence in zip(labels[start:start+show_number], preds[start:start+show_number], confidence_score[start:start+show_number]):
@@ -279,7 +279,7 @@ def train(opt, show_number=2, amp=False):
                 log.write(predicted_result_log + '\n')
                 print('validation time: ', time.time()-t1)
                 t1=time.time()
-        # save model per 1e+4 iter.
+        # Save model per 1e+4 iteration.
         if (i + 1) % 1e+4 == 0:
             torch.save(
                 model.state_dict(), f'./saved_models/{opt.experiment_name}/iter_{i + 1}.pth')
