@@ -298,7 +298,7 @@ def main():
         )
     #     opt = yaml.safe_load(f)
     # opt = AttrDict(opt)
-    opt.character = opt.number + opt.symbol + opt.lang_char
+    # opt.character = opt.number + opt.symbol + opt.lang_char
     os.makedirs(f"./saved_models/{opt.experiment_name}", exist_ok=True)
 
     train(opt)
