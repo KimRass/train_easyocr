@@ -29,13 +29,13 @@ def adjust_contrast_grey(img, target = 0.4):
 
 
 class Batch_Balanced_Dataset(object):
-
     def __init__(self, opt):
         """
         Modulate the data ratio in the batch.
         For example, when select_data is "MJ-ST" and batch_ratio is "0.5-0.5",
         the 50% of the batch is filled with MJ and the other 50% of the batch is filled with ST.
         """
+
         log = open(f'./saved_models/{opt.experiment_name}/log_dataset.txt', 'a')
         dashed_line = '-' * 80
         print(dashed_line)
@@ -45,9 +45,9 @@ class Batch_Balanced_Dataset(object):
         assert len(opt.select_data) == len(opt.batch_ratio)
 
         _AlignCollate = AlignCollate(imgH=opt.imgH, imgW=opt.imgW, keep_ratio_with_pad=opt.PAD, contrast_adjust = opt.contrast_adjust)
-        self.data_loader_list = []
-        self.dataloader_iter_list = []
-        batch_size_list = []
+        self.data_loader_list = list()
+        self.dataloader_iter_list = list()
+        batch_size_list = list()
         Total_batch_size = 0
         for selected_d, batch_ratio_d in zip(opt.select_data, opt.batch_ratio):
             _batch_size = max(round(opt.batch_size * float(batch_ratio_d)), 1)
@@ -93,30 +93,31 @@ class Batch_Balanced_Dataset(object):
         log.close()
 
     def get_batch(self):
-        balanced_batch_images = []
-        balanced_batch_texts = []
+        balanced_batch_images = list()
+        balanced_batch_texts = list()
 
         for i, data_loader_iter in enumerate(self.dataloader_iter_list):
             try:
-                image, text = data_loader_iter.next()
+                # image, text = data_loader_iter.next()
+                image, text = next(data_loader_iter)
                 balanced_batch_images.append(image)
                 balanced_batch_texts += text
             except StopIteration:
                 self.dataloader_iter_list[i] = iter(self.data_loader_list[i])
-                image, text = self.dataloader_iter_list[i].next()
+                # image, text = self.dataloader_iter_list[i].next()
+                image, text = next(self.dataloader_iter_list[i])
                 balanced_batch_images.append(image)
                 balanced_batch_texts += text
             except ValueError:
                 pass
 
         balanced_batch_images = torch.cat(balanced_batch_images, 0)
-
         return balanced_batch_images, balanced_batch_texts
 
 
 def hierarchical_dataset(root, opt, select_data='/'):
     """ select_data='/' contains all sub-directory of root directory """
-    dataset_list = []
+    dataset_list = list()
     dataset_log = f'dataset_root:    {root}\t dataset: {select_data[0]}'
     print(dataset_log)
     dataset_log += '\n'
@@ -158,7 +159,7 @@ class OCRDataset(Dataset):
         if self.opt.data_filtering_off:
             self.filtered_index_list = [index + 1 for index in range(self.nSamples)]
         else:
-            self.filtered_index_list = []
+            self.filtered_index_list = list()
             for index in range(self.nSamples):
                 label = self.df.at[index,'words']
                 try:
@@ -246,7 +247,7 @@ class AlignCollate(object):
             input_channel = 3 if images[0].mode == 'RGB' else 1
             transform = NormalizePAD((input_channel, self.imgH, resized_max_w))
 
-            resized_images = []
+            resized_images = list()
             for image in images:
                 w, h = image.size
 

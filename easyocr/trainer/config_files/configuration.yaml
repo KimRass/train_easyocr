@@ -28,7 +28,7 @@ contrast_adjust: 0.0
 data_filtering_off: False
 
 # Training
-workers: 6
+workers: 4
 batch_size: 64
 num_iter: 300000
 valInterval: 20000
