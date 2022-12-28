@@ -22,14 +22,15 @@ def get_arguments():
     return args
 
 
-def parse_json_file(path_json):
-    path_json = Path(path_json)
+def parse_json_file(json_path):
+    # json_path = Path(json_path)
 
-    with open(path_json, mode="r") as f:
+    with open(json_path, mode="r") as f:
         label = json.load(f)
     
-    path_img = f"{path_json.parents[4]}/원천데이터/인.허가/{path_json.parent.parent.stem}/{path_json.parent.stem}/{label['images'][0]['image.file.name']}"
-    img = load_image_as_array(path_img)
+    # img_path = f"{json_path.parents[4]}/원천데이터/인.허가/{json_path.parent.parent.stem}/{json_path.parent.stem}/{label['images'][0]['image.file.name']}"
+    img_path = str(json_path).replace("/labels/", "/images/").replace(".json", ".jpg")
+    img = load_image_as_array(img_path)
 
     gt_bboxes = np.array(
         [i["annotation.bbox"] for i in label["annotations"]]
@@ -43,79 +44,74 @@ def parse_json_file(path_json):
     return img, gt_bboxes, gt_texts
 
 
-# def get_image(path_json):
-#     path_json = Path(path_json)
+# def get_image(json_path):
+#     json_path = Path(json_path)
 
-#     with open(path_json, mode="r") as f:
+#     with open(json_path, mode="r") as f:
 #         label = json.load(f)
 
-#     path_img = f"{path_json.parents[4]}/원천데이터/인.허가/{path_json.parent.parent.stem}/{path_json.parent.stem}/{label['images'][0]['image.file.name']}"
+#     img_path = f"{json_path.parents[4]}/원천데이터/인.허가/{json_path.parent.parent.stem}/{json_path.parent.stem}/{label['images'][0]['image.file.name']}"
 
-#     img = load_image_as_array(path_img)
+#     img = load_image_as_array(img_path)
 #     return img
 
 
-# def get_image_and_label(path_json):
-#     path_json = Path(path_json)
+def get_image_and_label(json_path):
+    json_path = Path(json_path)
 
-#     with open(path_json, mode="r") as f:
-#         label = json.load(f)
+    with open(json_path, mode="r") as f:
+        label = json.load(f)
 
-#     gt_bboxes = np.array(
-#         [i["annotation.bbox"] for i in label["annotations"]]
-#     )
-#     gt_texts = np.array(
-#         [i["annotation.text"] for i in label["annotations"]]
-#     )
+    gt_bboxes = np.array(
+        [i["annotation.bbox"] for i in label["annotations"]]
+    )
+    gt_texts = np.array(
+        [i["annotation.text"] for i in label["annotations"]]
+    )
 
-#     ls_row = list()
-#     for sample in label["annotations"]:
-#         text = sample["annotation.text"]
-#         xmin, ymin, width, height = sample["annotation.bbox"]
+    ls_row = list()
+    for sample in label["annotations"]:
+        text = sample["annotation.text"]
+        xmin, ymin, width, height = sample["annotation.bbox"]
         
-#         ls_row.append([text, xmin, ymin, xmin + width, ymin + height])
-#     df_label = pd.DataFrame(ls_row, columns=["text", "xmin", "ymin", "xmax", "ymax"])
+        ls_row.append([text, xmin, ymin, xmin + width, ymin + height])
+    df_label = pd.DataFrame(ls_row, columns=["text", "xmin", "ymin", "xmax", "ymax"])
 
-#     path_img = f"{path_json.parents[4]}/원천데이터/인.허가/{path_json.parent.parent.stem}/{path_json.parent.stem}/{label['images'][0]['image.file.name']}"
+    img_path = f"{json_path.parents[4]}/원천데이터/인.허가/{json_path.parent.parent.stem}/{json_path.parent.stem}/{label['images'][0]['image.file.name']}"
 
-#     img = load_image_as_array(path_img)
-#     return img, df_label
+    img = load_image_as_array(img_path)
+    return img, df_label
 
 
 def create_dataset(input_dir, output_dir) -> None:
+    input_dir = "/Users/jongbeom.kim/Documents/ocr/"
+    output_dir = "/Users/jongbeom.kim/Documents/dataset"
+    
     input_dir = Path(input_dir)
     output_dir = Path(output_dir)
-    
-    for path_json in tqdm(list(input_dir.glob("**/*.json"))):
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    ls_row = list()
+    for json_path in tqdm(list(input_dir.glob("**/*.json"))):
         try:
-            img, gt = get_image_and_label(path_json)
+            img, gt_bboxes, gt_texts = parse_json_file(json_path)
         except Exception:
             continue
 
-        for idx, (text, xmin, ymin, xmax, ymax) in enumerate(gt.values):
-            remainder = idx % 5
-            if remainder in [0, 1, 2, 3]:
-                split1 = "training"
-            else:
-                split1 = "validation"
-            
-            remainder = idx % 2
-            if remainder == 0:
-                split2 = "MJ"
-            else:
-                split2 = "ST"
-            # split2 = "dataset"
+        for text, (xmin, ymin, xmax, ymax) in zip(gt_texts, gt_bboxes):
+            split1 = "training" if "training" in str(json_path) else "validation"
+            split2 = "select_data"
 
             patch = get_image_cropped_by_rectangle(
                 img=img, xmin=xmin, ymin=ymin, xmax=xmax, ymax=ymax
             )
-            fname = Path(f"{path_json.stem}_{xmin}-{ymin}-{xmax}-{ymax}.png")
+            fname = Path(f"{json_path.stem}_{xmin}-{ymin}-{xmax}-{ymax}.png")
             save_image(img=patch, path=output_dir/split1/split2/"images"/fname)
 
-            with open(output_dir/split1/split2/"gt.txt", mode="a") as f:
-                # f.write(f"images/{fname}\t{text}\n")
-                f.write(f"{fname}\t{text}\n")
-                f.close()
+            # with open(output_dir/split1/split2/"gt.txt", mode="a") as f:
+            #     f.write(f"{fname}\t{text}\n")
+            #     f.close()
 
     for path_txt in output_dir.glob("**/*.txt"):
         df = pd.DataFrame(

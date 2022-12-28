@@ -1,3 +1,14 @@
+# Dataset
+- Training set: 102,477
+    [라벨]train.zip
+    [원천]train1.zip
+    [원천]train2.zip
+    [원천]train3.zip
+- Validation set: 11,397
+  - [라벨]validation.zip
+  - [원천]validation.zip
+- 비율 약 9:1
+
 # PaddleOCR
 - Text detection: DBNet (AAAI'2020)
 - Text recognition: ABINet (CVPR'2021)
