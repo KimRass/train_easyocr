@@ -22,7 +22,7 @@ from craft_utilities import (
     get_text_score_map_and_link_score_map
 )
 from evaluate import (
-    get_text_detection_f1_score,
+    # get_text_detection_f1_score,
     get_end_to_end_f1_score
 )
 from detect_texts import (
