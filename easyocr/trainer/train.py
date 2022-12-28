@@ -152,7 +152,7 @@ def train(opt, show_number=2, amp=False):
     print("Optimizer:")
     print(optimizer)
 
-    """ final options """
+    """ Final options """
     # print(opt)
     with open(f'./saved_models/{opt.experiment_name}/opt.txt', 'a', encoding="utf8") as opt_file:
         opt_log = '------------ Options -------------\n'
@@ -163,7 +163,7 @@ def train(opt, show_number=2, amp=False):
         print(opt_log)
         opt_file.write(opt_log)
 
-    """ start training """
+    """ Start training """
     start_iter = 0
     if opt.saved_model != '':
         try:
@@ -230,7 +230,7 @@ def train(opt, show_number=2, amp=False):
 
         # Validation part
         if (i % opt.valInterval == 0) and (i!=0):
-            print('training time: ', time.time()-t1)
+            print(f"training time: {time.time() - t1}")
             t1=time.time()
             elapsed_time = time.time() - start_time
             # for log

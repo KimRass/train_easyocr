@@ -29,7 +29,7 @@ data_filtering_off: False
 
 # Training
 workers: 4
-batch_size: 64
+batch_size: 32
 num_iter: 300000
 valInterval: 20000
 # saved_model: "/Users/jongbeom.kim/Documents/korean_g2.pth"
