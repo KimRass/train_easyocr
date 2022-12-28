@@ -93,7 +93,7 @@ def main():
     args = get_arguments()
 
     # craft = load_craft_checkpoint(cuda=False)
-    craft = load_craft_checkpoint(cuda=args.cuda)
+    # craft = load_craft_checkpoint(cuda=args.cuda)
 
     # reader = easyocr.Reader(lang_list=["ko"], gpu=False)
     reader = easyocr.Reader(lang_list=["ko"], gpu=args.cuda)
