@@ -104,7 +104,10 @@ def main():
     for path_json in tqdm(sorted(list(dir.glob("**/*.json")))):
         path_json = "/Users/jongbeom.kim/Documents/New_sample/라벨링데이터/인.허가/5350109/1994/5350109-1994-0001-0010.json"
         
-        img, gt_bboxes, gt_texts = parse_json_file(path_json)
+        try:
+            img, gt_bboxes, gt_texts = parse_json_file(path_json)
+        except Exception:
+            continue
 
         """ Baseline """
         pred_bboxes, pred_texts = spot_texts(img=img, reader=reader)
