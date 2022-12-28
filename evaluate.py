@@ -113,9 +113,7 @@ def get_end_to_end_f1_score(gt_bboxes, gt_texts, pred_texts, pred_bboxes, iou_th
     args_desc = np.argsort(ls_iou)[::-1]
     # No matches
     if len(args_desc) == 0:
-        tp = 0
-        fp = len(pred_bboxes)
-        fn = len(gt_bboxes)
+        return 0
     else:
         ls_idx_match_gt = list()
         ls_idx_match_pred = list()
@@ -155,8 +153,9 @@ def get_end_to_end_f1_score(gt_bboxes, gt_texts, pred_texts, pred_bboxes, iou_th
             fp = len(pred_bboxes) - len(ls_idx_match_pred)
             fn = len(gt_bboxes) - len(ls_idx_match_gt)
 
-    precision = tp / (tp + fp)
-    recall = tp / (tp + fn)
-    f1_score = 2 * (precision * recall) / (precision + recall)
-    f1_score = round(f1_score, 3)
-    return f1_score
+        precision = tp / (tp + fp)
+        recall = tp / (tp + fn)
+
+        f1_score = 2 * (precision * recall) / (precision + recall)
+        f1_score = round(f1_score, 3)
+        return f1_score
