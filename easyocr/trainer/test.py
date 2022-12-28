@@ -1,18 +1,20 @@
-import os
+# import os
 import time
-import string
-import argparse
+# import string
+# import argparse
 
 import torch
-import torch.backends.cudnn as cudnn
+# import torch.backends.cudnn as cudnn
 import torch.utils.data
 import torch.nn.functional as F
-import numpy as np
+# import numpy as np
 from nltk.metrics.distance import edit_distance
 
-from utils import CTCLabelConverter, AttnLabelConverter, Averager
-from dataset import hierarchical_dataset, AlignCollate
-from model import Model
+# from utils import CTCLabelConverter, AttnLabelConverter, Averager
+from utils import Averager
+# from dataset import hierarchical_dataset, AlignCollate
+# from model import Model
+
 
 def validation(model, criterion, evaluation_loader, converter, opt, device):
     """ validation or evaluation """
@@ -109,4 +111,13 @@ def validation(model, criterion, evaluation_loader, converter, opt, device):
     accuracy = n_correct / float(length_of_data) * 100
     norm_ED = norm_ED / float(length_of_data) # ICDAR2019 Normalized Edit Distance
 
-    return valid_loss_avg.val(), accuracy, norm_ED, preds_str, confidence_score_list, labels, infer_time, length_of_data
+    return (
+        valid_loss_avg.val(),
+        accuracy,
+        norm_ED,
+        preds_str,
+        confidence_score_list,
+        labels,
+        infer_time,
+        length_of_data
+    )

@@ -28,7 +28,7 @@ def adjust_contrast_grey(img, target = 0.4):
     return img
 
 
-class Batch_Balanced_Dataset(object):
+class BatchBalancedDataset(object):
     def __init__(self, opt):
         """
         Modulate the data ratio in the batch.

@@ -1,5 +1,6 @@
 import json
 import argparse
+import numpy as np
 import pandas as pd
 from pathlib import Path
 from tqdm.auto import tqdm
@@ -21,24 +22,64 @@ def get_arguments():
     return args
 
 
-def get_image_and_label(path_json):
+def parse_json_file(path_json):
     path_json = Path(path_json)
 
     with open(path_json, mode="r") as f:
         label = json.load(f)
-
-    ls_row = list()
-    for sample in label["annotations"]:
-        text = sample["annotation.text"]
-        xmin, ymin, width, height = sample["annotation.bbox"]
-        
-        ls_row.append([text, xmin, ymin, xmin + width, ymin + height])
-    df_label = pd.DataFrame(ls_row, columns=["text", "xmin", "ymin", "xmax", "ymax"])
-
+    
     path_img = f"{path_json.parents[4]}/원천데이터/인.허가/{path_json.parent.parent.stem}/{path_json.parent.stem}/{label['images'][0]['image.file.name']}"
-
     img = load_image_as_array(path_img)
-    return img, df_label
+
+    gt_bboxes = np.array(
+        [i["annotation.bbox"] for i in label["annotations"]]
+    )
+    gt_bboxes[:, 2] += gt_bboxes[:, 0]
+    gt_bboxes[:, 3] += gt_bboxes[:, 1]
+
+    gt_texts = np.array(
+        [i["annotation.text"] for i in label["annotations"]]
+    )
+    return img, gt_bboxes, gt_texts
+
+
+# def get_image(path_json):
+#     path_json = Path(path_json)
+
+#     with open(path_json, mode="r") as f:
+#         label = json.load(f)
+
+#     path_img = f"{path_json.parents[4]}/원천데이터/인.허가/{path_json.parent.parent.stem}/{path_json.parent.stem}/{label['images'][0]['image.file.name']}"
+
+#     img = load_image_as_array(path_img)
+#     return img
+
+
+# def get_image_and_label(path_json):
+#     path_json = Path(path_json)
+
+#     with open(path_json, mode="r") as f:
+#         label = json.load(f)
+
+#     gt_bboxes = np.array(
+#         [i["annotation.bbox"] for i in label["annotations"]]
+#     )
+#     gt_texts = np.array(
+#         [i["annotation.text"] for i in label["annotations"]]
+#     )
+
+#     ls_row = list()
+#     for sample in label["annotations"]:
+#         text = sample["annotation.text"]
+#         xmin, ymin, width, height = sample["annotation.bbox"]
+        
+#         ls_row.append([text, xmin, ymin, xmin + width, ymin + height])
+#     df_label = pd.DataFrame(ls_row, columns=["text", "xmin", "ymin", "xmax", "ymax"])
+
+#     path_img = f"{path_json.parents[4]}/원천데이터/인.허가/{path_json.parent.parent.stem}/{path_json.parent.stem}/{label['images'][0]['image.file.name']}"
+
+#     img = load_image_as_array(path_img)
+#     return img, df_label
 
 
 def create_dataset(input_dir, output_dir) -> None:

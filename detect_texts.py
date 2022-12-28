@@ -1,6 +1,7 @@
 import cv2
 import math
 import pandas as pd
+import numpy as np
 import easyocr
 
 from process_image import(
@@ -48,16 +49,15 @@ def get_word_level_bounding_boxes(img, text_score_map, link_score_map, thr=300):
 
 
 def detect_texts_baseline(img, reader):
-    result = reader.detect(
-        img=img
-    )
-    cols = ["xmin", "xmax", "ymin", "ymax"]
-    if result:
-        rectangles = pd.DataFrame(result[0][0], columns=cols)
-    else:
-        rectangles = pd.DataFrame(columns=cols)
-    return rectangles
-
+    result = reader.detect(img)
+    bboxes_pred = np.array(result[0][0])
+    return bboxes_pred
+    # cols = ["xmin", "xmax", "ymin", "ymax"]
+    # if result:
+    #     rectangles = pd.DataFrame(result[0][0], columns=cols)
+    # else:
+    #     rectangles = pd.DataFrame(columns=cols)
+    # return rectangles
 
 
 def detect_texts(img, reader):

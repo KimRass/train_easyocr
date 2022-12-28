@@ -1,5 +1,4 @@
 from pathlib import Path
-import extcolors
 from tqdm.auto import tqdm
 import numpy as np
 import pandas as pd
@@ -9,8 +8,9 @@ import argparse
 # from process_image import (
     # convert_quadrilaterals_to_rectangles
 # )
-from prepare_data import (
-    get_image_and_label
+from prepare_dataset import (
+    parse_json_file,
+    # get_image_and_label
 )
 # from recognize_texts import (
     # get_paddleocr_result,
@@ -54,43 +54,65 @@ def convert_quadrilaterals_to_rectangles(df):
     return df
 
 
-def spot_texts_baseline(img, reader, rectangle=True):
-    result = reader.readtext(img)
+# def spot_texts_baseline(img, reader, rectangle=True):
+#     result = reader.readtext(img)
 
-    cols = ["text", "x1", "y1", "x2", "y2", "x3", "y3", "x4", "y4"]
-    if result:
-        df_pred = pd.DataFrame(
-            [(row[1], *list(map(int, sum(row[0], [])))) for row in result],
-            columns=cols
-        )
-    else:
-        df_pred = pd.DataFrame(columns=cols)
+#     cols = ["text", "x1", "y1", "x2", "y2", "x3", "y3", "x4", "y4"]
+#     if result:
+#         df_pred = pd.DataFrame(
+#             [(row[1], *list(map(int, sum(row[0], [])))) for row in result],
+#             columns=cols
+#         )
+#     else:
+#         df_pred = pd.DataFrame(columns=cols)
 
-    if rectangle:
-        df_pred = convert_quadrilaterals_to_rectangles(df_pred)
-    return df_pred
+#     if rectangle:
+#         df_pred = convert_quadrilaterals_to_rectangles(df_pred)
+#     return df_pred
+
+
+def spot_texts(img, reader):
+    result2 = reader.readtext(img)
+
+    ls_bbox = list()
+    ls_text = list()
+    for ((x1, y1), (x2, y2), (x3, y3), (x4, y4)), text, _ in result2:
+        if x1.dtype != "int64":
+            continue
+
+        xmin, _, _, xmax = sorted([x1, x2, x3, x4])
+        ymin, _, _, ymax = sorted([y1, y2, y3, y4])
+        ls_bbox.append((xmin, ymin, xmax, ymax))
+        ls_text.append(text)
+    bboxes_pred = np.array(ls_bbox)
+    texts_pred = np.array(ls_text)
+    return bboxes_pred, texts_pred
 
 
 def main():
     args = get_arguments()
 
     # craft = load_craft_checkpoint(cuda=False)
-    # craft_refiner = load_craft_refiner_checkpoint(cuda=False)
     craft = load_craft_checkpoint(cuda=args.cuda)
-    craft_refiner = load_craft_refiner_checkpoint(cuda=args.cuda)
 
-    # reader = easyocr.Reader(lang_list=["ko", "en"], gpu=False)
-    reader = easyocr.Reader(lang_list=["ko", "en"], gpu=args.cuda)
-    reader.recognize
+    # reader = easyocr.Reader(lang_list=["ko"], gpu=False)
+    reader = easyocr.Reader(lang_list=["ko"], gpu=args.cuda)
 
     # dir = Path("/Users/jongbeom.kim/Documents/New_sample/라벨링데이터")
-    dir = Path(args.dir)
-    ls = list()
+    dir = Path("/home/ubuntu/project/New_sample/라벨링데이터")
+    ls_f1 = list()
     for path_json in tqdm(sorted(list(dir.glob("**/*.json")))):
-        # path_json = "/Users/jongbeom.kim/Documents/New_sample/라벨링데이터/인.허가/5350109/1994/5350109-1994-0001-0010.json"
-        img, gt = get_image_and_label(path_json=path_json)
+        path_json = "/Users/jongbeom.kim/Documents/New_sample/라벨링데이터/인.허가/5350109/1994/5350109-1994-0001-0010.json"
+        
+        img, gt_bboxes, gt_texts = parse_json_file(path_json)
 
         """ Baseline """
+        pred_bboxes, pred_texts = spot_texts(img=img, reader=reader)
+        f1 = get_end_to_end_f1_score(gt_bboxes, gt_texts, pred_texts, pred_bboxes, iou_thr=0.5, rec=True)
+        ls_f1.append(f1)
+        
+        print(ls_f1)
+        
         # result = spot_texts_baseline(img=img, reader=reader, rectangle=True)
         # result.to_excel(f"{dir.parent}/result/baseline/{path_json.stem}.xlsx", index=False)
 
@@ -103,15 +125,15 @@ def main():
         # df = pd.DataFrame(ls, columns=["file", "f1_det", "f1_e2e_true", "f1_e22_false"])
         # df.to_excel(f"{dir.parent}/result/baseline.xlsx", index=False)
 
-        """ Ours """
-        text_score_map, link_score_map = get_text_score_map_and_link_score_map(
-            img=img, craft=craft, cuda=args.cuda
-        )
+        # """ Ours """
+        # text_score_map, link_score_map = get_text_score_map_and_link_score_map(
+        #     img=img, craft=craft, cuda=args.cuda
+        # )
 
-        rectangles = get_word_level_bounding_boxes(
-            img=img, text_score_map=text_score_map, link_score_map=link_score_map, thr=300
-        )
-        rectangles = add_transcript(img=img, rectangles=rectangles, reader=reader)
+        # pred_bboxes = get_word_level_bounding_boxes(
+        #     img=img, text_score_map=text_score_map, link_score_map=link_score_map, thr=300
+        # )
+        # rectangles = add_transcript(img=img, rectangles=rectangles, reader=reader)
 
 
 if __name__ == "__main__":

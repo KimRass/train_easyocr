@@ -17,10 +17,7 @@ batch_ratio: "0.5-0.5"
 # batch_ratio: "1"
 
 total_data_usage_ratio: 1.0
-batch_max_length: 34 
-imgH: 64
-imgW: 600
-rgb: False
+
 contrast_adjust: False
 sensitive: True
 PAD: True
@@ -31,15 +28,16 @@ data_filtering_off: False
 workers: 4
 batch_size: 32
 num_iter: 300000
-valInterval: 20000
+valInterval: 5000
 # saved_model: "/Users/jongbeom.kim/Documents/korean_g2.pth"
 saved_model: "/home/ubuntu/project/korean_g2.pth"
 FT: True
+# Optimizer
 optim: False # default is Adadelta
 lr: 1.
-beta1: 0.9
 rho: 0.95
 eps: 0.00000001
+# beta1: 0.9
 grad_clip: 5
 
 # Model Architecture
@@ -47,11 +45,17 @@ Transformation: "None"
 FeatureExtraction: "VGG"
 SequenceModeling: "BiLSTM"
 Prediction: "CTC"
+  # CTC
+decode: "greedy"
+new_prediction: False #
+freeze_FeatureFxtraction: False
+freeze_SequenceModeling: False
+
+imgH: 64
+imgW: 600
 num_fiducial: 20
+rgb: False
 input_channel: 1
 output_channel: 256
 hidden_size: 256
-decode: "greedy"
-new_prediction: False
-freeze_FeatureFxtraction: False
-freeze_SequenceModeling: False
+batch_max_length: 34
