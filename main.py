@@ -100,6 +100,7 @@ def main():
 
     # dir = Path("/Users/jongbeom.kim/Documents/New_sample/라벨링데이터")
     dir = Path("/home/ubuntu/project/New_sample/라벨링데이터")
+
     sum_f1 = 0
     for idx, path_json in enumerate(
         tqdm(sorted(list(dir.glob("**/*.json"))))
@@ -116,7 +117,7 @@ def main():
         f1 = get_end_to_end_f1_score(gt_bboxes, gt_texts, pred_texts, pred_bboxes, iou_thr=0.5, rec=True)
         sum_f1 += f1
         
-        if idx % 100 == 0:
+        if idx % 100 == 0 and idx != 0:
             print(sum_f1 / (idx + 1))
     print(sum_f1 / (idx + 1))
         
