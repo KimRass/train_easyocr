@@ -63,6 +63,7 @@ def create_dataset(input_dir, output_dir) -> None:
                 split2 = "MJ"
             else:
                 split2 = "ST"
+            # split2 = "dataset"
 
             patch = get_image_cropped_by_rectangle(
                 img=img, xmin=xmin, ymin=ymin, xmax=xmax, ymax=ymax
