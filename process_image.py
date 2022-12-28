@@ -180,36 +180,36 @@ def thicken_image(img, kernel_shape=(1, 1), iterations=1):
     return img
 
 
-img = load_image_as_array("/Users/jongbeom.kim/Documents/공공행정문서 OCR/Training/2.원천데이터_부분라벨링/인.허가/5350108/1993/0001/5350108-1993-0001-0827.jpg")
-img_blur = cv2.GaussianBlur(img, (3,3), 0)
-_, thr = cv2.threshold(src=img_blur, thresh=160, maxval=255, type=cv2.THRESH_BINARY)
-show_image(thr)
+# img = load_image_as_array("/Users/jongbeom.kim/Documents/공공행정문서 OCR/Training/2.원천데이터_부분라벨링/인.허가/5350108/1993/0001/5350108-1993-0001-0827.jpg")
+# img_blur = cv2.GaussianBlur(img, (3,3), 0)
+# _, thr = cv2.threshold(src=img_blur, thresh=160, maxval=255, type=cv2.THRESH_BINARY)
+# show_image(thr)
 
-_, thr = cv2.threshold(src=img, thresh=160, maxval=255, type=cv2.THRESH_BINARY)
-show_image(thr)
+# _, thr = cv2.threshold(src=img, thresh=160, maxval=255, type=cv2.THRESH_BINARY)
+# show_image(thr)
 
-thk = thicken_image(
-    thin_out_image(thr)
-)
-thk = thicken_image(
-    thin_out_image(thk)
-)
-thk = thicken_image(
-    thin_out_image(thk)
-)
-thk = thin_out_image(thk, iterations=2)
-# thk = thin_out_image(
-#     thicken_image(thk), iterations=2
+# thk = thicken_image(
+#     thin_out_image(thr)
 # )
-edge = cv2.Canny(image=thk, threshold1=200, threshold2=255)
-show_image(invert_image(thr[:, :, 0]) + edge)
+# thk = thicken_image(
+#     thin_out_image(thk)
+# )
+# thk = thicken_image(
+#     thin_out_image(thk)
+# )
+# thk = thin_out_image(thk, iterations=2)
+# # thk = thin_out_image(
+# #     thicken_image(thk), iterations=2
+# # )
+# edge = cv2.Canny(image=thk, threshold1=200, threshold2=255)
+# show_image(invert_image(thr[:, :, 0]) + edge)
 
-show_image(thk)
-# inv = invert_image(thr)
+# show_image(thk)
+# # inv = invert_image(thr)
 
-show_image(thr)
+# show_image(thr)
 
 
-# dst = cv2.fastNlMeansDenoising(src=img, dts=None, h=10, templateWindowSize=7, searchWIndowSize=21)
-dst = cv2.fastNlMeansDenoising(img, None, 10, 7, 21)
-show_image(dst)
+# # dst = cv2.fastNlMeansDenoising(src=img, dts=None, h=10, templateWindowSize=7, searchWIndowSize=21)
+# dst = cv2.fastNlMeansDenoising(img, None, 10, 7, 21)
+# show_image(dst)
