@@ -102,7 +102,7 @@ def main():
     dir = Path("/home/ubuntu/project/New_sample/라벨링데이터")
     ls_f1 = list()
     for path_json in tqdm(sorted(list(dir.glob("**/*.json")))):
-        path_json = "/Users/jongbeom.kim/Documents/New_sample/라벨링데이터/인.허가/5350109/1994/5350109-1994-0001-0010.json"
+        # path_json = "/Users/jongbeom.kim/Documents/New_sample/라벨링데이터/인.허가/5350109/1994/5350109-1994-0001-0010.json"
         
         try:
             img, gt_bboxes, gt_texts = parse_json_file(path_json)
