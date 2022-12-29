@@ -65,6 +65,10 @@ Parameter Group 0
     weight_decay: 0
 )
 
+# 개수
+- Training set: 1,120,590
+- Validation set: 211,323
+
 - batch_max_length (Maximum length of label): 34
 - Input image resolution: 600x64
 - input_channel: 1 (the number of input channel of Feature extractor)
