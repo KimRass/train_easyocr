@@ -98,8 +98,6 @@ def create_image_patches(unzipped_dir, output_dir, split2="select_data") -> None
     
     unzipped_dir = Path(unzipped_dir)
     output_dir = Path(output_dir)
-
-    # output_dir.mkdir(parents=True, exist_ok=True)
     
     for split1, n in zip(["training", "validation"], [10000, 2000]):
         save_dir = output_dir/split1/split2/"images"
@@ -166,9 +164,9 @@ def check_number_of_images(dataset):
     df_labels_val = pd.read_csv(val/"select_data/labels.csv")
     
     if n_img_tr == len(df_labels_tr):
-        print(f"Number of training images: {n_img_tr}")
+        print(f"Number of training images: {n_img_tr:,}")
     if n_img_val == len(df_labels_val):
-        print(f"Number of validation images: {n_img_val}")
+        print(f"Number of validation images: {n_img_val:,}")
 
 
 if __name__ == "__main__":
