@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 import sys
 import time
 import random
@@ -50,6 +50,9 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 def train(config, show_number=5, amp=False):
+    experiment_dir = Path("saved_models"/config.experiment_name)
+    experiment_dir.mkdir(parents=True, exist_ok=True)
+
     """ Dataset preparation """
     if not config.data_filtering_off:
         print('Filtering the images containing characters which are not in config.character')
@@ -60,7 +63,7 @@ def train(config, show_number=5, amp=False):
 
     train_dataset = BatchBalancedDataset(config)
 
-    log = open(f'./saved_models/{config.experiment_name}/log_dataset.txt', mode='a', encoding="utf8")
+    log = open(experiment_dir/"log_dataset.txt", mode='a', encoding="utf8")
 
     AlignCollate_valid = AlignCollate(
         img_height=config.img_height,
@@ -184,7 +187,7 @@ def train(config, show_number=5, amp=False):
 
     """ Final configions """
     # print(config)
-    with open(f'./saved_models/{config.experiment_name}/config.txt', mode='a', encoding="utf8") as f:
+    with open(experiment_dir/"config.txt", mode='a', encoding="utf8") as f:
         config_log = '------------ Configuration -------------\n'
         args = vars(config)
         for k, v in args.items():
@@ -266,7 +269,7 @@ def train(config, show_number=5, amp=False):
             t1 = time.time()
             elapsed = time.time() - start_time
             # for log
-            with open(f'./saved_models/{config.experiment_name}/log_train.txt', mode='a', encoding="utf8") as log:
+            with open(experiment_dir/"log_train.txt", mode='a', encoding="utf8") as log:
                 model.eval()
                 with torch.no_grad():
                     (
@@ -298,12 +301,12 @@ def train(config, show_number=5, amp=False):
                 if current_accuracy > best_accuracy:
                     best_accuracy = current_accuracy
                     torch.save(
-                        model.state_dict(), f'./saved_models/{config.experiment_name}/best_accuracy.pth'
+                        model.state_dict(), experiment_dir/"best_accuracy.pth"
                     )
                 if current_norm_ED > best_norm_ED:
                     best_norm_ED = current_norm_ED
                     torch.save(
-                        model.state_dict(), f'./saved_models/{config.experiment_name}/best_norm_ED.pth'
+                        model.state_dict(), experiment_dir/"best_norm_ED.pth"
                     )
                 best_model_log = f'{"Best_accuracy":17s}: {best_accuracy:0.3f}, {"Best_norm_ED":17s}: {best_norm_ED:0.4f}'
 
@@ -337,7 +340,7 @@ def train(config, show_number=5, amp=False):
         # Save model per 1e+4 iteration.
         if (i + 1) % 1e+4 == 0:
             torch.save(
-                model.state_dict(), f'./saved_models/{config.experiment_name}/iter_{i + 1}.pth')
+                model.state_dict(), experiment_dir/f"iter_{i + 1}.pth")
 
         if i == config.num_iter:
             print('end the training')
@@ -350,10 +353,6 @@ def main():
         config = AttrDict(
             yaml.safe_load(f)
         )
-    #     config = yaml.safe_load(f)
-    # config = AttrDict(config)
-    # config.character = config.number + config.symbol + config.lang_char
-    os.makedirs(f"./saved_models/{config.experiment_name}", exist_ok=True)
 
     train(config)
 

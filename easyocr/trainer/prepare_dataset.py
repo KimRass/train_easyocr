@@ -18,8 +18,6 @@ from process_image import (
     get_image_cropped_by_rectangle
 )
 
-random.seed(1111)
-
 
 def get_arguments():
     parser = argparse.ArgumentParser(description="prepare_dataset")
@@ -139,9 +137,9 @@ def create_image_patches(unzipped_dir, output_dir, split2) -> None:
                     if not save_path.exists():
                         save_image(img=patch, path=save_path)
 
-                    ls_row.append(
-                        (fname, text)
-                    )
+                        ls_row.append(
+                            (fname, text)
+                        )
                 except Exception:
                     print(f"    Failed to save '{fname}'.")
 
@@ -175,10 +173,14 @@ def check_number_of_images(dataset):
     df_labels_tr = pd.read_csv(tr/"select_data/labels.csv")
     df_labels_val = pd.read_csv(val/"select_data/labels.csv")
     
-    if n_img_tr == len(df_labels_tr):
-        print(f"Number of training images: {n_img_tr:,}")
-    if n_img_val == len(df_labels_val):
-        print(f"Number of validation images: {n_img_val:,}")
+    # if n_img_tr == len(df_labels_tr):
+    #     print(f"Number of training images: {n_img_tr:,}")
+    # if n_img_val == len(df_labels_val):
+    #     print(f"Number of validation images: {n_img_val:,}")
+    print(n_img_tr)
+    print(len(df_labels_tr))
+    print(n_img_val)
+    print(len(df_labels_val))
 
 
 if __name__ == "__main__":
@@ -188,6 +190,8 @@ if __name__ == "__main__":
         config = AttrDict(
             yaml.safe_load(f)
         )
+
+    random.seed(config.seed)
 
     if args.unzip:
         unzip_dataset(args.dataset)
