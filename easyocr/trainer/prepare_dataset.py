@@ -138,33 +138,20 @@ def save_image_patches(output_dir, split, select_data, json_file_list):
     print(f"Completed creating image patches for {split}.")
 
 
-# def prepare_evaluation_set(dataset_dir) -> None:
-#     dataset_dir = "/Users/jongbeom.kim/Documents/공공행정문서 OCR"
-    
-#     dataset_dir = Path(dataset_dir)
-    
-#     unzipped_dir = dataset_dir.parent/"unzipped"
-    
-#     unzipped_dir/"validation"
-    
+def prepare_evaluation_set(eval_set) -> None:
+    print(f"Preparing evaluation set...")
 
-#     for json_path in eval_set:
-#         save_path = str(json_path).replace("unzipped/validation/", "evaluation_set/")
-#         shutil.copy(src=json_path, dst=save_path)
-#         shutil.copy(
-#             src=str(json_path).replace("labels/", "images/").replace(".json", ".jpg"),
-#             dst=save_path.replace("labels/", "images/").replace(".json", ".jpg"),
-#         )
-        
+    for json_path in eval_set:
+        new_json_path = Path(str(json_path).replace("unzipped/validation/", "evaluation_set/"))
+        new_json_path.mkdir(parents=True, exist_ok=True)
+        shutil.copy(src=json_path, dst=new_json_path)
+
+        img_path = str(json_path).replace("labels/", "images/").replace(".json", ".jpg")
+        new_img_path = Path(str(new_json_path).replace("labels/", "images/").replace(".json", ".jpg"))
+        new_img_path.mkdir(parents=True, exist_ok=True)
+        shutil.copy(src=img_path, dst=new_img_path)
     
-
-#     for zip_file in (dataset_dir/"validation").glob("**/*.zip"):
-#         unzip_to = Path(
-#             str(zip_file).replace(dataset_dir.name, "evaluation_set").replace("/validation/", "/").lower()
-#         ).parent
-#         unzip_to.mkdir(parents=True, exist_ok=True)
-
-#         _unzip(zip_file=zip_file, unzip_to=unzip_to)
+    print(f"Completed preparing evaluation set.")
 
 
 def count_images(dataset):
@@ -231,14 +218,6 @@ if __name__ == "__main__":
             json_file_list=val_set,
         )
     if args.evaluation:
-        for json_path in eval_set:
-            new_json_path = Path(str(json_path).replace("unzipped/validation/", "evaluation_set/"))
-            new_json_path.mkdir(parents=True, exist_ok=True)
-            shutil.copy(src=json_path, dst=new_json_path)
-
-            img_path = str(json_path).replace("labels/", "images/").replace(".json", ".jpg")
-            new_img_path = Path(str(new_json_path).replace("labels/", "images/").replace(".json", ".jpg"))
-            new_img_path.mkdir(parents=True, exist_ok=True)
-            shutil.copy(src=img_path, dst=new_img_path)
+        prepare_evaluation_set(eval_set)
 
     count_images(args.dataset)
