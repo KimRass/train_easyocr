@@ -212,7 +212,7 @@ if __name__ == "__main__":
     )
     eval_set = random.choices(
         list(
-            set((unzipped_dir/"validation"/"labels").glob("**/*.json")) - val_set
+            set((unzipped_dir/"validation"/"labels").glob("**/*.json")) - set(val_set)
         ), k=500
     )
 
