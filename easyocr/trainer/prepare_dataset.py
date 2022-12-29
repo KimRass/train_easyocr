@@ -101,7 +101,7 @@ def unzip_dataset(dataset_dir) -> None:
 
 
 def save_image_patches(output_dir, split, select_data, json_file_list):
-    print("Creating image patches for {split}...")
+    print(f"Creating image patches for {split}...")
 
     save_dir = Path(output_dir)/split/select_data
 
@@ -135,7 +135,7 @@ def save_image_patches(output_dir, split, select_data, json_file_list):
         df_labels = pd.DataFrame(ls_row, columns=["filename", "words"])
         df_labels.to_csv(save_dir/"labels.csv", index=False)
 
-    print("Completed creating image patches for {split}.")
+    print(f"Completed creating image patches for {split}.")
 
 
 # def prepare_evaluation_set(dataset_dir) -> None:
@@ -203,10 +203,20 @@ if __name__ == "__main__":
         unzip_dataset(args.dataset)
 
     unzipped_dir = Path(args.dataset).parent/"unzipped"
+
+    train_set = random.choices(
+        list((unzipped_dir/"training"/"labels").glob("**/*.json")), k=10000
+    )
+    val_set = random.choices(
+        list((unzipped_dir/"validation"/"labels").glob("**/*.json")), k=2000
+    )
+    eval_set = random.choices(
+        list(
+            set((unzipped_dir/"validation"/"labels").glob("**/*.json")) - val_set
+        ), k=500
+    )
+
     if args.training:
-        train_set = random.choices(
-            list((unzipped_dir/"training"/"labels").glob("**/*.json")), k=10000
-        )
         save_image_patches(
             output_dir=Path(args.dataset).parent/"training_and_validation_set",
             split="training",
@@ -214,9 +224,6 @@ if __name__ == "__main__":
             json_file_list=train_set,
         )
     if args.validation:
-        val_set = random.choices(
-            list((unzipped_dir/"validation"/"labels").glob("**/*.json")), k=2000
-        )
         save_image_patches(
             output_dir=Path(args.dataset).parent/"training_and_validation_set",
             split="validation",
@@ -224,11 +231,6 @@ if __name__ == "__main__":
             json_file_list=val_set,
         )
     if args.evaluation:
-        eval_set = random.choices(
-            list(
-                set((unzipped_dir/"validation"/"labels").glob("**/*.json")) - val_set
-            ), k=500
-        )
         for json_path in eval_set:
             save_path = str(json_path).replace("unzipped/validation/", "evaluation_set/")
             shutil.copy(src=json_path, dst=save_path)
