@@ -8,6 +8,7 @@ from tqdm.auto import tqdm
 import re
 import random
 import yaml
+import shutil
 
 from utils import (
     AttrDict
@@ -24,6 +25,7 @@ def get_arguments():
 
     parser.add_argument("--unzip", action="store_true", default=False)
     parser.add_argument("--training", action="store_true", default=False)
+    parser.add_argument("--validation", action="store_true", default=False)
     parser.add_argument("--evaluation", action="store_true", default=False)
     parser.add_argument("--dataset")
 
@@ -98,74 +100,78 @@ def unzip_dataset(dataset_dir) -> None:
     print("Completed unzipping the original dataset.")
 
 
-def create_image_patches(unzipped_dir, output_dir, split2) -> None:
-    print("Creating image patches...")
+def save_image_patches(output_dir, split, select_data, json_file_list):
+    print("Creating image patches for {split}...")
 
-    # unzipped_dir = "/Users/jongbeom.kim/Documents/unzipped"
-    # output_dir = "/Users/jongbeom.kim/Documents/dataset_for_training"
-    
-    unzipped_dir = Path(unzipped_dir)
-    output_dir = Path(output_dir)
-    
-    for split1, n in zip(["training", "validation"], [10000, 2000]):
-        save_dir = output_dir/split1/split2/"images"
-        save_dir.mkdir(parents=True, exist_ok=True)
-        
-        ls_row = list()
-        for json_path in tqdm(
-            random.choices(
-                list((unzipped_dir/split1/"labels").glob("**/*.json")), k=n
-            )
-        ):
+    save_dir = Path(output_dir)/split/select_data
+
+    ls_row = list()
+    for json_path in tqdm(json_file_list):
+        try:
+            img, gt_bboxes, gt_texts = parse_json_file(json_path)
+        except Exception:
+            # print(f"    No image file paring with '{json_path}'")
+            continue
+
+        for text, (xmin, ymin, xmax, ymax) in zip(gt_texts, gt_bboxes):
+            xmin = max(0, xmin)
+            ymin = max(0, ymin)
+
             try:
-                img, gt_bboxes, gt_texts = parse_json_file(json_path)
-            except Exception:
-                # print(f"    No image file paring with '{json_path}'")
-                continue
+                patch = get_image_cropped_by_rectangle(
+                    img=img, xmin=xmin, ymin=ymin, xmax=xmax, ymax=ymax
+                )
+                fname = Path(f"{json_path.stem}_{xmin}-{ymin}-{xmax}-{ymax}.png")
+                save_path = save_dir/"images"/fname
+                if not save_path.exists():
+                    save_image(img=patch, path=save_path)
 
-            for text, (xmin, ymin, xmax, ymax) in zip(gt_texts, gt_bboxes):
-                xmin = max(0, xmin)
-                ymin = max(0, ymin)
-
-                try:
-                    patch = get_image_cropped_by_rectangle(
-                        img=img, xmin=xmin, ymin=ymin, xmax=xmax, ymax=ymax
+                    ls_row.append(
+                        (fname, text)
                     )
-                    fname = Path(f"{json_path.stem}_{xmin}-{ymin}-{xmax}-{ymax}.png")
-                    # save_path = save_dir/"images"/fname
-                    save_path = save_dir/fname
-                    if not save_path.exists():
-                        save_image(img=patch, path=save_path)
-
-                        ls_row.append(
-                            (fname, text)
-                        )
-                except Exception:
-                    print(f"    Failed to save '{fname}'.")
+            except Exception:
+                print(f"    Failed to save '{fname}'.")
 
         df_labels = pd.DataFrame(ls_row, columns=["filename", "words"])
-        df_labels.to_csv(save_dir.parent/"labels.csv", index=False)
+        df_labels.to_csv(save_dir/"labels.csv", index=False)
 
-    print("Completed creating image patches.")
+    print("Completed creating image patches for {split}.")
 
 
-def prepare_dataset_for_evaluation(dataset_dir) -> None:
-    dataset_dir = Path(dataset_dir)
+# def prepare_evaluation_set(dataset_dir) -> None:
+#     dataset_dir = "/Users/jongbeom.kim/Documents/공공행정문서 OCR"
+    
+#     dataset_dir = Path(dataset_dir)
+    
+#     unzipped_dir = dataset_dir.parent/"unzipped"
+    
+#     unzipped_dir/"validation"
+    
 
-    for zip_file in (dataset_dir/"validation").glob("**/*.zip"):
-        unzip_to = Path(
-            str(zip_file).replace(dataset_dir.name, "dataset_for_evaluation").replace("/validation/", "/").lower()
-        ).parent
-        unzip_to.mkdir(parents=True, exist_ok=True)
+#     for json_path in eval_set:
+#         save_path = str(json_path).replace("unzipped/validation/", "evaluation_set/")
+#         shutil.copy(src=json_path, dst=save_path)
+#         shutil.copy(
+#             src=str(json_path).replace("labels/", "images/").replace(".json", ".jpg"),
+#             dst=save_path.replace("labels/", "images/").replace(".json", ".jpg"),
+#         )
+        
+    
 
-        _unzip(zip_file=zip_file, unzip_to=unzip_to)
+#     for zip_file in (dataset_dir/"validation").glob("**/*.zip"):
+#         unzip_to = Path(
+#             str(zip_file).replace(dataset_dir.name, "evaluation_set").replace("/validation/", "/").lower()
+#         ).parent
+#         unzip_to.mkdir(parents=True, exist_ok=True)
+
+#         _unzip(zip_file=zip_file, unzip_to=unzip_to)
 
 
 def count_images(dataset):
     # dataset = "/Users/jongbeom.kim/Documents/공공행정문서 OCR"
 
-    tr = Path(dataset).parent/"dataset_for_training/training"
-    val = Path(dataset).parent/"dataset_for_training/validation"
+    tr = Path(dataset).parent/"training_and_validation_set/training"
+    val = Path(dataset).parent/"training_and_validation_set/validation"
 
     n_img_tr = len(list(tr.glob("select_data/images/*.png")))
     n_img_val = len(list(val.glob("select_data/images/*.png")))
@@ -196,14 +202,39 @@ if __name__ == "__main__":
     if args.unzip:
         unzip_dataset(args.dataset)
 
+    unzipped_dir = Path(args.dataset).parent/"unzipped"
     if args.training:
-        create_image_patches(
-            unzipped_dir=Path(args.dataset).parent/"unzipped",
-            output_dir=Path(args.dataset).parent/"dataset_for_training",
-            split2=config.select_data
+        train_set = random.choices(
+            list((unzipped_dir/"training"/"labels").glob("**/*.json")), k=10000
         )
-
+        save_image_patches(
+            output_dir=Path(args.dataset).parent/"training_and_validation_set",
+            split="training",
+            select_data=config.select_data,
+            json_file_list=train_set,
+        )
+    if args.validation:
+        val_set = random.choices(
+            list((unzipped_dir/"validation"/"labels").glob("**/*.json")), k=2000
+        )
+        save_image_patches(
+            output_dir=Path(args.dataset).parent/"training_and_validation_set",
+            split="validation",
+            select_data=config.select_data,
+            json_file_list=val_set,
+        )
     if args.evaluation:
-        prepare_dataset_for_evaluation(args.dataset)
+        eval_set = random.choices(
+            list(
+                set((unzipped_dir/"validation"/"labels").glob("**/*.json")) - val_set
+            ), k=500
+        )
+        for json_path in eval_set:
+            save_path = str(json_path).replace("unzipped/validation/", "evaluation_set/")
+            shutil.copy(src=json_path, dst=save_path)
+            shutil.copy(
+                src=str(json_path).replace("labels/", "images/").replace(".json", ".jpg"),
+                dst=save_path.replace("labels/", "images/").replace(".json", ".jpg"),
+            )
 
     count_images(args.dataset)

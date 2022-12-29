@@ -12,7 +12,7 @@ from collections import defaultdict
 # from process_image import (
     # convert_quadrilaterals_to_rectangles
 # )
-from prepare_dataset import (
+from easyocr.trainer.prepare_dataset import (
     parse_json_file
 )
 from craft_utilities import (
