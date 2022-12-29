@@ -161,7 +161,7 @@ def prepare_dataset_for_evaluation(dataset_dir) -> None:
         _unzip(zip_file=zip_file, unzip_to=unzip_to)
 
 
-def check_number_of_images(dataset):
+def count_images(dataset):
     # dataset = "/Users/jongbeom.kim/Documents/공공행정문서 OCR"
 
     tr = Path(dataset).parent/"dataset_for_training/training"
@@ -206,4 +206,4 @@ if __name__ == "__main__":
     if args.evaluation:
         prepare_dataset_for_evaluation(args.dataset)
 
-    check_number_of_images(args.dataset)
+    count_images(args.dataset)
