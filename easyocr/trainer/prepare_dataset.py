@@ -107,7 +107,6 @@ def save_image_patches(output_dir, split, select_data, json_file_list):
     save_dir = Path(output_dir)/split/select_data
     save_dir.mkdir(parents=True, exist_ok=True)
 
-    # ls_row = list()
     labels_csv_path = save_dir/"labels.csv"
     
     df_labels = pd.DataFrame(columns=["filename", "words"])
@@ -133,10 +132,6 @@ def save_image_patches(output_dir, split, select_data, json_file_list):
                 if not save_path.exists():
                     save_image(img=patch, path=save_path)
 
-                    # ls_row.append(
-                    #     (fname, text)
-                    # )
-                    
                     with open(labels_csv_path, mode="a") as f:
                         writer(f).writerow((fname, text))
                         f.close()
@@ -174,14 +169,14 @@ def count_images(dataset):
     df_labels_tr = pd.read_csv(tr/"select_data/labels.csv")
     df_labels_val = pd.read_csv(val/"select_data/labels.csv")
     
-    # if n_img_tr == len(df_labels_tr):
-    #     print(f"Number of training images: {n_img_tr:,}")
-    # if n_img_val == len(df_labels_val):
-    #     print(f"Number of validation images: {n_img_val:,}")
-    print(n_img_tr)
-    print(len(df_labels_tr))
-    print(n_img_val)
-    print(len(df_labels_val))
+    if n_img_tr == len(df_labels_tr):
+        print(f"Number of training images: {n_img_tr:,}")
+    if n_img_val == len(df_labels_val):
+        print(f"Number of validation images: {n_img_val:,}")
+    # print(n_img_tr)
+    # print(len(df_labels_tr))
+    # print(n_img_val)
+    # print(len(df_labels_val))
 
 
 if __name__ == "__main__":
