@@ -99,10 +99,10 @@ def create_image_patches(input_dir, output_dir) -> None:
         save_dir = output_dir/split1/split2
         for json_path in tqdm(list((subdir/"labels").glob("**/*.json"))):
             # json_path
-            # try:
-            img, gt_bboxes, gt_texts = _parse_json_file(json_path)
-            # except Exception:
-            #     continue
+            try:
+                img, gt_bboxes, gt_texts = _parse_json_file(json_path)
+            except Exception:
+                continue
 
             for text, (xmin, ymin, xmax, ymax) in zip(gt_texts, gt_bboxes):
                 xmin = max(0, xmin)
@@ -120,6 +120,7 @@ def create_image_patches(input_dir, output_dir) -> None:
                     )
                 except Exception:
                     print(f"    Failed to save '{fname}'.")
+
             df_labels = pd.DataFrame(ls_row, columns=["filename", "words"])
             df_labels.to_csv(save_dir/"labels.csv", index=False)
 
