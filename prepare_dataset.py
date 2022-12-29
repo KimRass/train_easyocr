@@ -17,8 +17,9 @@ from process_image import (
 def get_arguments():
     parser = argparse.ArgumentParser(description="prepare_dataset")
 
-    parser.add_argument("--input_dir")
-    parser.add_argument("--output_dir")
+    # parser.add_argument("--input_dir")
+    # parser.add_argument("--output_dir")
+    parser.add_argument("--dataset")
 
     args = parser.parse_args()
     return args
