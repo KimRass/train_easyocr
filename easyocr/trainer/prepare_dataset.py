@@ -232,11 +232,13 @@ if __name__ == "__main__":
         )
     if args.evaluation:
         for json_path in eval_set:
-            save_path = str(json_path).replace("unzipped/validation/", "evaluation_set/")
-            shutil.copy(src=json_path, dst=save_path)
-            shutil.copy(
-                src=str(json_path).replace("labels/", "images/").replace(".json", ".jpg"),
-                dst=save_path.replace("labels/", "images/").replace(".json", ".jpg"),
-            )
+            new_json_path = Path(str(json_path).replace("unzipped/validation/", "evaluation_set/"))
+            new_json_path.mkdir(parents=True, exist_ok=True)
+            shutil.copy(src=json_path, dst=new_json_path)
+
+            img_path = str(json_path).replace("labels/", "images/").replace(".json", ".jpg")
+            new_img_path = Path(str(new_json_path).replace("labels/", "images/").replace(".json", ".jpg"))
+            new_img_path.mkdir(parents=True, exist_ok=True)
+            shutil.copy(src=img_path, dst=new_img_path)
 
     count_images(args.dataset)
