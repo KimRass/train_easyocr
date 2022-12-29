@@ -93,16 +93,17 @@ def unzip_dataset(dataset_dir) -> None:
 def create_image_patches(unzipped_dir, output_dir, split2="select_data") -> None:
     print("Creating image patches...")
 
-    unzipped_dir = "/Users/jongbeom.kim/Documents/unzipped"
-    output_dir = "/Users/jongbeom.kim/Documents/dataset_for_training"
+    # unzipped_dir = "/Users/jongbeom.kim/Documents/unzipped"
+    # output_dir = "/Users/jongbeom.kim/Documents/dataset_for_training"
     
     unzipped_dir = Path(unzipped_dir)
     output_dir = Path(output_dir)
 
-    output_dir.mkdir(parents=True, exist_ok=True)
+    # output_dir.mkdir(parents=True, exist_ok=True)
     
     for split1, n in zip(["training", "validation"], [10000, 2000]):
         save_dir = output_dir/split1/split2/"images"
+        save_dir.mkdir(parents=True, exist_ok=True)
 
         ls_json = list((unzipped_dir/split1/"labels").glob("**/*.json"))[: n]
         
