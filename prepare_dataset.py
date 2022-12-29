@@ -69,7 +69,7 @@ def _unzip(zip_file, unzip_to):
 
 
 def unzip_dataset(dataset_dir) -> None:
-    print("Unzipping dataset...")
+    print("Unzipping the original dataset...")
 
     dataset_dir = Path(dataset_dir)
 
@@ -81,7 +81,7 @@ def unzip_dataset(dataset_dir) -> None:
 
         _unzip(zip_file=zip_file, unzip_to=unzip_to)
 
-    print("Completed unzipping dataset.")
+    print("Completed unzipping the original dataset.")
 
 
 def create_image_patches(input_dir, output_dir) -> None:
@@ -105,15 +105,18 @@ def create_image_patches(input_dir, output_dir) -> None:
             #     continue
 
             for text, (xmin, ymin, xmax, ymax) in zip(gt_texts, gt_bboxes):
-                patch = get_image_cropped_by_rectangle(
-                    img=img, xmin=xmin, ymin=ymin, xmax=xmax, ymax=ymax
-                )
-                fname = Path(f"{json_path.stem}_{xmin}-{ymin}-{xmax}-{ymax}.png")
-                save_image(img=patch, path=save_dir/"images"/fname)
+                try:
+                    patch = get_image_cropped_by_rectangle(
+                        img=img, xmin=xmin, ymin=ymin, xmax=xmax, ymax=ymax
+                    )
+                    fname = Path(f"{json_path.stem}_{xmin}-{ymin}-{xmax}-{ymax}.png")
+                    save_image(img=patch, path=save_dir/"images"/fname)
 
-                ls_row.append(
-                    (fname, text)
-                )
+                    ls_row.append(
+                        (fname, text)
+                    )
+                except Exception:
+                    print(f"    Failed to save '{fname}'.")
             df_labels = pd.DataFrame(ls_row, columns=["filename", "words"])
             df_labels.to_csv(save_dir/"labels.csv", index=False)
 
