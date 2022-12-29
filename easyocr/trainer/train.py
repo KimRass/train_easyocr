@@ -50,7 +50,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 def train(config, show_number=5, amp=False):
-    experiment_dir = Path("saved_models"/config.experiment_name)
+    experiment_dir = Path(f"saved_models/{config.experiment_name}")
     experiment_dir.mkdir(parents=True, exist_ok=True)
 
     """ Dataset preparation """
