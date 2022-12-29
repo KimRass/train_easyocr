@@ -74,7 +74,9 @@ def unzip_dataset(dataset_dir) -> None:
     dataset_dir = Path(dataset_dir)
 
     for zip_file in tqdm(list(dataset_dir.glob("**/*.zip"))):
-        unzip_to = Path(str(zip_file).replace("공공행정문서 OCR", "unzipped").lower()).parent
+        unzip_to = Path(
+            str(zip_file).replace(dataset_dir.name, "unzipped").lower()
+        ).parent
         unzip_to.mkdir(parents=True, exist_ok=True)
 
         _unzip(zip_file=zip_file, unzip_to=unzip_to)
