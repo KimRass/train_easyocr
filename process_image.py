@@ -32,9 +32,9 @@ def save_image(img, path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
 
     if img.ndim == 3:
-        cv2.imwrite(filename=str(path), img=img[:, :, :: -1])
+        cv2.imwrite(filename=str(path), img=img[:, :, :: -1], params=[cv2.IMWRITE_JPEG_QUALITY, 100])
     elif img.ndim == 2:
-        cv2.imwrite(filename=str(path), img=img)
+        cv2.imwrite(filename=str(path), img=img, params=[cv2.IMWRITE_JPEG_QUALITY, 100])
 
 
 def show_image(img1, img2=None, alpha=0.5):

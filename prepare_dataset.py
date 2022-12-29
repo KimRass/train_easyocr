@@ -105,11 +105,14 @@ def create_image_patches(input_dir, output_dir) -> None:
             #     continue
 
             for text, (xmin, ymin, xmax, ymax) in zip(gt_texts, gt_bboxes):
+                xmin = max(0, xmin)
+                ymin = max(0, ymin)
+
                 try:
                     patch = get_image_cropped_by_rectangle(
                         img=img, xmin=xmin, ymin=ymin, xmax=xmax, ymax=ymax
                     )
-                    fname = Path(f"{json_path.stem}_{xmin}_{ymin}_{xmax}_{ymax}.png")
+                    fname = Path(f"{json_path.stem}_{xmin}-{ymin}-{xmax}-{ymax}.png")
                     save_image(img=patch, path=save_dir/"images"/fname)
 
                     ls_row.append(
