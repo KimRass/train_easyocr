@@ -135,8 +135,8 @@ def create_image_patches(unzipped_dir, output_dir, split2="select_data") -> None
                 except Exception:
                     print(f"    Failed to save '{fname}'.")
 
-            df_labels = pd.DataFrame(ls_row, columns=["filename", "words"])
-            df_labels.to_csv(save_dir/"labels.csv", index=False)
+        df_labels = pd.DataFrame(ls_row, columns=["filename", "words"])
+        df_labels.to_csv(save_dir/"labels.csv", index=False)
 
     print("Completed creating image patches.")
 
