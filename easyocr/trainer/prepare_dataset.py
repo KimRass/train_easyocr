@@ -21,9 +21,9 @@ random.seed(1111)
 def get_arguments():
     parser = argparse.ArgumentParser(description="prepare_dataset")
 
-    parser.add_argument("--unzip")
-    parser.add_argument("--training")
-    parser.add_argument("--evaluation")
+    parser.add_argument("--unzip", action="store_true", default=False)
+    parser.add_argument("--training", action="store_true", default=False)
+    parser.add_argument("--evaluation", action="store_true", default=False)
     parser.add_argument("--dataset")
 
     args = parser.parse_args()
