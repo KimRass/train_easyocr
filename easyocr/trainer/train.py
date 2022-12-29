@@ -71,7 +71,7 @@ def train(config, show_number=5, amp=False):
         keep_ratio_with_pad=config.PAD,
         contrast_adjust=config.contrast_adjust
     )
-    valid_dataset, valid_dataset_log = hierarchical_dataset(root=config.valid_data, config=config)
+    valid_dataset, valid_dataset_log = hierarchical_dataset(root=config.valid_data, opt=config)
     valid_loader = DataLoader(
         valid_dataset,
         # batch_size=min(32, config.batch_size),
