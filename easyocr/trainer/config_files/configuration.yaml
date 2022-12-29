@@ -7,33 +7,22 @@ manualSeed: 1111
 experiment_name: "none-vgg-bilstm-ctc_1111"
 
 # Dataset
-# train_data: "/Users/jongbeom.kim/Documents/output/training"
-train_data: "/home/ubuntu/project/output/training"
-# valid_data: "/Users/jongbeom.kim/Documents/output/validation"
-valid_data: "/home/ubuntu/project/output/validation"
-select_data: "MJ-ST"
-# select_data: "dataset"
-batch_ratio: "0.5-0.5"
-# batch_ratio: "1"
-
-total_data_usage_ratio: 1.0
-
-contrast_adjust: False
-sensitive: True
-PAD: True
-contrast_adjust: 0.0
-data_filtering_off: False
+train_data: "/data/dataset_for_training/training"
+valid_data: "/data/dataset_for_training/validation"
+# select_data: "MJ-ST"
+select_data: "select_data"
+# batch_ratio: "0.5-0.5"
+batch_ratio: "1"
 
 # Training
 workers: 4
-batch_size: 32
+batch_size: 64
 num_iter: 300000
 valInterval: 5000
-# saved_model: "/Users/jongbeom.kim/Documents/korean_g2.pth"
 saved_model: "/home/ubuntu/project/korean_g2.pth"
 FT: True
 # Optimizer
-optim: False # default is Adadelta
+optim: False # `Adadelta()` if `False`
 lr: 1.
 rho: 0.95
 eps: 0.00000001
@@ -47,7 +36,7 @@ SequenceModeling: "BiLSTM"
 Prediction: "CTC"
   # CTC
 decode: "greedy"
-new_prediction: False #
+new_prediction: False
 freeze_FeatureFxtraction: False
 freeze_SequenceModeling: False
 
@@ -59,3 +48,9 @@ input_channel: 1
 output_channel: 256
 hidden_size: 256
 batch_max_length: 34
+total_data_usage_ratio: 1.0
+contrast_adjust: False
+sensitive: True
+PAD: True
+contrast_adjust: 0.0
+data_filtering_off: False

@@ -2,8 +2,10 @@ import json
 import argparse
 import numpy as np
 import pandas as pd
+from zipfile import ZipFile
 from pathlib import Path
 from tqdm.auto import tqdm
+import re
 
 from process_image import (
     load_image_as_array,
@@ -23,12 +25,9 @@ def get_arguments():
 
 
 def parse_json_file(json_path):
-    # json_path = Path(json_path)
-
     with open(json_path, mode="r") as f:
         label = json.load(f)
-    
-    # img_path = f"{json_path.parents[4]}/원천데이터/인.허가/{json_path.parent.parent.stem}/{json_path.parent.stem}/{label['images'][0]['image.file.name']}"
+
     img_path = str(json_path).replace("/labels/", "/images/").replace(".json", ".jpg")
     img = load_image_as_array(img_path)
 
@@ -44,84 +43,81 @@ def parse_json_file(json_path):
     return img, gt_bboxes, gt_texts
 
 
-# def get_image(json_path):
-#     json_path = Path(json_path)
+def _unzip(zip_file, unzip_to):
+    with ZipFile(zip_file, mode="r") as zip_obj:
+        ls_member = zip_obj.infolist()
+        # ls_member = ls_member[::20]
 
-#     with open(json_path, mode="r") as f:
-#         label = json.load(f)
+        for member in tqdm(ls_member):
+            try:
+                member.filename = member.filename.encode("cp437").decode("euc-kr", "ignore")
+            except Exception:
+                print(member.filename)
+                continue
 
-#     img_path = f"{json_path.parents[4]}/원천데이터/인.허가/{json_path.parent.parent.stem}/{json_path.parent.stem}/{label['images'][0]['image.file.name']}"
-
-#     img = load_image_as_array(img_path)
-#     return img
-
-
-def get_image_and_label(json_path):
-    json_path = Path(json_path)
-
-    with open(json_path, mode="r") as f:
-        label = json.load(f)
-
-    gt_bboxes = np.array(
-        [i["annotation.bbox"] for i in label["annotations"]]
-    )
-    gt_texts = np.array(
-        [i["annotation.text"] for i in label["annotations"]]
-    )
-
-    ls_row = list()
-    for sample in label["annotations"]:
-        text = sample["annotation.text"]
-        xmin, ymin, width, height = sample["annotation.bbox"]
-        
-        ls_row.append([text, xmin, ymin, xmin + width, ymin + height])
-    df_label = pd.DataFrame(ls_row, columns=["text", "xmin", "ymin", "xmax", "ymax"])
-
-    img_path = f"{json_path.parents[4]}/원천데이터/인.허가/{json_path.parent.parent.stem}/{json_path.parent.stem}/{label['images'][0]['image.file.name']}"
-
-    img = load_image_as_array(img_path)
-    return img, df_label
+            member.filename = member.filename.lower()
+            member.filename = re.sub(
+                pattern=r"[0-9.가-힣a-z() ]+원천[0-9.가-힣a-z() ]+",
+                repl="images",
+                string=member.filename
+            )
+            member.filename = re.sub(
+                pattern=r"[0-9.가-힣a-z() ]+라벨[0-9.가-힣a-z() ]+",
+                repl="labels",
+                string=member.filename
+            )
+            zip_obj.extract(member=member, path=unzip_to)
 
 
-def create_dataset(input_dir, output_dir) -> None:
-    input_dir = "/Users/jongbeom.kim/Documents/ocr/"
-    output_dir = "/Users/jongbeom.kim/Documents/dataset"
-    
+def unzip_dataset(dataset_dir) -> None:
+    dataset_dir = Path(dataset_dir)
+
+    for zip_file in tqdm(list(dir.glob("**/*.zip"))):
+        unzip_to = Path(str(zip_file).replace("공공행정문서 OCR", "unzipped").lower()).parent
+        unzip_to.mkdir(parents=True, exist_ok=True)
+
+        _unzip(zip_file=zip_file, unzip_to=unzip_to)
+
+
+def create_dataset_for_training(input_dir, output_dir) -> None:
     input_dir = Path(input_dir)
     output_dir = Path(output_dir)
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
+    split2 = "select_data"
     ls_row = list()
-    for json_path in tqdm(list(input_dir.glob("**/*.json"))):
-        try:
+    for subdir in tqdm(list(input_dir.glob("*"))):
+        split1 = subdir.name
+        save_dir = output_dir/split1/split2
+        for json_path in tqdm(list((subdir/"labels").glob("**/*.json"))):
+            # json_path
+            # try:
             img, gt_bboxes, gt_texts = parse_json_file(json_path)
-        except Exception:
-            continue
+            # except Exception:
+            #     continue
 
-        for text, (xmin, ymin, xmax, ymax) in zip(gt_texts, gt_bboxes):
-            split1 = "training" if "training" in str(json_path) else "validation"
-            split2 = "select_data"
+            for text, (xmin, ymin, xmax, ymax) in zip(gt_texts, gt_bboxes):
+                patch = get_image_cropped_by_rectangle(
+                    img=img, xmin=xmin, ymin=ymin, xmax=xmax, ymax=ymax
+                )
+                fname = Path(f"{json_path.stem}_{xmin}-{ymin}-{xmax}-{ymax}.png")
+                save_image(img=patch, path=save_dir/"images"/fname)
 
-            patch = get_image_cropped_by_rectangle(
-                img=img, xmin=xmin, ymin=ymin, xmax=xmax, ymax=ymax
-            )
-            fname = Path(f"{json_path.stem}_{xmin}-{ymin}-{xmax}-{ymax}.png")
-            save_image(img=patch, path=output_dir/split1/split2/"images"/fname)
-
-            # with open(output_dir/split1/split2/"gt.txt", mode="a") as f:
-            #     f.write(f"{fname}\t{text}\n")
-            #     f.close()
-
-    for path_txt in output_dir.glob("**/*.txt"):
-        df = pd.DataFrame(
-            [line.strip().split("\t") for line in open(path_txt, mode="r").readlines()],
-            columns=["filename", "words"]
-        )
-        df.to_csv(path_txt.parent/"labels.csv", index=False)
+                ls_row.append(
+                    (fname, text)
+                )
+            df_labels = pd.DataFrame(ls_row, columns=["filename", "words"])
+            df_labels.to_csv(save_dir/"labels.csv", index=False)
 
 
 if __name__ == "__main__":
     args = get_arguments()
 
-    create_dataset(input_dir=args.input_dir, output_dir=args.output_dir)
+    unzip_dataset(args.dataset)
+
+    create_dataset_for_training(
+        input_dir=args.dataset.parent/"unzipped",
+        output_dir=args.dataset.parent/"dataset_for_training",
+    )
+

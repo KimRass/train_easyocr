@@ -120,7 +120,7 @@ def main():
         if idx % 100 == 0 and idx != 0:
             print(sum_f1 / (idx + 1))
     print(sum_f1 / (idx + 1))
-        
+
         # result = spot_texts_baseline(img=img, reader=reader, rectangle=True)
         # result.to_excel(f"{dir.parent}/result/baseline/{path_json.stem}.xlsx", index=False)
 
