@@ -1,3 +1,8 @@
+# How to Run
+```sh
+source set_environment.sh
+```
+
 # Dataset
 - Training set: 102,477
     [라벨]train.zip

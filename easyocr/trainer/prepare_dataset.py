@@ -21,6 +21,9 @@ random.seed(1111)
 def get_arguments():
     parser = argparse.ArgumentParser(description="prepare_dataset")
 
+    parser.add_argument("--unzip")
+    parser.add_argument("--training")
+    parser.add_argument("--evaluation")
     parser.add_argument("--dataset")
 
     args = parser.parse_args()
@@ -181,14 +184,17 @@ if __name__ == "__main__":
     with open("./config_files/configuration.yaml", mode="r", encoding="utf8") as f:
         config = yaml.safe_load(f)
 
-    unzip_dataset(args.dataset)
+    if args.unzip:
+        unzip_dataset(args.dataset)
 
-    create_image_patches(
-        unzipped_dir=Path(args.dataset).parent/"unzipped",
-        output_dir=Path(args.dataset).parent/"dataset_for_training",
-        split2=config.select_data
-    )
+    if args.training:
+        create_image_patches(
+            unzipped_dir=Path(args.dataset).parent/"unzipped",
+            output_dir=Path(args.dataset).parent/"dataset_for_training",
+            split2=config.select_data
+        )
 
-    prepare_dataset_for_evaluation(args.dataset)
+    if args.evaluation:
+        prepare_dataset_for_evaluation(args.dataset)
 
     check_number_of_images(args.dataset)
