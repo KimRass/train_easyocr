@@ -45,7 +45,7 @@ def _parse_json_file(json_path):
 def _unzip(zip_file, unzip_to):
     with ZipFile(zip_file, mode="r") as zip_obj:
         ls_member = zip_obj.infolist()
-        # ls_member = ls_member[::20]
+        ls_member = ls_member[:: 10]
 
         for member in tqdm(ls_member):
             try:
