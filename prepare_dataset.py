@@ -104,16 +104,15 @@ def create_image_patches(unzipped_dir, output_dir, split2="select_data") -> None
     for split1, n in zip(["training", "validation"], [10000, 2000]):
         save_dir = output_dir/split1/split2/"images"
 
-        # ls_json = list((unzipped_dir/split1/"labels").glob("**/*.json"))[: n]
+        ls_json = list((unzipped_dir/split1/"labels").glob("**/*.json"))[: n]
         
         ls_row = list()
-        for json_path in tqdm(
-            list((unzipped_dir/split1/"labels").glob("**/*.json"))[: n]
-        ):
+        for json_path in tqdm(ls_json):
             try:
                 img, gt_bboxes, gt_texts = parse_json_file(json_path)
             except Exception:
-                print(f"    No image file paring with '{json_path}'")
+                # print(f"    No image file paring with '{json_path}'")
+                continue
 
             for text, (xmin, ymin, xmax, ymax) in zip(gt_texts, gt_bboxes):
                 xmin = max(0, xmin)
