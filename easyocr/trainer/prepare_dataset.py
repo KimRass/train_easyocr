@@ -9,6 +9,7 @@ import re
 import random
 import yaml
 import shutil
+from csv import writer
 
 from utils import (
     AttrDict
@@ -105,7 +106,11 @@ def save_image_patches(output_dir, split, select_data, json_file_list):
 
     save_dir = Path(output_dir)/split/select_data
 
-    ls_row = list()
+    # ls_row = list()
+    labels_csv_path = save_dir/"labels.csv"
+    df_labels = pd.DataFrame(columns=["filename", "words"])
+    df_labels.to_csv(labels_csv_path, index=False)
+
     for json_path in tqdm(json_file_list):
         try:
             img, gt_bboxes, gt_texts = parse_json_file(json_path)
@@ -126,14 +131,15 @@ def save_image_patches(output_dir, split, select_data, json_file_list):
                 if not save_path.exists():
                     save_image(img=patch, path=save_path)
 
-                    ls_row.append(
-                        (fname, text)
-                    )
+                    # ls_row.append(
+                    #     (fname, text)
+                    # )
+                    
+                    with open(labels_csv_path, mode="a") as f:
+                        writer(f).writerow((fname, text))
+                        f.close()
             except Exception:
                 print(f"    Failed to save '{fname}'.")
-
-        df_labels = pd.DataFrame(ls_row, columns=["filename", "words"])
-        df_labels.to_csv(save_dir/"labels.csv", index=False)
 
     print(f"Completed creating image patches for {split}.")
 
