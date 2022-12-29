@@ -118,7 +118,7 @@ if __name__ == "__main__":
     unzip_dataset(args.dataset)
 
     create_dataset_for_training(
-        input_dir=args.dataset.parent/"unzipped",
-        output_dir=args.dataset.parent/"dataset_for_training",
+        input_dir=Path(args.dataset).parent/"unzipped",
+        output_dir=Path(args.dataset).parent/"dataset_for_training",
     )
 
