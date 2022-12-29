@@ -107,7 +107,9 @@ def save_image_patches(output_dir, split, select_data, json_file_list):
     save_dir = Path(output_dir)/split/select_data
 
     # ls_row = list()
-    labels_csv_path = save_dir/"labels.csv"
+    labels_csv_path = Path(save_dir/"labels.csv")
+    labels_csv_path.mkdir(parents=True, exist_ok=True)
+    
     df_labels = pd.DataFrame(columns=["filename", "words"])
     df_labels.to_csv(labels_csv_path, index=False)
 
