@@ -109,7 +109,7 @@ def create_image_patches(input_dir, output_dir) -> None:
                     patch = get_image_cropped_by_rectangle(
                         img=img, xmin=xmin, ymin=ymin, xmax=xmax, ymax=ymax
                     )
-                    fname = Path(f"{json_path.stem}_{xmin}-{ymin}-{xmax}-{ymax}.png")
+                    fname = Path(f"{json_path.stem}_{xmin}_{ymin}_{xmax}_{ymax}.png")
                     save_image(img=patch, path=save_dir/"images"/fname)
 
                     ls_row.append(
