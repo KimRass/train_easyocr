@@ -141,7 +141,7 @@ def save_image_patches(output_dir, split, select_data, json_file_list):
 def prepare_evaluation_set(eval_set) -> None:
     print(f"Preparing evaluation set...")
 
-    for json_path in eval_set:
+    for json_path in tqdm(eval_set):
         new_json_path = Path(str(json_path).replace("unzipped/validation/", "evaluation_set/"))
         new_json_path.mkdir(parents=True, exist_ok=True)
         shutil.copy(src=json_path, dst=new_json_path)
