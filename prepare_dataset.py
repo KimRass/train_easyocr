@@ -23,7 +23,7 @@ def get_arguments():
     return args
 
 
-def _parse_json_file(json_path):
+def parse_json_file(json_path):
     with open(json_path, mode="r") as f:
         label = json.load(f)
 
@@ -42,10 +42,14 @@ def _parse_json_file(json_path):
     return img, gt_bboxes, gt_texts
 
 
-def _unzip(zip_file, unzip_to):
+def _unzip(zip_file, unzip_to, evaluation=False):
     with ZipFile(zip_file, mode="r") as zip_obj:
         ls_member = zip_obj.infolist()
-        ls_member = ls_member[:: 10]
+
+        if not evaluation:
+            ls_member = ls_member[:: 10]
+        else:
+            ls_member = ls_member[1:: 20]
 
         for member in tqdm(ls_member):
             try:
@@ -79,7 +83,7 @@ def unzip_dataset(dataset_dir) -> None:
         ).parent
         unzip_to.mkdir(parents=True, exist_ok=True)
 
-        _unzip(zip_file=zip_file, unzip_to=unzip_to)
+        _unzip(zip_file=zip_file, unzip_to=unzip_to, evaluation=False)
 
     print("Completed unzipping the original dataset.")
 
@@ -98,11 +102,10 @@ def create_image_patches(input_dir, output_dir) -> None:
         split1 = subdir.name
         save_dir = output_dir/split1/split2
         for json_path in tqdm(list((subdir/"labels").glob("**/*.json"))):
-            # json_path
             try:
-                img, gt_bboxes, gt_texts = _parse_json_file(json_path)
+                img, gt_bboxes, gt_texts = parse_json_file(json_path)
             except Exception:
-                continue
+                print(f"    No image file paring with '{json_path}'")
 
             for text, (xmin, ymin, xmax, ymax) in zip(gt_texts, gt_bboxes):
                 xmin = max(0, xmin)
@@ -113,7 +116,9 @@ def create_image_patches(input_dir, output_dir) -> None:
                         img=img, xmin=xmin, ymin=ymin, xmax=xmax, ymax=ymax
                     )
                     fname = Path(f"{json_path.stem}_{xmin}-{ymin}-{xmax}-{ymax}.png")
-                    save_image(img=patch, path=save_dir/"images"/fname)
+                    save_path = save_dir/"images"/fname
+                    # if not save_path.exists():
+                    save_image(img=patch, path=save_path)
 
                     ls_row.append(
                         (fname, text)
@@ -127,6 +132,18 @@ def create_image_patches(input_dir, output_dir) -> None:
     print("Completed creating image patches.")
 
 
+def prepare_dataset_for_evaluation(dataset_dir) -> None:
+    dataset_dir = Path(dataset_dir)
+
+    for zip_file in (dataset_dir/"validation").glob("**/*.zip"):
+        unzip_to = Path(
+            str(zip_file).replace(dataset_dir.name, "dataset_for_evaluation").replace("/validation/", "/").lower()
+        ).parent
+        unzip_to.mkdir(parents=True, exist_ok=True)
+
+        _unzip(zip_file=zip_file, unzip_to=unzip_to, evaluation=True)
+
+
 if __name__ == "__main__":
     args = get_arguments()
 
@@ -137,3 +154,4 @@ if __name__ == "__main__":
         output_dir=Path(args.dataset).parent/"dataset_for_training",
     )
 
+    prepare_dataset_for_evaluation(args.dataset)

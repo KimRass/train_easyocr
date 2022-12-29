@@ -31,20 +31,20 @@ def load_craft_checkpoint(cuda=False):
     return craft
 
 
-def load_craft_refiner_checkpoint(cuda=False):
-    craft_refiner = CRAFTRefiner()
-    if cuda:
-        craft_refiner = craft_refiner.to("cuda")
+# def load_craft_refiner_checkpoint(cuda=False):
+#     craft_refiner = CRAFTRefiner()
+#     if cuda:
+#         craft_refiner = craft_refiner.to("cuda")
 
-    path_ckpt = Path(__file__).parent/"pretrained/craft_refiner.pth"
-    # path_ckpt = "/Users/jongbeom.kim/Desktop/workspace/text_spotting/pretrained/craft_refiner.pth"
-    state = torch.load(path_ckpt, map_location="cuda" if cuda else "cpu")
-    craft_refiner.load_state_dict(
-        copy_state_dict(state), strict=True
-    )
+#     path_ckpt = Path(__file__).parent/"pretrained/craft_refiner.pth"
+#     # path_ckpt = "/Users/jongbeom.kim/Desktop/workspace/text_spotting/pretrained/craft_refiner.pth"
+#     state = torch.load(path_ckpt, map_location="cuda" if cuda else "cpu")
+#     craft_refiner.load_state_dict(
+#         copy_state_dict(state), strict=True
+#     )
 
-    print(f"Loaded pre-trained parameters for 'CRAFT' refiner from checkpoint '{path_ckpt}'.")
-    return craft_refiner
+#     print(f"Loaded pre-trained parameters for 'CRAFT' refiner from checkpoint '{path_ckpt}'.")
+#     return craft_refiner
 
 
 def resize_image_for_craft(img):
