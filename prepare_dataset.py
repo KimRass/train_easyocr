@@ -17,15 +17,13 @@ from process_image import (
 def get_arguments():
     parser = argparse.ArgumentParser(description="prepare_dataset")
 
-    # parser.add_argument("--input_dir")
-    # parser.add_argument("--output_dir")
     parser.add_argument("--dataset")
 
     args = parser.parse_args()
     return args
 
 
-def parse_json_file(json_path):
+def _parse_json_file(json_path):
     with open(json_path, mode="r") as f:
         label = json.load(f)
 
@@ -71,6 +69,8 @@ def _unzip(zip_file, unzip_to):
 
 
 def unzip_dataset(dataset_dir) -> None:
+    print("Unzipping dataset...")
+
     dataset_dir = Path(dataset_dir)
 
     for zip_file in tqdm(list(dataset_dir.glob("**/*.zip"))):
@@ -79,8 +79,12 @@ def unzip_dataset(dataset_dir) -> None:
 
         _unzip(zip_file=zip_file, unzip_to=unzip_to)
 
+    print("Completed unzipping dataset.")
 
-def create_dataset_for_training(input_dir, output_dir) -> None:
+
+def create_image_patches(input_dir, output_dir) -> None:
+    print("Creating image patches...")
+
     input_dir = Path(input_dir)
     output_dir = Path(output_dir)
 
@@ -94,7 +98,7 @@ def create_dataset_for_training(input_dir, output_dir) -> None:
         for json_path in tqdm(list((subdir/"labels").glob("**/*.json"))):
             # json_path
             # try:
-            img, gt_bboxes, gt_texts = parse_json_file(json_path)
+            img, gt_bboxes, gt_texts = _parse_json_file(json_path)
             # except Exception:
             #     continue
 
@@ -111,13 +115,15 @@ def create_dataset_for_training(input_dir, output_dir) -> None:
             df_labels = pd.DataFrame(ls_row, columns=["filename", "words"])
             df_labels.to_csv(save_dir/"labels.csv", index=False)
 
+    print("Completed creating image patches.")
+
 
 if __name__ == "__main__":
     args = get_arguments()
 
     unzip_dataset(args.dataset)
 
-    create_dataset_for_training(
+    create_image_patches(
         input_dir=Path(args.dataset).parent/"unzipped",
         output_dir=Path(args.dataset).parent/"dataset_for_training",
     )
