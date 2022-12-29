@@ -9,6 +9,9 @@ import re
 import random
 import yaml
 
+from utils import (
+    AttrDict
+)
 from process_image import (
     load_image_as_array,
     save_image,
@@ -182,7 +185,9 @@ if __name__ == "__main__":
     args = get_arguments()
 
     with open("./config_files/configuration.yaml", mode="r", encoding="utf8") as f:
-        config = yaml.safe_load(f)
+        config = AttrDict(
+            yaml.safe_load(f)
+        )
 
     if args.unzip:
         unzip_dataset(args.dataset)
