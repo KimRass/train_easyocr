@@ -49,7 +49,17 @@ unzipped
 
 # Configuration
 - Batch size: 64
-- Optimizer: Adadelta (lr: 1, rho: 0.95, eps: 0.00000001)
+- Optimizer: Adadelta (Learning rate: 1, rho: 0.95, eps: 1e-8)
+  Adadelta (
+Parameter Group 0
+    eps: 1e-08
+    foreach: None
+    lr: 1.0
+    maximize: False
+    rho: 0.95
+    weight_decay: 0
+)
+
 - batch_max_length (Maximum length of label): 34
 - Input image resolution: 600x64
 - input_channel: 1 (the number of input channel of Feature extractor)

@@ -42,14 +42,16 @@ def parse_json_file(json_path):
     return img, gt_bboxes, gt_texts
 
 
-def _unzip(zip_file, unzip_to, evaluation=False):
+def _unzip(zip_file, unzip_to):
     with ZipFile(zip_file, mode="r") as zip_obj:
         ls_member = zip_obj.infolist()
 
-        if not evaluation:
-            ls_member = ls_member[:: 10]
-        else:
-            ls_member = ls_member[1:: 20]
+        # if not evaluation:
+        #     # ls_member = ls_member[:: 10]
+        #     ls_member = ls_member[:: 10000]
+        # else:
+        #     # ls_member = ls_member[1:: 20]
+        #     ls_member = ls_member[1:: 20000]
 
         for member in tqdm(ls_member):
             try:
@@ -83,25 +85,31 @@ def unzip_dataset(dataset_dir) -> None:
         ).parent
         unzip_to.mkdir(parents=True, exist_ok=True)
 
-        _unzip(zip_file=zip_file, unzip_to=unzip_to, evaluation=False)
+        _unzip(zip_file=zip_file, unzip_to=unzip_to)
 
     print("Completed unzipping the original dataset.")
 
 
-def create_image_patches(input_dir, output_dir) -> None:
+def create_image_patches(unzipped_dir, output_dir, split2="select_data") -> None:
     print("Creating image patches...")
 
-    input_dir = Path(input_dir)
+    unzipped_dir = "/Users/jongbeom.kim/Documents/unzipped"
+    output_dir = "/Users/jongbeom.kim/Documents/dataset_for_training"
+    
+    unzipped_dir = Path(unzipped_dir)
     output_dir = Path(output_dir)
 
     output_dir.mkdir(parents=True, exist_ok=True)
+    
+    for split1, n in zip(["training", "validation"], [10000, 2000]):
+        save_dir = output_dir/split1/split2/"images"
 
-    split2 = "select_data"
-    ls_row = list()
-    for subdir in tqdm(list(input_dir.glob("*"))):
-        split1 = subdir.name
-        save_dir = output_dir/split1/split2
-        for json_path in tqdm(list((subdir/"labels").glob("**/*.json"))):
+        # ls_json = list((unzipped_dir/split1/"labels").glob("**/*.json"))[: n]
+        
+        ls_row = list()
+        for json_path in tqdm(
+            list((unzipped_dir/split1/"labels").glob("**/*.json"))[: n]
+        ):
             try:
                 img, gt_bboxes, gt_texts = parse_json_file(json_path)
             except Exception:
@@ -116,7 +124,8 @@ def create_image_patches(input_dir, output_dir) -> None:
                         img=img, xmin=xmin, ymin=ymin, xmax=xmax, ymax=ymax
                     )
                     fname = Path(f"{json_path.stem}_{xmin}-{ymin}-{xmax}-{ymax}.png")
-                    save_path = save_dir/"images"/fname
+                    # save_path = save_dir/"images"/fname
+                    save_path = save_dir/fname
                     # if not save_path.exists():
                     save_image(img=patch, path=save_path)
 
@@ -141,7 +150,17 @@ def prepare_dataset_for_evaluation(dataset_dir) -> None:
         ).parent
         unzip_to.mkdir(parents=True, exist_ok=True)
 
-        _unzip(zip_file=zip_file, unzip_to=unzip_to, evaluation=True)
+        _unzip(zip_file=zip_file, unzip_to=unzip_to)
+
+
+def check_data_count():
+    dataset = "/Users/jongbeom.kim/Documents/공공행정문서 OCR"
+
+    tr = Path(dataset).parent/"dataset_for_training/training"
+    val = Path(dataset).parent/"dataset_for_training/validation"
+
+    n_img_tr = len(list(tr.glob("select_data/images/*.png")))
+    n_img_val = len(list(val.glob("select_data/images/*.png")))
 
 
 if __name__ == "__main__":
@@ -150,7 +169,7 @@ if __name__ == "__main__":
     unzip_dataset(args.dataset)
 
     create_image_patches(
-        input_dir=Path(args.dataset).parent/"unzipped",
+        unzipped_dir=Path(args.dataset).parent/"unzipped",
         output_dir=Path(args.dataset).parent/"dataset_for_training",
     )
 

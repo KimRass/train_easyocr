@@ -7,7 +7,7 @@ import torch.nn as nn
 from torch.nn import DataParallel
 import torch.nn.init as init
 import torch.backends.cudnn as cudnn
-import torch.optim as optim
+from torch.optim import Adam, Adadelta
 from torch.utils.data import DataLoader
 from torch.cuda.amp import autocast, GradScaler
 import numpy as np
@@ -25,7 +25,8 @@ from dataset import (
     BatchBalancedDataset
 )
 from model import Model
-from test import validation
+from easyocr.trainer.test import validation
+# from test import validation
 
 cudnn.benchmark = True
 cudnn.deterministic = False
@@ -33,43 +34,43 @@ cudnn.deterministic = False
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
-def count_parameters(model):
-    print("Modules, Parameters")
-    total_params = 0
-    for name, parameter in model.named_parameters():
-        if not parameter.requires_grad:
-            continue
+# def count_parameters(model):
+#     print("Modules, Parameters")
+#     total_params = 0
+#     for name, parameter in model.named_parameters():
+#         if not parameter.requires_grad:
+#             continue
 
-        param = parameter.numel()
-        #table.add_row([name, param])
-        total_params += param
-        print(f"{name:40s}: {param:,}")
-    print(f"Total Trainable Parameterss: {total_params:,}")
-    return total_params
+#         param = parameter.numel()
+#         #table.add_row([name, param])
+#         total_params += param
+#         print(f"{name:40s}: {param:,}")
+#     print(f"Total Trainable Parameters: {total_params:,}")
+#     return total_params
 
 
-def train(opt, show_number=5, amp=False):
+def train(config, show_number=5, amp=False):
     """ Dataset preparation """
-    if not opt.data_filtering_off:
-        print('Filtering the images containing characters which are not in opt.character')
-        print('Filtering the images whose label is longer than opt.batch_max_length')
+    if not config.data_filtering_off:
+        print('Filtering the images containing characters which are not in config.character')
+        print('Filtering the images whose label is longer than config.batch_max_length')
 
-    opt.select_data = opt.select_data.split("-")
-    opt.batch_ratio = opt.batch_ratio.split("-")
+    config.select_data = config.select_data.split("-")
+    config.batch_ratio = config.batch_ratio.split("-")
 
-    train_dataset = BatchBalancedDataset(opt)
+    train_dataset = BatchBalancedDataset(config)
 
-    log = open(f'./saved_models/{opt.experiment_name}/log_dataset.txt', mode='a', encoding="utf8")
+    log = open(f'./saved_models/{config.experiment_name}/log_dataset.txt', mode='a', encoding="utf8")
 
     AlignCollate_valid = AlignCollate(
-        imgH=opt.imgH, imgW=opt.imgW, keep_ratio_with_pad=opt.PAD, contrast_adjust=opt.contrast_adjust
+        imgH=config.imgH, imgW=config.imgW, keep_ratio_with_pad=config.PAD, contrast_adjust=config.contrast_adjust
     )
-    valid_dataset, valid_dataset_log = hierarchical_dataset(root=opt.valid_data, opt=opt)
+    valid_dataset, valid_dataset_log = hierarchical_dataset(root=config.valid_data, config=config)
     valid_loader = DataLoader(
         valid_dataset,
-        batch_size=min(32, opt.batch_size),
+        batch_size=min(32, config.batch_size),
         shuffle=True,  # 'True' to check training progress with validation function.
-        num_workers=int(opt.workers),
+        num_workers=int(config.workers),
         prefetch_factor=512,
         collate_fn=AlignCollate_valid,
         pin_memory=True
@@ -81,37 +82,37 @@ def train(opt, show_number=5, amp=False):
     log.close()
     
     """ Model configuration """
-    if 'CTC' in opt.Prediction:
-        converter = CTCLabelConverter(opt.character)
+    if 'CTC' in config.Prediction:
+        converter = CTCLabelConverter(config.character)
     else:
-        converter = AttnLabelConverter(opt.character)
-    opt.num_class = len(converter.character)
+        converter = AttnLabelConverter(config.character)
+    config.num_class = len(converter.character)
 
-    if opt.rgb:
-        opt.input_channel = 3
+    if config.rgb:
+        config.input_channel = 3
 
-    model = Model(opt)
+    model = Model(config)
     # print(
-    #     f'model input parameters', opt.imgH, opt.imgW, opt.num_fiducial, opt.input_channel, opt.output_channel,
-    #     opt.hidden_size, opt.num_class, opt.batch_max_length, opt.Transformation, opt.FeatureExtraction,
-    #     opt.SequenceModeling, opt.Prediction
+    #     f'model input parameters', config.imgH, config.imgW, config.num_fiducial, config.input_channel, config.output_channel,
+    #     config.hidden_size, config.num_class, config.batch_max_length, config.Transformation, config.FeatureExtraction,
+    #     config.SequenceModeling, config.Prediction
     # )
 
-    if opt.saved_model != "":
-        state = torch.load(opt.saved_model, map_location=device)
-        if opt.new_prediction:
+    if config.saved_model != "":
+        state = torch.load(config.saved_model, map_location=device)
+        if config.new_prediction:
             model.Prediction = nn.Linear(
                 model.SequenceModeling_output, len(state['module.Prediction.weight'])
             )
         
         model = DataParallel(model).to(device) 
-        print(f"Loaded pretrained model from '{opt.saved_model}'")
-        if opt.FT:
+        print(f"Loaded pretrained model from '{config.saved_model}'")
+        if config.FT:
             model.load_state_dict(state, strict=False)
         else:
             model.load_state_dict(state)
-        if opt.new_prediction:
-            model.module.Prediction = nn.Linear(model.module.SequenceModeling_output, opt.num_class)  
+        if config.new_prediction:
+            model.module.Prediction = nn.Linear(model.module.SequenceModeling_output, config.num_class)  
             for name, param in model.module.Prediction.named_parameters():
                 if 'bias' in name:
                     init.constant_(param, 0.0)
@@ -137,12 +138,12 @@ def train(opt, show_number=5, amp=False):
     
     model.train()
 
-    print("Model:")
-    print(model)
-    count_parameters(model)
+    # print("Model:")
+    # print(model)
+    # count_parameters(model)
     
     """ Loss function """
-    if 'CTC' in opt.Prediction:
+    if 'CTC' in config.Prediction:
         criterion = nn.CTCLoss(zero_infinity=True).to(device)
     else:
         criterion = nn.CrossEntropyLoss(ignore_index=0).to(device)  # ignore [GO] token = ignore index 0
@@ -151,10 +152,10 @@ def train(opt, show_number=5, amp=False):
 
     # Freeze some layers
     try:
-        if opt.freeze_FeatureFxtraction:
+        if config.freeze_FeatureFxtraction:
             for param in model.module.FeatureExtraction.parameters():
                 param.requires_grad = False
-        if opt.freeze_SequenceModeling:
+        if config.freeze_SequenceModeling:
             for param in model.module.SequenceModeling.parameters():
                 param.requires_grad = False
     except:
@@ -167,34 +168,33 @@ def train(opt, show_number=5, amp=False):
         filtered_parameters.append(p)
         params_num.append(np.prod(p.size()))
     print(f"Total number of trainable parameters: {sum(params_num):,}")
-    # [print(name, p.numel()) for name, p in filter(lambda p: p[1].requires_grad, model.named_parameters())]
 
     """ Optimizer """
-    if opt.optim == 'adam':
-        #optimizer = optim.Adam(filtered_parameters, lr=opt.lr, betas=(opt.beta1, 0.999))
-        optimizer = optim.Adam(filtered_parameters)
+    if config.optim == "adam":
+        #optimizer = Adam(filtered_parameters, lr=config.lr, betas=(config.beta1, 0.999))
+        optimizer = Adam(filtered_parameters)
     else:
-        optimizer = optim.Adadelta(filtered_parameters, lr=opt.lr, rho=opt.rho, eps=opt.eps)
-    print("Optimizer:")
+        optimizer = Adadelta(filtered_parameters, lr=config.lr, rho=config.rho, eps=config.eps)
+    print("optimizer:")
     print(f"    {optimizer}")
 
-    """ Final options """
-    # print(opt)
-    with open(f'./saved_models/{opt.experiment_name}/opt.txt', mode='a', encoding="utf8") as f:
-        opt_log = '------------ Options -------------\n'
-        args = vars(opt)
+    """ Final configions """
+    # print(config)
+    with open(f'./saved_models/{config.experiment_name}/config.txt', mode='a', encoding="utf8") as f:
+        config_log = '------------ Configuration -------------\n'
+        args = vars(config)
         for k, v in args.items():
-            opt_log += f'{str(k)}: {str(v)}\n'
-        opt_log += '---------------------------------------\n'
-        print(opt_log)
-        f.write(opt_log)
+            config_log += f'{str(k)}: {str(v)}\n'
+        config_log += '---------------------------------------\n'
+        print(config_log)
+        f.write(config_log)
 
     """ Start training """
     # Continue training
     start_iter = 0
-    if opt.saved_model != "":
+    if config.saved_model != "":
         try:
-            start_iter = int(opt.saved_model.split('_')[-1].split('.')[0])
+            start_iter = int(config.saved_model.split('_')[-1].split('.')[0])
             print(f"Continue to train, start_iter: {start_iter}")
         except:
             pass
@@ -215,10 +215,10 @@ def train(opt, show_number=5, amp=False):
             with autocast():
                 image_tensors, labels = train_dataset.get_batch()
                 image = image_tensors.to(device)
-                text, length = converter.encode(labels, batch_max_length=opt.batch_max_length)
+                text, length = converter.encode(labels, batch_max_length=config.batch_max_length)
                 batch_size = image.size(0)
 
-                if 'CTC' in opt.Prediction:
+                if 'CTC' in config.Prediction:
                     preds = model(image, text).log_softmax(2)
                     preds_size = torch.IntTensor([preds.size(1)] * batch_size)
                     preds = preds.permute(1, 0, 2)
@@ -231,15 +231,15 @@ def train(opt, show_number=5, amp=False):
                     loss = criterion(preds.view(-1, preds.shape[-1]), target.contiguous().view(-1))
             scaler.scale(loss).backward()
             scaler.unscale_(optimizer)
-            torch.nn.utils.clip_grad_norm_(parameters=model.parameters(), max_norm=opt.grad_clip)
+            torch.nn.utils.clip_grad_norm_(parameters=model.parameters(), max_norm=config.grad_clip)
             scaler.step(optimizer)
             scaler.update()
         else:
             image_tensors, labels = train_dataset.get_batch()
             image = image_tensors.to(device)
-            text, length = converter.encode(labels, batch_max_length=opt.batch_max_length)
+            text, length = converter.encode(labels, batch_max_length=config.batch_max_length)
             batch_size = image.size(0)
-            if 'CTC' in opt.Prediction:
+            if 'CTC' in config.Prediction:
                 preds = model(image, text).log_softmax(2)
                 preds_size = torch.IntTensor([preds.size(1)] * batch_size)
                 preds = preds.permute(1, 0, 2)
@@ -251,18 +251,18 @@ def train(opt, show_number=5, amp=False):
                 target = text[:, 1:]  # without [GO] Symbol
                 loss = criterion(preds.view(-1, preds.shape[-1]), target.contiguous().view(-1))
             loss.backward()
-            torch.nn.utils.clip_grad_norm_(parameters=model.parameters(), max_norm=opt.grad_clip) 
+            torch.nn.utils.clip_grad_norm_(parameters=model.parameters(), max_norm=config.grad_clip) 
             optimizer.step()
         loss_avg.add(loss)
 
         # Validation part
-        if (i % opt.valInterval == 0) and (i!=0):
+        if (i % config.valInterval == 0) and (i!=0):
             print(f"Training time: {time.time() - t1}")
 
             t1 = time.time()
             elapsed = time.time() - start_time
             # for log
-            with open(f'./saved_models/{opt.experiment_name}/log_train.txt', mode='a', encoding="utf8") as log:
+            with open(f'./saved_models/{config.experiment_name}/log_train.txt', mode='a', encoding="utf8") as log:
                 model.eval()
                 with torch.no_grad():
                     (
@@ -274,11 +274,18 @@ def train(opt, show_number=5, amp=False):
                         labels,
                         infer_time,
                         length_of_data
-                    ) = validation(model, criterion, valid_loader, converter, opt, device)
+                    ) = validation(
+                        model=model,
+                        criterion=criterion,
+                        evaluation_loader=valid_loader,
+                        converter=converter,
+                        opt=config,
+                        device=device
+                    )
                 model.train()
 
                 # Training loss and validation loss
-                loss_log = f'[{i}/{opt.num_iter}] Train loss: {loss_avg.val():0.5f}, Valid loss: {valid_loss:0.5f}, elapsed: {elapsed:0.5f}'
+                loss_log = f'[{i}/{config.num_iter}] Train loss: {loss_avg.val():0.5f}, Valid loss: {valid_loss:0.5f}, elapsed: {elapsed:0.5f}'
                 loss_avg.reset()
 
                 current_model_log = f'{"Current_accuracy":17s}: {current_accuracy:0.3f}, {"Current_norm_ED":17s}: {current_norm_ED:0.4f}'
@@ -287,12 +294,12 @@ def train(opt, show_number=5, amp=False):
                 if current_accuracy > best_accuracy:
                     best_accuracy = current_accuracy
                     torch.save(
-                        model.state_dict(), f'./saved_models/{opt.experiment_name}/best_accuracy.pth'
+                        model.state_dict(), f'./saved_models/{config.experiment_name}/best_accuracy.pth'
                     )
                 if current_norm_ED > best_norm_ED:
                     best_norm_ED = current_norm_ED
                     torch.save(
-                        model.state_dict(), f'./saved_models/{opt.experiment_name}/best_norm_ED.pth'
+                        model.state_dict(), f'./saved_models/{config.experiment_name}/best_norm_ED.pth'
                     )
                 best_model_log = f'{"Best_accuracy":17s}: {best_accuracy:0.3f}, {"Best_norm_ED":17s}: {best_norm_ED:0.4f}'
 
@@ -313,7 +320,7 @@ def train(opt, show_number=5, amp=False):
                     preds[start : start + show_number],
                     confidence_score[start : start + show_number]
                 ):
-                    if 'Attn' in opt.Prediction:
+                    if 'Attn' in config.Prediction:
                         gt = gt[: gt.find('[s]')]
                         pred = pred[: pred.find('[s]')]
 
@@ -326,9 +333,9 @@ def train(opt, show_number=5, amp=False):
         # Save model per 1e+4 iteration.
         if (i + 1) % 1e+4 == 0:
             torch.save(
-                model.state_dict(), f'./saved_models/{opt.experiment_name}/iter_{i + 1}.pth')
+                model.state_dict(), f'./saved_models/{config.experiment_name}/iter_{i + 1}.pth')
 
-        if i == opt.num_iter:
+        if i == config.num_iter:
             print('end the training')
             sys.exit()
         i += 1
@@ -337,15 +344,15 @@ def train(opt, show_number=5, amp=False):
 def main():
     file_path = "./config_files/configuration.yaml"
     with open(file_path, mode="r", encoding="utf8") as f:
-        opt = AttrDict(
+        config = AttrDict(
             yaml.safe_load(f)
         )
-    #     opt = yaml.safe_load(f)
-    # opt = AttrDict(opt)
-    # opt.character = opt.number + opt.symbol + opt.lang_char
-    os.makedirs(f"./saved_models/{opt.experiment_name}", exist_ok=True)
+    #     config = yaml.safe_load(f)
+    # config = AttrDict(config)
+    # config.character = config.number + config.symbol + config.lang_char
+    os.makedirs(f"./saved_models/{config.experiment_name}", exist_ok=True)
 
-    train(opt)
+    train(config)
 
 
 if __name__ == "__main__":

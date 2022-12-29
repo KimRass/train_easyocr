@@ -183,7 +183,7 @@ class OCRDataset(Dataset):
         label = self.df.at[index,'words']
 
         if self.opt.rgb:
-            img = Image.open(img_fpath).convert('RGB')  # for color image
+            img = Image.open(img_fpath).convert('RGB')
         else:
             img = Image.open(img_fpath).convert('L')
 
