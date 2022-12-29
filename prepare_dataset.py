@@ -6,12 +6,16 @@ from zipfile import ZipFile
 from pathlib import Path
 from tqdm.auto import tqdm
 import re
+import random
+import yaml
 
 from process_image import (
     load_image_as_array,
     save_image,
     get_image_cropped_by_rectangle
 )
+
+random.seed(1111)
 
 
 def get_arguments():
@@ -90,7 +94,7 @@ def unzip_dataset(dataset_dir) -> None:
     print("Completed unzipping the original dataset.")
 
 
-def create_image_patches(unzipped_dir, output_dir, split2="select_data") -> None:
+def create_image_patches(unzipped_dir, output_dir, split2) -> None:
     print("Creating image patches...")
 
     # unzipped_dir = "/Users/jongbeom.kim/Documents/unzipped"
@@ -102,11 +106,13 @@ def create_image_patches(unzipped_dir, output_dir, split2="select_data") -> None
     for split1, n in zip(["training", "validation"], [10000, 2000]):
         save_dir = output_dir/split1/split2/"images"
         save_dir.mkdir(parents=True, exist_ok=True)
-
-        ls_json = list((unzipped_dir/split1/"labels").glob("**/*.json"))[: n]
         
         ls_row = list()
-        for json_path in tqdm(ls_json):
+        for json_path in tqdm(
+            random.choices(
+                list((unzipped_dir/split1/"labels").glob("**/*.json")), k=n
+            )
+        ):
             try:
                 img, gt_bboxes, gt_texts = parse_json_file(json_path)
             except Exception:
@@ -172,11 +178,15 @@ def check_number_of_images(dataset):
 if __name__ == "__main__":
     args = get_arguments()
 
+    with open("./config_files/configuration.yaml", mode="r", encoding="utf8") as f:
+        config = yaml.safe_load(f)
+
     unzip_dataset(args.dataset)
 
     create_image_patches(
         unzipped_dir=Path(args.dataset).parent/"unzipped",
         output_dir=Path(args.dataset).parent/"dataset_for_training",
+        split2=config.select_data
     )
 
     prepare_dataset_for_evaluation(args.dataset)

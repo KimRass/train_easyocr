@@ -40,8 +40,8 @@ new_prediction: False
 freeze_FeatureFxtraction: False
 freeze_SequenceModeling: False
 
-imgH: 64
-imgW: 600
+img_height: 64
+img_width: 600
 num_fiducial: 20
 rgb: False
 input_channel: 1

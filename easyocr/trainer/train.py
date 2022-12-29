@@ -63,12 +63,16 @@ def train(config, show_number=5, amp=False):
     log = open(f'./saved_models/{config.experiment_name}/log_dataset.txt', mode='a', encoding="utf8")
 
     AlignCollate_valid = AlignCollate(
-        imgH=config.imgH, imgW=config.imgW, keep_ratio_with_pad=config.PAD, contrast_adjust=config.contrast_adjust
+        img_height=config.img_height,
+        img_width=config.img_width,
+        keep_ratio_with_pad=config.PAD,
+        contrast_adjust=config.contrast_adjust
     )
     valid_dataset, valid_dataset_log = hierarchical_dataset(root=config.valid_data, config=config)
     valid_loader = DataLoader(
         valid_dataset,
-        batch_size=min(32, config.batch_size),
+        # batch_size=min(32, config.batch_size),
+        batch_size=config.batch_size,
         shuffle=True,  # 'True' to check training progress with validation function.
         num_workers=int(config.workers),
         prefetch_factor=512,
@@ -93,7 +97,7 @@ def train(config, show_number=5, amp=False):
 
     model = Model(config)
     # print(
-    #     f'model input parameters', config.imgH, config.imgW, config.num_fiducial, config.input_channel, config.output_channel,
+    #     f'model input parameters', config.img_height, config.img_width, config.num_fiducial, config.input_channel, config.output_channel,
     #     config.hidden_size, config.num_class, config.batch_max_length, config.Transformation, config.FeatureExtraction,
     #     config.SequenceModeling, config.Prediction
     # )
@@ -342,8 +346,7 @@ def train(config, show_number=5, amp=False):
 
 
 def main():
-    file_path = "./config_files/configuration.yaml"
-    with open(file_path, mode="r", encoding="utf8") as f:
+    with open("./config_files/configuration.yaml", mode="r", encoding="utf8") as f:
         config = AttrDict(
             yaml.safe_load(f)
         )

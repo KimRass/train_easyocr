@@ -44,7 +44,7 @@ class BatchBalancedDataset(object):
         log.write(f'dataset_root: {opt.train_data}\nopt.select_data: {opt.select_data}\nopt.batch_ratio: {opt.batch_ratio}\n')
         assert len(opt.select_data) == len(opt.batch_ratio)
 
-        _AlignCollate = AlignCollate(imgH=opt.imgH, imgW=opt.imgW, keep_ratio_with_pad=opt.PAD, contrast_adjust = opt.contrast_adjust)
+        _AlignCollate = AlignCollate(img_height=opt.img_height, img_width=opt.img_width, keep_ratio_with_pad=opt.PAD, contrast_adjust = opt.contrast_adjust)
         self.data_loader_list = list()
         self.dataloader_iter_list = list()
         batch_size_list = list()
@@ -232,9 +232,9 @@ class NormalizePAD(object):
 
 class AlignCollate(object):
 
-    def __init__(self, imgH=32, imgW=100, keep_ratio_with_pad=False, contrast_adjust = 0.):
-        self.imgH = imgH
-        self.imgW = imgW
+    def __init__(self, img_height=32, img_width=100, keep_ratio_with_pad=False, contrast_adjust=0.):
+        self.img_height = img_height
+        self.img_width = img_width
         self.keep_ratio_with_pad = keep_ratio_with_pad
         self.contrast_adjust = contrast_adjust
 
@@ -243,9 +243,9 @@ class AlignCollate(object):
         images, labels = zip(*batch)
 
         if self.keep_ratio_with_pad:  # same concept with 'Rosetta' paper
-            resized_max_w = self.imgW
+            resized_max_w = self.img_width
             input_channel = 3 if images[0].mode == 'RGB' else 1
-            transform = NormalizePAD((input_channel, self.imgH, resized_max_w))
+            transform = NormalizePAD((input_channel, self.img_height, resized_max_w))
 
             resized_images = list()
             for image in images:
@@ -258,19 +258,19 @@ class AlignCollate(object):
                     image = Image.fromarray(image, 'L')
 
                 ratio = w / float(h)
-                if math.ceil(self.imgH * ratio) > self.imgW:
-                    resized_w = self.imgW
+                if math.ceil(self.img_height * ratio) > self.img_width:
+                    resized_w = self.img_width
                 else:
-                    resized_w = math.ceil(self.imgH * ratio)
+                    resized_w = math.ceil(self.img_height * ratio)
 
-                resized_image = image.resize((resized_w, self.imgH), Image.BICUBIC)
+                resized_image = image.resize((resized_w, self.img_height), Image.BICUBIC)
                 resized_images.append(transform(resized_image))
                 # resized_image.save('./image_test/%d_test.jpg' % w)
 
             image_tensors = torch.cat([t.unsqueeze(0) for t in resized_images], 0)
 
         else:
-            transform = ResizeNormalize((self.imgW, self.imgH))
+            transform = ResizeNormalize((self.img_width, self.img_height))
             image_tensors = [transform(image) for image in images]
             image_tensors = torch.cat([t.unsqueeze(0) for t in image_tensors], 0)
 
