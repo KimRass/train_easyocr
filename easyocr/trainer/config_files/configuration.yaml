@@ -16,7 +16,7 @@ batch_ratio: "1"
 
 # Training
 workers: 4
-batch_size: 32
+batch_size: 16
 num_iter: 300000
 valInterval: 5000
 saved_model: "/home/ubuntu/project/korean_g2.pth"
