@@ -126,8 +126,8 @@ def create_image_patches(unzipped_dir, output_dir, split2="select_data") -> None
                     fname = Path(f"{json_path.stem}_{xmin}-{ymin}-{xmax}-{ymax}.png")
                     # save_path = save_dir/"images"/fname
                     save_path = save_dir/fname
-                    # if not save_path.exists():
-                    save_image(img=patch, path=save_path)
+                    if not save_path.exists():
+                        save_image(img=patch, path=save_path)
 
                     ls_row.append(
                         (fname, text)
@@ -153,14 +153,22 @@ def prepare_dataset_for_evaluation(dataset_dir) -> None:
         _unzip(zip_file=zip_file, unzip_to=unzip_to)
 
 
-def check_data_count():
-    dataset = "/Users/jongbeom.kim/Documents/공공행정문서 OCR"
+def check_number_of_images(dataset):
+    # dataset = "/Users/jongbeom.kim/Documents/공공행정문서 OCR"
 
     tr = Path(dataset).parent/"dataset_for_training/training"
     val = Path(dataset).parent/"dataset_for_training/validation"
 
     n_img_tr = len(list(tr.glob("select_data/images/*.png")))
     n_img_val = len(list(val.glob("select_data/images/*.png")))
+
+    df_labels_tr = pd.read_csv(tr/"select_data/labels.csv")
+    df_labels_val = pd.read_csv(val/"select_data/labels.csv")
+    
+    if n_img_tr == len(df_labels_tr):
+        print(f"Number of training images: {n_img_tr}")
+    if n_img_val == len(df_labels_val):
+        print(f"Number of validation images: {n_img_val}")
 
 
 if __name__ == "__main__":
@@ -174,3 +182,5 @@ if __name__ == "__main__":
     )
 
     prepare_dataset_for_evaluation(args.dataset)
+
+    check_number_of_images(args.dataset)
