@@ -4,53 +4,53 @@ source set_environment.sh
 ```
 
 # Dataset
-- Training set: 102,477
-    [라벨]train.zip
-    [원천]train1.zip
-    [원천]train2.zip
-    [원천]train3.zip
-- Validation set: 11,397
-  - [라벨]validation.zip
-  - [원천]validation.zip
-- 비율 약 9:1
-## 구조
-### 압축 풀기 전
-공공행정문서 OCR
-  Training
-    [라벨]train.zip
-    [원천]train1.zip
-    [원천]train2.zip
-    [원천]train3.zip
-  Validation
-    [라벨]validation.zip
-    [원천]validation.zip
-## 압축 푼 후
+## Original
+공공행정문서 OCR
+├── Training (102,477)
+│   ├── [라벨]train.zip
+│   ├── [원천]train1.zip
+│   ├── [원천]train3.zip
+│   └── [원천]train2.zip
+│   └── ...
+└── Validation (11,397)
+    ├── [라벨]validation.zip
+    └── [원천]validation.zip
+## "unzipped"
 unzipped
-  training
-    images
-      인.허가
-      회계.예산
-      도시개발
-      일반행정
-      주민자치
-      지역환경.산림
-      상.하수도관리
-      농림.축산지원
-      산업진흥
-      주민복지
-      지역문화
-      주민생활지원
-    labels
-      ...
-  validation
-    images
-      ...
-    labels
-      ...
+├── training
+│   ├── images
+│   └── labels
+└── validation
+    ├── images
+    └── labels
+## "training_and_validation_set"
+training_and_validation_set
+├── training
+│   └── select_data
+│       ├── images
+│       │   └── ...
+│       └── labels.csv
+└── validation
+    └── select_data
+        ├── images
+        │   └── ...
+        └── labels.csv
+### "labels.csv"
+|filename|words|
+|-|-|
+|5350178-1999-0001-0344_829-262-1003-318.png|김해를|
+|5350178-1999-0001-0344_1022-262-1215-321.png|아름답게|
+|5350178-1999-0001-0344_1231-259-1384-324.png|시민을|
+|5350178-1999-0001-0344_1405-259-1620-324.png|행복하게|
+## "evaluation_set"
+evaluation_set
+├── images
+│   ├── ...
+└── labels
+    └── ...
 ## Preprocessing
 - 일부 좌표가 음수인 경우 0으로 수정했습니다.
-## Dataset
-- Grayscale
+
 
 # Configuration
 - Batch size: 64
@@ -65,15 +65,18 @@ Parameter Group 0
     weight_decay: 0
 )
 
-# 개수
-- Training set: 1,120,590
-- Validation set: 211,323
+# Training
+- Number of Image Patches
+  - Training set: 1,120,590
+  - Validation set: 211,323
+- Batch size: 16
+- Number of iterations per epoch: 70,036
 
-- batch_max_length (Maximum length of label): 34
-- Input image resolution: 600x64
-- input_channel: 1 (the number of input channel of Feature extractor)
-- output_channel: 256 (the number of output channel of Feature extractor)
-- hidden_size: 256 (the size of the LSTM hidden state)
+- Maximum length of label (`batch_max_length`): 34
+- Input image resolution: 600 x 64 (Width x Height)
+<!-- - input_channel: 1 (the number of input channel of Feature extractor)
+- output_channel: 256 (the number of output channel of Feature extractor) -->
+<!-- - hidden_size: 256 (the size of the LSTM hidden state) -->
 - Characters:
   - Numbers: 0123456789
   - Special characters: !\"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
@@ -82,6 +85,14 @@ Parameter Group 0
 
 # Pre-trained Model
 - Source: [korean_g2](https://github.com/JaidedAI/EasyOCR/releases/download/v1.3/korean_g2.zip)
+
+# Appling Fined-tuned Model
+~/.EasyOCR
+├── model
+│   ├── finetuned.pth
+└── user_network
+    ├── finetuned.py
+    └── finetuned.yaml
 
 # Metric
 # Edit distance
@@ -141,3 +152,4 @@ wer = jiwer.wer(gt, pred)
 - Intersection over Union: https://gaussian37.github.io/vision-detection-giou/
 - Metric: https://gist.github.com/tarlen5/008809c3decf19313de216b9208f3734
 - [What Is Wrong With Scene Text Recognition Model Comparisons? Dataset and Model Analysis](https://github.com/clovaai/deep-text-recognition-benchmark/blob/master/train.py)
+- https://davelogs.tistory.com/82

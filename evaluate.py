@@ -12,9 +12,6 @@ from collections import defaultdict
 # from process_image import (
     # convert_quadrilaterals_to_rectangles
 # )
-from easyocr.trainer.prepare_dataset import (
-    parse_json_file
-)
 from craft_utilities import (
     load_craft_checkpoint,
     # load_craft_refiner_checkpoint,
@@ -23,12 +20,17 @@ from craft_utilities import (
 from detect_texts import (
     get_word_level_bounding_boxes
 )
+from trainer.prepare_dataset import (
+    parse_json_file
+)
 
 
 def get_arguments():
     parser = argparse.ArgumentParser(description="ocr")
 
     parser.add_argument("--eval_set")
+    parser.add_argument("--baseline", action="store_true", default=False)
+    parser.add_argument("--finetuned", action="store_true", default=False)
     parser.add_argument("--cuda", default=False, action="store_true")
 
     args = parser.parse_args()
@@ -143,21 +145,23 @@ def spot_texts(img, reader):
 
 
 def evaluate(dataset_dir, reader, eval_result, type):
+    print(f"Evaluating '{dataset_dir}'...")
+
     dataset_dir = Path(dataset_dir)
 
     # for json_path in tqdm(list(dataset_dir.glob("**/*.json"))):
-    for json_path in tqdm(list(dataset_dir.glob("**/*.json"))[: 2]):
+    for json_path in tqdm(list(dataset_dir.glob("**/*.json"))[-5: ]):
         fname = "/".join(str(json_path).rsplit("/", 4)[1:])
 
         try:
             img, gt_bboxes, gt_texts = parse_json_file(json_path)
+        
+            pred_bboxes, pred_texts = spot_texts(img=img, reader=reader)
+            f1 = get_end_to_end_f1_score(gt_bboxes, gt_texts, pred_texts, pred_bboxes, iou_thr=0.5, rec=True)
+            
+            eval_result[fname][type] = f1
         except Exception:
             print(f"    No image file paring with '{json_path}'")
-        
-        pred_bboxes, pred_texts = spot_texts(img=img, reader=reader)
-        f1 = get_end_to_end_f1_score(gt_bboxes, gt_texts, pred_texts, pred_bboxes, iou_thr=0.5, rec=True)
-        
-        eval_result[fname][type] = f1
     return eval_result
 
 
@@ -173,24 +177,41 @@ def main():
     args = get_arguments()
 
     # Baseline
-    # reader_bl = easyocr.Reader(lang_list=["ko"], gpu=False)
     reader_bl = easyocr.Reader(lang_list=["ko"], gpu=args.cuda)
-    eval_result = evaluate(dataset_dir=args.eval_set, reader=reader_bl, eval_result=defaultdict(dict), type="baseline")
-
-    save_evaluation_result_as_csv(eval_result)
-
     # Fine-tuned
     reader_ft = easyocr.Reader(
-        lang_list=['ko'],
+        lang_list=["ko"],
         gpu=args.cuda,
-        model_storage_directory="/home/ubuntu/.EasyOCR/model",
-        user_network_directory="/home/ubuntu/.EasyOCR/user_network",
-        recog_network="custom"
+        # gpu=False,
+        # model_storage_directory="/home/ubuntu/.EasyOCR/model",
+        # user_network_directory="/home/ubuntu/.EasyOCR/user_network",
+        model_storage_directory="/Users/jongbeom.kim/.EasyOCR/model",
+        user_network_directory="/Users/jongbeom.kim/.EasyOCR/user_network",
+        recog_network="finetuned"
     )
-    # reader_ft = easyocr.Reader(lang_list=["ko"], gpu=False)
-    eval_result = evaluate(dataset_dir=args.eval_set, reader=reader_ft, eval_result=eval_result, type="finetuned")
-    
-    save_evaluation_result_as_csv(eval_result)
+
+    if args.baseline and args.finetuned:
+        eval_result = evaluate(
+            dataset_dir=args.eval_set, reader=reader_bl, eval_result=defaultdict(dict), type="baseline"
+        )
+        save_evaluation_result_as_csv(eval_result)
+
+        eval_result = evaluate(
+            dataset_dir=args.eval_set, reader=reader_ft, eval_result=eval_result, type="finetuned"
+        )
+        save_evaluation_result_as_csv(eval_result)
+
+    elif args.baseline and not args.finetuned:
+        eval_result = evaluate(
+            dataset_dir=args.eval_set, reader=reader_bl, eval_result=defaultdict(dict), type="baseline"
+        )
+        save_evaluation_result_as_csv(eval_result)
+
+    elif not args.baseline and args.finetuned:
+        eval_result = evaluate(
+            dataset_dir=args.eval_set, reader=reader_ft, eval_result=defaultdict(dict), type="finetuned"
+        )
+        save_evaluation_result_as_csv(eval_result)
 
 
 if __name__ == "__main__":
