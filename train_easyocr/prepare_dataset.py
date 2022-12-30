@@ -95,7 +95,7 @@ def unzip_dataset(dataset_dir) -> None:
 
 
 def save_image_patches(output_dir, split, select_data, json_file_list):
-    print(f"Creating image patches for {split}...")
+    print(f"Generating image patches for {split}...")
 
     save_dir = Path(output_dir)/split/select_data
     save_dir.mkdir(parents=True, exist_ok=True)
@@ -131,7 +131,7 @@ def save_image_patches(output_dir, split, select_data, json_file_list):
             except Exception:
                 print(f"    Failed to save '{fname}'.")
 
-    print(f"Completed creating image patches for {split}.")
+    print(f"Completed Generating image patches for {split}.")
 
 
 def prepare_evaluation_set(eval_set) -> None:

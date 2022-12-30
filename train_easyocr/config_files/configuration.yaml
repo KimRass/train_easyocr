@@ -1,3 +1,4 @@
+# Environment
 seed: 1111
 experiment_name: none-vgg-bilstm-ctc_1111
 
@@ -12,6 +13,9 @@ train_data: /data/training_and_validation_set/training
 val_data: /data/training_and_validation_set/validation
 select_data: select_data
 batch_ratio: 1
+  # Modulate the data ratio in the batch.
+  # For example, when `select_data` is `MJ-ST` and `batch_ratio` is `0.5-0.5`,
+  # the 50% of the batch is filled with 'MJ' and the other 50% of the batch is filled with 'ST'.
 total_data_usage_ratio: 1.0
 n_train_images: 20000
 n_val_images: 4000
@@ -19,11 +23,11 @@ n_val_images: 4000
 # Training
 workers: 4
 batch_size: 16
-n_iter: 300_000
+n_iter: 400_000
 val_period: 10_000 # Period to run validation
-# saved_model: /home/ubuntu/project/korean_g2.pth
-saved_model: ../saved_models/none-vgg-bilstm-ctc_1111/best_accuracy.pth
-FT: True
+# continue_from: /home/ubuntu/project/korean_g2.pth
+continue_from: ../saved_models/none-vgg-bilstm-ctc_1111/best_accuracy.pth
+FT: True # Whether to fine-tune
 
 # Optimizer
 optim: False # `Adadelta()` if `False`
@@ -42,8 +46,8 @@ Prediction: CTC
 img_height: 64
 img_width: 600
 # VGG
-rgb: False
-input_channel: 1
+rgb: True # `True` for RGB input image
+input_channel: 1 # `1` for grayscale input image, `3` for RGB
 output_channel: 256
 # BiLSTM
 hidden_size: 256

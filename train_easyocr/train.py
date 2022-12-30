@@ -39,13 +39,13 @@ def get_elapsed_time(time_start):
 
 
 def train(config, show_number=5, amp=False):
-    experiment_dir = Path(f"saved_models/{config.experiment_name}")
+    experiment_dir = Path(f"continue_froms/{config.experiment_name}")
     experiment_dir.mkdir(parents=True, exist_ok=True)
 
     """ Dataset preparation """
     if not config.data_filtering_off:
-        print('Filtering the images containing characters which are not in config.character')
-        print('Filtering the images whose label is longer than config.batch_max_length')
+        print("Filtering the images containing characters not in `config.character`")
+        print("Filtering the images whose label is longer than `config.batch_max_length`")
 
     config.select_data = config.select_data.split("-")
     config.batch_ratio = config.batch_ratio.split("-")
@@ -63,7 +63,6 @@ def train(config, show_number=5, amp=False):
     val_dataset, val_dataset_log = hierarchical_dataset(root=config.val_data, opt=config)
     val_loader = DataLoader(
         val_dataset,
-        # batch_size=min(32, config.batch_size),
         batch_size=config.batch_size,
         shuffle=True,  # 'True' to check training progress with validation function.
         num_workers=int(config.workers),
@@ -88,21 +87,16 @@ def train(config, show_number=5, amp=False):
         config.input_channel = 3
 
     model = Model(config)
-    # print(
-    #     f'model input parameters', config.img_height, config.img_width, config.num_fiducial, config.input_channel, config.output_channel,
-    #     config.hidden_size, config.num_class, config.batch_max_length, config.Transformation, config.FeatureExtraction,
-    #     config.SequenceModeling, config.Prediction
-    # )
 
-    if config.saved_model != "":
-        state = torch.load(config.saved_model, map_location=device)
+    if config.continue_from != "":
+        state = torch.load(config.continue_from, map_location=device)
         if config.new_prediction:
             model.Prediction = nn.Linear(
                 model.SequenceModeling_output, len(state['module.Prediction.weight'])
             )
         
         model = DataParallel(model).to(device) 
-        print(f"Loaded pretrained model from '{config.saved_model}'")
+        print(f"Loaded trained parameters from checkpoint '{config.continue_from}'")
         if config.FT:
             model.load_state_dict(state, strict=False)
         else:
@@ -188,9 +182,9 @@ def train(config, show_number=5, amp=False):
     """ Start training """
     # Continue training
     start_iter = 0
-    if config.saved_model != "":
+    if config.continue_from != "":
         try:
-            start_iter = int(config.saved_model.split('_')[-1].split('.')[0])
+            start_iter = int(config.continue_from.split('_')[-1].split('.')[0])
             print(f"Continue to train, start_iter: {start_iter}")
         except:
             pass
