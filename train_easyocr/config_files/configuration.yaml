@@ -26,7 +26,7 @@ batch_size: 16
 n_iter: 400_000
 val_period: 10_000 # Period to run validation
 # continue_from: /home/ubuntu/project/korean_g2.pth
-continue_from: ../saved_models/none-vgg-bilstm-ctc_1111/best_accuracy.pth
+continue_from: /home/ubuntu/project/text_spotting/train_easyocr/saved_models/none-vgg-bilstm-ctc_1111/best_accuracy.pth
 FT: True # Whether to fine-tune
 
 # Optimizer

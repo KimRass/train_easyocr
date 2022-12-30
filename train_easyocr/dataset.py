@@ -34,13 +34,13 @@ def adjust_contrast_grey(img, target = 0.4):
 
 class BatchBalancedDataset(object):
     def __init__(self, config):
-        dashed_line = '-' * 80
-        print(dashed_line)
+        # print(dashed_line)
 
         log = open(
             Path(__file__).parent/f"saved_models/{config.experiment_name}/log_dataset.txt",
             mode="a"
         )
+        dashed_line = "-" * 80
         log.write(f"{dashed_line}\n")
 
         # msg = f"dataset_root: {config.train_data}\n\
