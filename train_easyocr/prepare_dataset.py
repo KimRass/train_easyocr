@@ -145,22 +145,13 @@ def prepare_evaluation_set(eval_set) -> None:
     print(f"Preparing evaluation set...")
 
     for json_path in tqdm(eval_set):
-        # json_path = Path("/Users/jongbeom.kim/Documents/unzipped/training/labels/농림.축산지원/5350034/2011/5350034-2011-0001-0001.json")
-        # new_json_path = Path(str(json_path).replace("unzipped/training/", "evaluation_set/"))
-
-        # img_path = str(json_path).replace("labels/", "images/").replace(".json", ".jpg")
-        # new_img_path = Path(str(new_json_path).replace("labels/", "images/").replace(".json", ".jpg"))
-        
-        # new_img_path
-        
-        
         new_json_path = Path(str(json_path).replace("unzipped/validation/", "evaluation_set/"))
-        new_json_path.mkdir(parents=True, exist_ok=True)
+        new_json_path.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy(src=json_path, dst=new_json_path)
 
         img_path = str(json_path).replace("labels/", "images/").replace(".json", ".jpg")
         new_img_path = Path(str(new_json_path).replace("labels/", "images/").replace(".json", ".jpg"))
-        new_img_path.mkdir(parents=True, exist_ok=True)
+        new_img_path.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy(src=img_path, dst=new_img_path)
     
     print(f"Completed preparing evaluation set.")
