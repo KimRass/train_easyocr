@@ -208,13 +208,6 @@ def save_evaluation_result_as_csv(eval_result) -> None:
     df_result.reset_index(inplace=True)
     df_result.rename({"index": "file"}, axis=1, inplace=True)
 
-    f1_bl = df_result["baseline"].mean()
-    f1_ft = df_result["finetuned"].mean()
-
-    print(f"Mean f1 score for baseline model:   {f1_bl:.3f}")
-    print(f"Mean f1 score for fine-tuned model: {f1_ft:.3f}")
-    print(f"Increased {(f1_ft - f1_bl) / f1_bl:.1%}")
-
     df_result.to_csv("evaluation_result.csv", index=False)
 
 
@@ -260,3 +253,10 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+    # f1_bl = df_result["baseline"].mean()
+    # f1_ft = df_result["finetuned"].mean()
+
+    # print(f"Mean f1 score for baseline model:   {f1_bl:.3f}")
+    # print(f"Mean f1 score for fine-tuned model: {f1_ft:.3f}")
+    # print(f"Increased {(f1_ft - f1_bl) / f1_bl:.1%}")
