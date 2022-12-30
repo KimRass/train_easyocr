@@ -58,7 +58,7 @@ unzipped
 ## "training_and_validation_set"
 ```
 training_and_validation_set
-├── training (1,120,590) (2,144,196)
+├── training (1,120,590) (2,144,196) (2,038,547?)
 │   └── select_data
 │       ├── images
 │       │   └── ...

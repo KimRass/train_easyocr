@@ -45,7 +45,7 @@ def train(config, show_number=5, amp=False):
     """ Dataset preparation """
     if not config.data_filtering_off:
         print("Filtering the images containing characters not in `config.character`")
-        print("Filtering the images whose label is longer than `config.batch_max_length`")
+        print("Filtering the images whose label is longer than `config.batch_max_length`", end="\n\n")
 
     config.select_data = config.select_data.split("-")
     config.batch_ratio = config.batch_ratio.split("-")
@@ -60,7 +60,7 @@ def train(config, show_number=5, amp=False):
         keep_ratio_with_pad=config.PAD,
         contrast_adjust=config.contrast_adjust
     )
-    val_dataset, val_dataset_log = hierarchical_dataset(root=config.val_data, opt=config)
+    val_dataset, val_dataset_log = hierarchical_dataset(root=config.val_data, config=config)
     val_loader = DataLoader(
         val_dataset,
         batch_size=config.batch_size,
@@ -270,7 +270,7 @@ def train(config, show_number=5, amp=False):
                         criterion=criterion,
                         evaluation_loader=val_loader,
                         converter=converter,
-                        opt=config,
+                        config=config,
                         device=device
                     )
                 model.train()

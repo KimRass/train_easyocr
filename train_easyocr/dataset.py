@@ -43,11 +43,11 @@ class BatchBalancedDataset(object):
         )
         log.write(f"{dashed_line}\n")
 
-        msg = f"dataset_root: {config.train_data}\n\
-            config.select_data: {config.select_data}\n\
-            config.batch_ratio: {config.batch_ratio}"
-        print(msg)
-        log.write(f"{msg}\n")
+        # msg = f"dataset_root: {config.train_data}\n\
+        #     config.select_data: {config.select_data}\n\
+        #     config.batch_ratio: {config.batch_ratio}"
+        # print(msg)
+        # log.write(f"{msg}\n")
 
         assert len(config.select_data) == len(config.batch_ratio)
 
@@ -87,12 +87,8 @@ class BatchBalancedDataset(object):
                     dataset_split
                 )
             ]
-            selected_d_log = f"Total number of samples of {selected_d}: \
-                {total_number_dataset} x {config.total_data_usage_ratio} ('total_data_usage_ratio') = \
-                {len(_dataset)}\n"
-            selected_d_log += f"Number of samples of {selected_d} per batch: \
-                {config.batch_size} x {float(batch_ratio_d)} ('batch_ratio') = \
-                {_batch_size}"
+            selected_d_log = f"Total number of samples of '{selected_d}': {total_number_dataset:,} x {config.total_data_usage_ratio} ('total_data_usage_ratio') = {len(_dataset):,}\n"
+            selected_d_log += f"Number of samples of '{selected_d}' per batch: {config.batch_size} x {float(batch_ratio_d)} ('batch_ratio') = {_batch_size}"
 
             print(selected_d_log)
             log.write(f"{selected_d_log}\n")
@@ -143,8 +139,7 @@ class BatchBalancedDataset(object):
 def hierarchical_dataset(root, config, select_data='/'):
     """ select_data='/' contains all sub-directory of root directory """
     dataset_list = list()
-    dataset_log = f'dataset_root:    {root}\t \
-        dataset: {select_data[0]}'
+    dataset_log = f"Dataset root: '{root}'\tDataset: '{select_data[0]}'"
     print(dataset_log)
 
     dataset_log += "\n"
@@ -158,8 +153,7 @@ def hierarchical_dataset(root, config, select_data='/'):
 
             if select_flag:
                 dataset = OCRDataset(dirpath, config)
-                sub_dataset_log = f"Subdirectory: {os.path.relpath(dirpath, root)}\t\
-                    Number of samples: {len(dataset)}"
+                sub_dataset_log = f"Subdirectory: {os.path.relpath(dirpath, root)}\tNumber of samples: {len(dataset)}"
                 print(sub_dataset_log)
                 dataset_log += f'{sub_dataset_log}\n'
                 dataset_list.append(dataset)
