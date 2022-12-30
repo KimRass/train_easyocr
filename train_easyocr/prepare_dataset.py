@@ -57,13 +57,6 @@ def _unzip(zip_file, unzip_to):
     with ZipFile(zip_file, mode="r") as zip_obj:
         ls_member = zip_obj.infolist()
 
-        # if not evaluation:
-        #     # ls_member = ls_member[:: 10]
-        #     ls_member = ls_member[:: 10000]
-        # else:
-        #     # ls_member = ls_member[1:: 20]
-        #     ls_member = ls_member[1:: 20000]
-
         for member in tqdm(ls_member):
             try:
                 member.filename = member.filename.encode("cp437").decode("euc-kr", "ignore")
@@ -168,13 +161,9 @@ def count_images(dataset):
     df_labels_val = pd.read_csv(val/"select_data/labels.csv")
     
     if n_img_tr == len(df_labels_tr):
-        print(f"Number of training images: {n_img_tr:,}")
+        print(f"Number of image patches for training: {n_img_tr:,}")
     if n_img_val == len(df_labels_val):
-        print(f"Number of validation images: {n_img_val:,}")
-    # print(n_img_tr)
-    # print(len(df_labels_tr))
-    # print(n_img_val)
-    # print(len(df_labels_val))
+        print(f"Number of image patches for validation: {n_img_val:,}")
 
 
 if __name__ == "__main__":
@@ -193,10 +182,10 @@ if __name__ == "__main__":
     unzipped_dir = Path(args.dataset).parent/"unzipped"
 
     train_set = random.choices(
-        list((unzipped_dir/"training"/"labels").glob("**/*.json")), k=10000
+        list((unzipped_dir/"training"/"labels").glob("**/*.json")), k=config.n_train_images
     )
     val_set = random.choices(
-        list((unzipped_dir/"validation"/"labels").glob("**/*.json")), k=2000
+        list((unzipped_dir/"validation"/"labels").glob("**/*.json")), k=config.n_val_images
     )
     eval_set = random.choices(
         list(

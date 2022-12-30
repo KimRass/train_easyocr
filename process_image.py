@@ -48,20 +48,6 @@ def draw_rectangles_on_image(img, rectangles1, rectangles2=None, thickness=2):
             cv2.rectangle(
                 img=img_copied, pt1=(xmin, ymin), pt2=(xmax, ymax), color=(0, 0, 255), thickness=thickness
             )
-
-    # if "block" in rectangles.columns.tolist():
-    #     for block, xmin, ymin, xmax, ymax in rectangles.drop_duplicates(["block"])[
-    #         ["block", "xmin", "ymin", "xmax", "ymax"]
-    #     ].values:
-    #         cv2.putText(
-    #             img=img_copied,
-    #             text=str(block),
-    #             org=(xmin, ymin),
-    #             fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-    #             fontScale=0.5,
-    #             color=(255, 0, 0),
-    #             thickness=2
-    #         )
     return img_copied
 
 
@@ -157,48 +143,13 @@ def get_image_cropped_by_rectangle(img, xmin, ymin, xmax, ymax):
         return img[ymin: ymax, xmin: xmax]
 
 
-def thin_out_image(img, kernel_shape=(1, 1), iterations=1):
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, ksize=(kernel_shape[1], kernel_shape[0]))
-    img = cv2.erode(src=img, kernel=kernel, iterations=iterations)
-    return img
+# def thin_out_image(img, kernel_shape=(1, 1), iterations=1):
+#     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, ksize=(kernel_shape[1], kernel_shape[0]))
+#     img = cv2.erode(src=img, kernel=kernel, iterations=iterations)
+#     return img
 
 
-def thicken_image(img, kernel_shape=(1, 1), iterations=1):
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, ksize=(kernel_shape[1], kernel_shape[0]))
-    img = cv2.dilate(src=img, kernel=kernel, iterations=iterations)
-    return img
-
-
-# img = load_image_as_array("/Users/jongbeom.kim/Documents/공공행정문서 OCR/Training/2.원천데이터_부분라벨링/인.허가/5350108/1993/0001/5350108-1993-0001-0827.jpg")
-# img_blur = cv2.GaussianBlur(img, (3,3), 0)
-# _, thr = cv2.threshold(src=img_blur, thresh=160, maxval=255, type=cv2.THRESH_BINARY)
-# show_image(thr)
-
-# _, thr = cv2.threshold(src=img, thresh=160, maxval=255, type=cv2.THRESH_BINARY)
-# show_image(thr)
-
-# thk = thicken_image(
-#     thin_out_image(thr)
-# )
-# thk = thicken_image(
-#     thin_out_image(thk)
-# )
-# thk = thicken_image(
-#     thin_out_image(thk)
-# )
-# thk = thin_out_image(thk, iterations=2)
-# # thk = thin_out_image(
-# #     thicken_image(thk), iterations=2
-# # )
-# edge = cv2.Canny(image=thk, threshold1=200, threshold2=255)
-# show_image(invert_image(thr[:, :, 0]) + edge)
-
-# show_image(thk)
-# # inv = invert_image(thr)
-
-# show_image(thr)
-
-
-# # dst = cv2.fastNlMeansDenoising(src=img, dts=None, h=10, templateWindowSize=7, searchWIndowSize=21)
-# dst = cv2.fastNlMeansDenoising(img, None, 10, 7, 21)
-# show_image(dst)
+# def thicken_image(img, kernel_shape=(1, 1), iterations=1):
+#     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, ksize=(kernel_shape[1], kernel_shape[0]))
+#     img = cv2.dilate(src=img, kernel=kernel, iterations=iterations)
+#     return img

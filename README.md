@@ -8,10 +8,10 @@ source set_environment.sh
 # Example
 python3 train_easyocr/prepare_dataset.py\
   --dataset="/data/original"\ # Path to the original dataset "공공행정문서 OCR"
-  --unzip\ # Unzip
-  --training\ # Generate training set
-  --validation\ # Generate validation set
-  --evaluation # Generate evaluation set
+  --unzip\ # Whether to unzip
+  --training\ # Whether to generate training set
+  --validation\ # Whether to generate validation set
+  --evaluation # Whether to generate evaluation set
 ```
 ## Training (Fine-tunning)
 ```sh

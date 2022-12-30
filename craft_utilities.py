@@ -10,9 +10,9 @@ from torch_utilities import (
 from models.craft import (
     CRAFT
 )
-from models.craft_refiner import (
-    CRAFTRefiner
-)
+# from models.craft_refiner import (
+#     CRAFTRefiner
+# )
 
 
 def load_craft_checkpoint(cuda=False):

@@ -54,24 +54,24 @@ def train(config, show_number=5, amp=False):
 
     log = open(experiment_dir/"log_dataset.txt", mode='a', encoding="utf8")
 
-    AlignCollate_valid = AlignCollate(
+    AlignCollate_val = AlignCollate(
         img_height=config.img_height,
         img_width=config.img_width,
         keep_ratio_with_pad=config.PAD,
         contrast_adjust=config.contrast_adjust
     )
-    valid_dataset, valid_dataset_log = hierarchical_dataset(root=config.valid_data, opt=config)
-    valid_loader = DataLoader(
-        valid_dataset,
+    val_dataset, val_dataset_log = hierarchical_dataset(root=config.val_data, opt=config)
+    val_loader = DataLoader(
+        val_dataset,
         # batch_size=min(32, config.batch_size),
         batch_size=config.batch_size,
         shuffle=True,  # 'True' to check training progress with validation function.
         num_workers=int(config.workers),
         prefetch_factor=512,
-        collate_fn=AlignCollate_valid,
+        collate_fn=AlignCollate_val,
         pin_memory=True
     )
-    log.write(valid_dataset_log)
+    log.write(val_dataset_log)
 
     print("-" * 80)
     log.write("-" * 80 + '\n')
@@ -253,7 +253,7 @@ def train(config, show_number=5, amp=False):
         loss_avg.add(loss)
 
         # Validation part
-        if (i % config.val_interval == 0) and (i!=0):
+        if (i % config.val_period == 0) and (i!=0):
             print(f"Training time: {get_elapsed_time(t1)}")
 
             t1 = time()
@@ -263,7 +263,7 @@ def train(config, show_number=5, amp=False):
                 model.eval()
                 with torch.no_grad():
                     (
-                        valid_loss,
+                        val_loss,
                         current_accuracy,
                         current_norm_ED,
                         preds,
@@ -274,15 +274,15 @@ def train(config, show_number=5, amp=False):
                     ) = validation(
                         model=model,
                         criterion=criterion,
-                        evaluation_loader=valid_loader,
+                        evaluation_loader=val_loader,
                         converter=converter,
                         opt=config,
                         device=device
                     )
                 model.train()
 
-                # Training loss and validation loss
-                loss_log = f'[{i}/{config.n_iter}]\nTrain loss: {loss_avg.val():0.5f} | Valid loss: {valid_loss:0.5f} | elapsed: {elapsed:0.5f}'
+                # Training loss and valation loss
+                loss_log = f'[{i}/{config.n_iter}]\nTrain loss: {loss_avg.val():0.5f} | Valid loss: {val_loss:0.5f} | elapsed: {elapsed:0.5f}'
                 loss_avg.reset()
 
                 current_model_log = f'{"Current_accuracy":17s}: {current_accuracy:0.3f}  |  {"Current_norm_ED":17s}: {current_norm_ED:0.4f}'
