@@ -182,10 +182,10 @@ def main():
         lang_list=["ko"],
         gpu=args.cuda,
         # gpu=False,
-        # model_storage_directory="/home/ubuntu/.EasyOCR/model",
-        # user_network_directory="/home/ubuntu/.EasyOCR/user_network",
-        model_storage_directory="/Users/jongbeom.kim/.EasyOCR/model",
-        user_network_directory="/Users/jongbeom.kim/.EasyOCR/user_network",
+        model_storage_directory="/home/ubuntu/.EasyOCR/model",
+        user_network_directory="/home/ubuntu/.EasyOCR/user_network",
+        # model_storage_directory="/Users/jongbeom.kim/.EasyOCR/model",
+        # user_network_directory="/Users/jongbeom.kim/.EasyOCR/user_network",
         recog_network="finetuned"
     )
 

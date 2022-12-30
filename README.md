@@ -3,7 +3,10 @@
 source set_environment.sh
 ```
 ```sh
-python3 train_easyocr/train.py 
+python3 /train_easyocr/train.py 
+```
+```sh
+cp /train_easyocr/saved_models/none-vgg-bilstm-ctc_1111/best_accuracy.pth ~/.EasyOCR/model/finetuned.pth
 ```
 
 # Dataset
