@@ -12,7 +12,7 @@ character: " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`a
 train_data: /data/training_and_validation_set/training
 val_data: /data/training_and_validation_set/validation
 select_data: select_data
-batch_ratio: 1
+batch_ratio: "1"
   # Modulate the data ratio in the batch.
   # For example, when `select_data` is `MJ-ST` and `batch_ratio` is `0.5-0.5`,
   # the 50% of the batch is filled with 'MJ' and the other 50% of the batch is filled with 'ST'.
