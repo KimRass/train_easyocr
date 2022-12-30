@@ -334,7 +334,7 @@ def train(config, show_number=5, amp=False):
 
 
 def main():
-    with open("./config_files/configuration.yaml", mode="r", encoding="utf8") as f:
+    with open("../config_files/configuration.yaml", mode="r", encoding="utf8") as f:
         config = AttrDict(
             yaml.safe_load(f)
         )
