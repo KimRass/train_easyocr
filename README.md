@@ -5,7 +5,13 @@ source set_environment.sh
 ```
 ## Dataset Preparation
 ```sh
-python3 train_easyocr/prepare_dataset.py --dataset="/data/original" --unzip --training --validation --evaluation
+# Example
+python3 train_easyocr/prepare_dataset.py\
+  --dataset="/data/original"\ # Path to the original dataset "공공행정문서 OCR"
+  --unzip\ # Unzip
+  --training\ # Generate training set
+  --validation\ # Generate validation set
+  --evaluation # Generate evaluation set
 ```
 ## Training (Fine-tunning)
 ```sh
@@ -16,8 +22,13 @@ python3 train_easyocr/train.py
 cp train_easyocr/saved_models/none-vgg-bilstm-ctc_1111/best_accuracy.pth ~/.EasyOCR/model/finetuned.pth
 ```
 ## Evaluation
-```
-python3 evaluate.py --eval_set="/data/evaluation_set" --finetuned --cuda
+```sh
+# Example
+python3 evaluate.py\
+  --eval_set="/data/evaluation_set"\ # Path to the evaluation set
+  --baseline\ # Whether to evaluate EasyOCR baseline model
+  --finetuned\ # Whether to evaluate fine-tuned model
+  --cuda # Whether to use GPU
 ```
 
 # Dataset
@@ -92,7 +103,7 @@ Parameter Group 0
 )
 
 # Training
-- Number of Image Patches
+- Number of image patches
   - Training set: 1,120,590
   - Validation set: 211,323
 - Batch size: 16
@@ -100,9 +111,6 @@ Parameter Group 0
 
 - Maximum length of label (`batch_max_length`): 34
 - Input image resolution: 600 x 64 (Width x Height)
-<!-- - input_channel: 1 (the number of input channel of Feature extractor)
-- output_channel: 256 (the number of output channel of Feature extractor) -->
-<!-- - hidden_size: 256 (the size of the LSTM hidden state) -->
 - Characters:
   - Numbers: 0123456789
   - Special characters: !\"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
@@ -134,11 +142,22 @@ Types of edit distance
 - CER = (S + D + I) / N
   - N: Number of characters in grund truth (= S + D + C)
 ```python
-import import jiwer
+import jiwer
 
 cer = jiwer.cer(gt, pred)
 wer = jiwer.wer(gt, pred)
 ```
+## Limitations of Evaluation Metric
+- Reference: https://arxiv.org/pdf/2006.06244.pdf
+- IoU + CRW (Correctly Recognized Words)
+- One-to-many 또는 Many-to-one 상황에서 대응 x
+## CLEval
+- Not IoU-based evaluation metric.
+
+# Evaluation
+- Number of images: 484
+## Baseline
+- F1 score: 0.53
 
 # Library Comparison
 ## PaddleOCR
@@ -156,15 +175,6 @@ wer = jiwer.wer(gt, pred)
   - Prediction: CTC or Attention
   - (None-VGG-BiLSTM-CTC)
 
-# Baseline
-- F1 score: 0.53
-
-# Limitation of Evaluation Metric
-- Reference: https://arxiv.org/pdf/2006.06244.pdf
-- IoU + CRW (Correctly Recognized Words)
-- One-to-many 또는 Many-to-one 상황에서 대응 x
-## CLEval
-- Not IoU-based evaluation metric.
 
 # Improvements
 ## Hyperparameter Tunning
@@ -172,6 +182,9 @@ wer = jiwer.wer(gt, pred)
 - `decoder`: `"greedy"` -> `"beam"`?
 ## Image Processing
 ## Fine Tunning
+
+# To Do
+- 문맥을 고려한 교정
 
 # References
 - Baseline: https://github.com/JaidedAI/EasyOCR

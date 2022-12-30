@@ -9,16 +9,14 @@ experiment_name: "none-vgg-bilstm-ctc_1111"
 # Dataset
 train_data: "/data/training_and_validation_set/training"
 valid_data: "/data/training_and_validation_set/validation"
-# select_data: "MJ-ST"
 select_data: "select_data"
-# batch_ratio: "0.5-0.5"
 batch_ratio: "1"
 
 # Training
 workers: 4
 batch_size: 16
 n_iter: 300_000
-val_interval: 5_000 # Validation을 수행할 주기
+val_interval: 5_000 # Period to run validation
 saved_model: "/home/ubuntu/project/korean_g2.pth"
 FT: True
 # Optimizer

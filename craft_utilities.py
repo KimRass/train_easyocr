@@ -20,14 +20,14 @@ def load_craft_checkpoint(cuda=False):
     if cuda:
         craft = craft.to("cuda")
 
-    # path_ckpt = Path(__file__).parent/"pretrained/craft.pth"
-    path_ckpt = "/Users/jongbeom.kim/Desktop/workspace/text_spotting/pretrained/craft.pth"
-    state = torch.load(path_ckpt, map_location="cuda" if cuda else "cpu")
+    # ckpt_path = Path(__file__).parent/"pretrained/craft.pth"
+    ckpt_path = "/Users/jongbeom.kim/Desktop/workspace/text_spotting/pretrained/craft.pth"
+    state = torch.load(ckpt_path, map_location="cuda" if cuda else "cpu")
     craft.load_state_dict(
         copy_state_dict(state), strict=True
     )
 
-    print(f"Loaded pre-trained parameters for 'CRAFT' from checkpoint '{path_ckpt}'.")
+    print(f"Loaded pre-trained parameters for 'CRAFT' from checkpoint '{ckpt_path}'.")
     return craft
 
 
@@ -36,14 +36,14 @@ def load_craft_checkpoint(cuda=False):
 #     if cuda:
 #         craft_refiner = craft_refiner.to("cuda")
 
-#     path_ckpt = Path(__file__).parent/"pretrained/craft_refiner.pth"
-#     # path_ckpt = "/Users/jongbeom.kim/Desktop/workspace/text_spotting/pretrained/craft_refiner.pth"
-#     state = torch.load(path_ckpt, map_location="cuda" if cuda else "cpu")
+#     ckpt_path = Path(__file__).parent/"pretrained/craft_refiner.pth"
+#     # ckpt_path = "/Users/jongbeom.kim/Desktop/workspace/text_spotting/pretrained/craft_refiner.pth"
+#     state = torch.load(ckpt_path, map_location="cuda" if cuda else "cpu")
 #     craft_refiner.load_state_dict(
 #         copy_state_dict(state), strict=True
 #     )
 
-#     print(f"Loaded pre-trained parameters for 'CRAFT' refiner from checkpoint '{path_ckpt}'.")
+#     print(f"Loaded pre-trained parameters for 'CRAFT' refiner from checkpoint '{ckpt_path}'.")
 #     return craft_refiner
 
 
