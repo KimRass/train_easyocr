@@ -46,7 +46,7 @@ Prediction: CTC
 img_height: 64
 img_width: 600
 # VGG
-rgb: True # `True` for RGB input image
+rgb: False # `True` for RGB input image
 input_channel: 1 # `1` for grayscale input image, `3` for RGB
 output_channel: 256
 # BiLSTM

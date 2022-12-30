@@ -136,14 +136,14 @@ class BatchBalancedDataset(object):
         return balanced_batch_images, balanced_batch_texts
 
 
-def hierarchical_dataset(root, config, select_data='/'):
-    """ select_data='/' contains all sub-directory of root directory """
+# `select_data="/"` contains all sub-directory of root directory
+def hierarchical_dataset(root, config, select_data="/"):
     dataset_list = list()
     dataset_log = f"Dataset root: '{root}'\tDataset: '{select_data[0]}'"
     print(dataset_log)
 
     dataset_log += "\n"
-    for dirpath, dirnames, filenames in os.walk(root+'/'):
+    for dirpath, dirnames, filenames in os.walk(root + "/"):
         if not dirnames:
             select_flag = False
             for selected_d in select_data:
