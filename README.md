@@ -63,7 +63,7 @@ training_and_validation_set
 │       ├── images
 │       │   └── ...
 │       └── labels.csv
-└── validation (211,323) (398,731)
+└── validation (211,323) (398,731) (379,235?)
     └── select_data
         ├── images
         │   └── ...

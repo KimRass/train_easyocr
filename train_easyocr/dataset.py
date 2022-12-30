@@ -87,8 +87,10 @@ class BatchBalancedDataset(object):
                     dataset_split
                 )
             ]
-            selected_d_log = f"Total number of samples of '{selected_d}': {total_number_dataset:,} x {config.total_data_usage_ratio} ('total_data_usage_ratio') = {len(_dataset):,}\n"
-            selected_d_log += f"Number of samples of '{selected_d}' per batch: {config.batch_size} x {float(batch_ratio_d)} ('batch_ratio') = {_batch_size}"
+            selected_d_log = f"Total number of samples of '{selected_d}': {len(_dataset):,}\n"
+            # selected_d_log = f"Total number of samples of '{selected_d}': {total_number_dataset:,} x {config.total_data_usage_ratio} ('total_data_usage_ratio') = {len(_dataset):,}\n"
+            selected_d_log += f"Number of samples of '{selected_d}' per batch: {_batch_size}"
+            # selected_d_log += f"Number of samples of '{selected_d}' per batch: {config.batch_size} x {float(batch_ratio_d)} ('batch_ratio') = {_batch_size}"
 
             print(selected_d_log)
             log.write(f"{selected_d_log}\n")
@@ -154,7 +156,7 @@ def hierarchical_dataset(root, config, select_data="/"):
 
             if select_flag:
                 dataset = OCRDataset(dirpath, config)
-                sub_dataset_log = f"Subdirectory: {os.path.relpath(dirpath, root)}\nNumber of samples: {len(dataset):,}"
+                sub_dataset_log = f"Subdirectory: '{os.path.relpath(dirpath, root)}'\nNumber of samples: {len(dataset):,}"
                 print(sub_dataset_log)
                 dataset_log += f'{sub_dataset_log}\n'
                 dataset_list.append(dataset)
