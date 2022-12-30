@@ -2,10 +2,8 @@ import os
 import torch.backends.cudnn as cudnn
 import yaml
 
-from easyocr.trainer.train import train
-# from train import train
-from easyocr.trainer.utils import AttrDict
-# from utils import AttrDict
+from trainer.train import train
+from trainer.utils import AttrDict
 import pandas as pd
 
 cudnn.benchmark = True
