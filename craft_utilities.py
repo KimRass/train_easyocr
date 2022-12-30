@@ -20,8 +20,8 @@ def load_craft_checkpoint(cuda=False):
     if cuda:
         craft = craft.to("cuda")
 
-    # ckpt_path = Path(__file__).parent/"pretrained/craft.pth"
-    ckpt_path = "/Users/jongbeom.kim/Desktop/workspace/text_spotting/pretrained/craft.pth"
+    ckpt_path = Path(__file__).parent/"pretrained/craft.pth"
+    # ckpt_path = "/Users/jongbeom.kim/Desktop/workspace/text_spotting/pretrained/craft.pth"
     state = torch.load(ckpt_path, map_location="cuda" if cuda else "cpu")
     craft.load_state_dict(
         copy_state_dict(state), strict=True
