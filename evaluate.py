@@ -1,4 +1,3 @@
-# Reference: https://gist.github.com/tarlen5/008809c3decf19313de216b9208f3734
 import numpy as np
 import jiwer
 from pathlib import Path
@@ -20,7 +19,7 @@ from craft_utilities import (
 from detect_texts import (
     get_word_level_bounding_boxes
 )
-from trainer.prepare_dataset import (
+from train_easyocr.prepare_dataset import (
     parse_json_file
 )
 

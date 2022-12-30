@@ -30,12 +30,12 @@ unzipped
 ## "training_and_validation_set"
 ```
 training_and_validation_set
-├── training
+├── training (1,120,590)
 │   └── select_data
 │       ├── images
 │       │   └── ...
 │       └── labels.csv
-└── validation
+└── validation (211,323)
     └── select_data
         ├── images
         │   └── ...
