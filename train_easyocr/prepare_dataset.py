@@ -191,7 +191,7 @@ def count_images(dataset):
 if __name__ == "__main__":
     args = get_arguments()
 
-    with open("config_files/configuration.yaml", mode="r", encoding="utf8") as f:
+    with open(Path(__file__).parent/"config_files/configuration.yaml", mode="r", encoding="utf8") as f:
         config = AttrDict(
             yaml.safe_load(f)
         )
