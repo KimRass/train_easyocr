@@ -2,6 +2,9 @@
 ```sh
 source set_environment.sh
 ```
+```sh
+python3 train_easyocr/train.py 
+```
 
 # Dataset
 ## Original
