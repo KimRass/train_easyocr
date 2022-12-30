@@ -165,8 +165,8 @@ def train(config, show_number=5, amp=False):
         optimizer = Adam(filtered_parameters)
     else:
         optimizer = Adadelta(filtered_parameters, lr=config.lr, rho=config.rho, eps=config.eps)
-    print("optimizer:")
-    print(f"    {optimizer}")
+    # print("optimizer:")
+    # print(f"    {optimizer}")
 
     """ Final configions """
     # print(config)
@@ -221,7 +221,7 @@ def train(config, show_number=5, amp=False):
                     loss = criterion(preds.view(-1, preds.shape[-1]), target.contiguous().view(-1))
             scaler.scale(loss).backward()
             scaler.unscale_(optimizer)
-            torch.nn.utils.clip_grad_norm_(parameters=model.parameters(), max_norm=config.grad_clip)
+            nn.utils.clip_grad_norm_(parameters=model.parameters(), max_norm=config.grad_clip)
             scaler.step(optimizer)
             scaler.update()
         else:
@@ -242,7 +242,7 @@ def train(config, show_number=5, amp=False):
                 target = text[:, 1:]  # without [GO] Symbol
                 loss = criterion(preds.view(-1, preds.shape[-1]), target.contiguous().view(-1))
             loss.backward()
-            torch.nn.utils.clip_grad_norm_(parameters=model.parameters(), max_norm=config.grad_clip) 
+            nn.utils.clip_grad_norm_(parameters=model.parameters(), max_norm=config.grad_clip) 
             optimizer.step()
         loss_avg.add(loss)
 

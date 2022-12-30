@@ -139,7 +139,8 @@ class BatchBalancedDataset(object):
 # `select_data="/"` contains all sub-directory of root directory
 def hierarchical_dataset(root, config, select_data="/"):
     dataset_list = list()
-    dataset_log = f"Dataset root: '{root}'\tDataset: '{select_data[0]}'"
+    # dataset_log = f"Dataset root: '{root}'\tDataset: '{select_data[0]}'"
+    dataset_log = f"Dataset root: '{root}'"
     print(dataset_log)
 
     dataset_log += "\n"
@@ -153,7 +154,7 @@ def hierarchical_dataset(root, config, select_data="/"):
 
             if select_flag:
                 dataset = OCRDataset(dirpath, config)
-                sub_dataset_log = f"Subdirectory: {os.path.relpath(dirpath, root)}\tNumber of samples: {len(dataset)}"
+                sub_dataset_log = f"Subdirectory: {os.path.relpath(dirpath, root)}\nNumber of samples: {len(dataset):,}"
                 print(sub_dataset_log)
                 dataset_log += f'{sub_dataset_log}\n'
                 dataset_list.append(dataset)
@@ -166,7 +167,7 @@ class OCRDataset(Dataset):
     def __init__(self, root, config):
         self.root = root
         self.config = config
-        print(root)
+        # print(root)
         self.df = pd.read_csv(
             os.path.join(
                 os.path.dirname(root), 'labels.csv'

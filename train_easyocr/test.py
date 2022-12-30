@@ -16,7 +16,7 @@ from utils import Averager
 # from model import Model
 
 
-def validation(model, criterion, evaluation_loader, converter, opt, device):
+def validation(model, criterion, evaluation_loader, converter, config, device):
     """ validation or evaluation """
     n_correct = 0
     norm_ED = 0
@@ -29,13 +29,13 @@ def validation(model, criterion, evaluation_loader, converter, opt, device):
         length_of_data = length_of_data + batch_size
         image = image_tensors.to(device)
         # For max length prediction
-        length_for_pred = torch.IntTensor([opt.batch_max_length] * batch_size).to(device)
-        text_for_pred = torch.LongTensor(batch_size, opt.batch_max_length + 1).fill_(0).to(device)
+        length_for_pred = torch.IntTensor([config.batch_max_length] * batch_size).to(device)
+        text_for_pred = torch.LongTensor(batch_size, config.batch_max_length + 1).fill_(0).to(device)
 
-        text_for_loss, length_for_loss = converter.encode(labels, batch_max_length=opt.batch_max_length)
+        text_for_loss, length_for_loss = converter.encode(labels, batch_max_length=config.batch_max_length)
         
         start_time = time.time()
-        if 'CTC' in opt.Prediction:
+        if 'CTC' in config.Prediction:
             preds = model(image, text_for_pred)
             forward_time = time.time() - start_time
 
@@ -44,12 +44,12 @@ def validation(model, criterion, evaluation_loader, converter, opt, device):
             # permute 'preds' to use CTCloss format
             cost = criterion(preds.log_softmax(2).permute(1, 0, 2), text_for_loss, preds_size, length_for_loss)
 
-            if opt.decode == 'greedy':
+            if config.decode == 'greedy':
                 # Select max probabilty (greedy decoding) then decode index to character
                 _, preds_index = preds.max(2)
                 preds_index = preds_index.view(-1)
                 preds_str = converter.decode_greedy(preds_index.data, preds_size.data)
-            elif opt.decode == 'beamsearch':
+            elif config.decode == 'beamsearch':
                 preds_str = converter.decode_beamsearch(preds, beamWidth=2)
 
         else:
@@ -74,7 +74,7 @@ def validation(model, criterion, evaluation_loader, converter, opt, device):
         confidence_score_list = []
         
         for gt, pred, pred_max_prob in zip(labels, preds_str, preds_max_prob):
-            if 'Attn' in opt.Prediction:
+            if 'Attn' in config.Prediction:
                 gt = gt[:gt.find('[s]')]
                 pred_EOS = pred.find('[s]')
                 pred = pred[:pred_EOS]  # prune after "end of sentence" token ([s])

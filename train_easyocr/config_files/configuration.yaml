@@ -34,7 +34,6 @@ optim: False # `Adadelta()` if `False`
 lr: 1.
 rho: 0.95
 eps: 0.00000001
-beta1: 0.9
 grad_clip: 5
 
 # Model Architecture
