@@ -24,22 +24,22 @@ from process_image import (
 def get_arguments():
     parser = argparse.ArgumentParser(description="prepare_dataset")
 
+    parser.add_argument("--dataset")
     parser.add_argument("--unzip", action="store_true", default=False)
     parser.add_argument("--training", action="store_true", default=False)
     parser.add_argument("--validation", action="store_true", default=False)
     parser.add_argument("--evaluation", action="store_true", default=False)
-    parser.add_argument("--dataset")
 
     args = parser.parse_args()
     return args
 
 
 def parse_json_file(json_path):
-    with open(json_path, mode="r") as f:
-        label = json.load(f)
-
     img_path = str(json_path).replace("/labels/", "/images/").replace(".json", ".jpg")
     img = load_image_as_array(img_path)
+
+    with open(json_path, mode="r") as f:
+        label = json.load(f)
 
     gt_bboxes = np.array(
         [i["annotation.bbox"] for i in label["annotations"]]
@@ -191,7 +191,7 @@ def count_images(dataset):
 if __name__ == "__main__":
     args = get_arguments()
 
-    with open("./config_files/configuration.yaml", mode="r", encoding="utf8") as f:
+    with open("../config_files/configuration.yaml", mode="r", encoding="utf8") as f:
         config = AttrDict(
             yaml.safe_load(f)
         )

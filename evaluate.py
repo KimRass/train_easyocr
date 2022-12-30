@@ -160,7 +160,8 @@ def evaluate(dataset_dir, reader, eval_result, type):
             
             eval_result[fname][type] = f1
         except Exception:
-            print(f"    No image file paring with '{json_path}'")
+            # print(f"    No image file paring with '{json_path}'")
+            continue
     return eval_result
 
 
@@ -182,10 +183,10 @@ def main():
         lang_list=["ko"],
         gpu=args.cuda,
         # gpu=False,
-        model_storage_directory="/home/ubuntu/.EasyOCR/model",
-        user_network_directory="/home/ubuntu/.EasyOCR/user_network",
-        # model_storage_directory="/Users/jongbeom.kim/.EasyOCR/model",
-        # user_network_directory="/Users/jongbeom.kim/.EasyOCR/user_network",
+        # model_storage_directory="/home/ubuntu/.EasyOCR/model",
+        # user_network_directory="/home/ubuntu/.EasyOCR/user_network",
+        model_storage_directory="/Users/jongbeom.kim/.EasyOCR/model",
+        user_network_directory="/Users/jongbeom.kim/.EasyOCR/user_network",
         recog_network="finetuned"
     )
 
