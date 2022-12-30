@@ -166,7 +166,7 @@ def evaluate_using_baseline_model(dataset_dir, reader, eval_result):
 
     dataset_dir = Path(dataset_dir)
 
-    for json_path in tqdm(list(dataset_dir.glob("**/*.json"))):
+    for json_path in tqdm(list(dataset_dir.glob("**/*.json"))[:5]):
         fname = "/".join(str(json_path).rsplit("/", 4)[1:])
 
         try:
@@ -186,7 +186,7 @@ def evaluate_using_finetuned_model(dataset_dir, reader, eval_result, craft, cuda
 
     dataset_dir = Path(dataset_dir)
 
-    for json_path in tqdm(list(dataset_dir.glob("**/*.json"))):
+    for json_path in tqdm(list(dataset_dir.glob("**/*.json"))[:5]):
         fname = "/".join(str(json_path).rsplit("/", 4)[1:])
 
         try:
@@ -229,11 +229,8 @@ def main():
     reader_ft = easyocr.Reader(
         lang_list=["ko"],
         gpu=args.cuda,
-        # gpu=False,
         model_storage_directory="/home/ubuntu/.EasyOCR/model",
         user_network_directory="/home/ubuntu/.EasyOCR/user_network",
-        # model_storage_directory="/Users/jongbeom.kim/.EasyOCR/model",
-        # user_network_directory="/Users/jongbeom.kim/.EasyOCR/user_network",
         recog_network="finetuned"
     )
 
