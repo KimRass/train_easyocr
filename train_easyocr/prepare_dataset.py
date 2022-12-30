@@ -158,8 +158,6 @@ def prepare_evaluation_set(eval_set) -> None:
 
 
 def count_images(dataset):
-    # dataset = "/Users/jongbeom.kim/Documents/공공행정문서 OCR"
-
     tr = Path(dataset).parent/"training_and_validation_set/training"
     val = Path(dataset).parent/"training_and_validation_set/validation"
 
