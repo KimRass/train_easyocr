@@ -3,6 +3,7 @@ import re
 import math
 import torch
 import pandas  as pd
+from pathlib import Path
 from PIL import Image
 import numpy as np
 from torch.utils.data import Dataset, ConcatDataset, Subset
@@ -22,7 +23,12 @@ def adjust_contrast_grey(img, target = 0.4):
         img = img.astype(int)
         ratio = 200./(high-low)
         img = (img - low + 25)*ratio
-        img = np.maximum(np.full(img.shape, 0) ,np.minimum(np.full(img.shape, 255), img)).astype(np.uint8)
+        img = np.maximum(
+            np.full(img.shape, 0),
+            np.minimum(
+                np.full(img.shape, 255), img
+            )
+        ).astype(np.uint8)
     return img
 
 
@@ -31,7 +37,10 @@ class BatchBalancedDataset(object):
         dashed_line = '-' * 80
         print(dashed_line)
 
-        log = open(f'./saved_models/{config.experiment_name}/log_dataset.txt', 'a')
+        log = open(
+            Path(__file__).parent/f"saved_models/{config.experiment_name}/log_dataset.txt",
+            mode="a"
+        )
         log.write(f"{dashed_line}\n")
 
         msg = f"dataset_root: {config.train_data}\n\
