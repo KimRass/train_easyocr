@@ -26,8 +26,7 @@ from dataset import (
     BatchBalancedDataset
 )
 from model import Model
-# from easyocr.trainer.test import validation
-from test import validation
+from train_easyocr.test import validation
 
 cudnn.benchmark = True
 cudnn.deterministic = False
