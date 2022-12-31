@@ -18,7 +18,7 @@ batch_ratio: "1"
   # the 50% of the batch is filled with 'MJ' and the other 50% of the batch is filled with 'ST'.
 total_data_usage_ratio: 1.0
 n_train_images: 20000
-n_val_images: 4000
+n_val_images: 2000
 
 # Training
 workers: 4

@@ -58,12 +58,12 @@ unzipped
 ## "training_and_validation_set"
 ```
 training_and_validation_set
-├── training (1,120,590) (2,144,196) (2,038,547?)
+├── training (1,120,590)   *(2,144,196) *(2,038,547?)
 │   └── select_data
 │       ├── images
 │       │   └── ...
 │       └── labels.csv
-└── validation (211,323) (398,731) (379,235?)
+└── validation *(211,323)   (398,731) (379,235?)
     └── select_data
         ├── images
         │   └── ...
