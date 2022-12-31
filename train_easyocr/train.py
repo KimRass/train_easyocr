@@ -35,7 +35,7 @@ cudnn.deterministic = False
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
-def train(config, show_number=5, amp=False):
+def train(config, amp=False):
     experiment_dir = Path(f"continue_froms/{config.experiment_name}")
     experiment_dir.mkdir(parents=True, exist_ok=True)
 
@@ -164,16 +164,14 @@ def train(config, show_number=5, amp=False):
     print(f"Total number of trainable parameters: {sum(params_num):,}")
 
     """ Optimizer """
-    if config.optim == "adam":
-        #optimizer = Adam(filtered_parameters, lr=config.lr, betas=(config.beta1, 0.999))
-        optimizer = Adam(filtered_parameters)
+    if config.adam:
+        optimizer = Adam(params=filtered_parameters, lr=config.lr, betas=(config.beta1, 0.999))
     else:
-        optimizer = Adadelta(filtered_parameters, lr=config.lr, rho=config.rho, eps=config.eps)
+        optimizer = Adadelta(params=filtered_parameters, lr=config.lr, rho=config.rho, eps=config.eps)
     # print("optimizer:")
     # print(f"    {optimizer}")
 
     """ Final configions """
-    # print(config)
     with open(experiment_dir/"config.txt", mode='a', encoding="utf8") as f:
         config_log = '------------ Configuration -------------\n'
         args = vars(config)
@@ -201,38 +199,13 @@ def train(config, show_number=5, amp=False):
     scaler = GradScaler()
     t1= time()
 
-    with tqdm(total=config.n_iter) as pbar:
-        while True:
-            # if i % 500 == 0 and i != 0:
-            #     print(f"Iteration: {i}")
+    # with tqdm(total=config.n_iter) as pbar:
+    while True:
+        # Training part
+        optimizer.zero_grad(set_to_none=True)
 
-            # Training part
-            optimizer.zero_grad(set_to_none=True)
-
-            if amp:
-                with autocast():
-                    image_tensors, labels = train_dataset.get_batch()
-                    image = image_tensors.to(device)
-                    text, length = converter.encode(labels, batch_max_length=config.batch_max_length)
-                    batch_size = image.size(0)
-
-                    if "CTC" in config.Prediction:
-                        preds = model(image, text).log_softmax(2)
-                        preds_size = torch.IntTensor([preds.size(1)] * batch_size)
-                        preds = preds.permute(1, 0, 2)
-                        cudnn.enabled = False 
-                        loss = criterion(preds, text.to(device), preds_size.to(device), length.to(device))
-                        cudnn.enabled = True
-                    else:
-                        preds = model(image, text[:, :-1])  # align with Attention.forward
-                        target = text[:, 1:]  # without [GO] Symbol
-                        loss = criterion(preds.view(-1, preds.shape[-1]), target.contiguous().view(-1))
-                scaler.scale(loss).backward()
-                scaler.unscale_(optimizer)
-                nn.utils.clip_grad_norm_(parameters=model.parameters(), max_norm=config.grad_clip)
-                scaler.step(optimizer)
-                scaler.update()
-            else:
+        if amp:
+            with autocast():
                 image_tensors, labels = train_dataset.get_batch()
                 image = image_tensors.to(device)
                 text, length = converter.encode(labels, batch_max_length=config.batch_max_length)
@@ -242,106 +215,126 @@ def train(config, show_number=5, amp=False):
                     preds = model(image, text).log_softmax(2)
                     preds_size = torch.IntTensor([preds.size(1)] * batch_size)
                     preds = preds.permute(1, 0, 2)
-                    cudnn.enabled = False
+                    cudnn.enabled = False 
                     loss = criterion(preds, text.to(device), preds_size.to(device), length.to(device))
                     cudnn.enabled = True
                 else:
                     preds = model(image, text[:, :-1])  # align with Attention.forward
                     target = text[:, 1:]  # without [GO] Symbol
                     loss = criterion(preds.view(-1, preds.shape[-1]), target.contiguous().view(-1))
-                loss.backward()
-                nn.utils.clip_grad_norm_(parameters=model.parameters(), max_norm=config.grad_clip) 
-                optimizer.step()
-            loss_avg.add(loss)
+            scaler.scale(loss).backward()
+            scaler.unscale_(optimizer)
+            nn.utils.clip_grad_norm_(parameters=model.parameters(), max_norm=config.grad_clip)
+            scaler.step(optimizer)
+            scaler.update()
+        else:
+            image_tensors, labels = train_dataset.get_batch()
+            image = image_tensors.to(device)
+            text, length = converter.encode(labels, batch_max_length=config.batch_max_length)
+            batch_size = image.size(0)
 
-            # Validation part
-            if (i % config.val_period == 0) and (i != 0):
-                print(f"Training time: {get_elapsed_time(t1)}")
+            if "CTC" in config.Prediction:
+                preds = model(image, text).log_softmax(2)
+                preds_size = torch.IntTensor([preds.size(1)] * batch_size)
+                preds = preds.permute(1, 0, 2)
+                cudnn.enabled = False
+                loss = criterion(preds, text.to(device), preds_size.to(device), length.to(device))
+                cudnn.enabled = True
+            else:
+                preds = model(image, text[:, :-1])  # align with Attention.forward
+                target = text[:, 1:]  # without [GO] Symbol
+                loss = criterion(preds.view(-1, preds.shape[-1]), target.contiguous().view(-1))
+            loss.backward()
+            nn.utils.clip_grad_norm_(parameters=model.parameters(), max_norm=config.grad_clip) 
+            optimizer.step()
+        loss_avg.add(loss)
 
+        # Validation part
+        if (i % config.val_period == 0) and (i != 0):
+            print(f"Training time: {get_elapsed_time(t1)}")
+
+            t1 = time()
+            elapsed = time() - start_time
+            # for log
+            with open(experiment_dir/"log_train.txt", mode='a', encoding="utf8") as log:
+                model.eval()
+                with torch.no_grad():
+                    (
+                        val_loss,
+                        current_accuracy,
+                        current_norm_ED,
+                        preds,
+                        confidence_score,
+                        labels,
+                        infer_time,
+                        length_of_data
+                    ) = validation(
+                        model=model,
+                        criterion=criterion,
+                        val_loader=val_loader,
+                        converter=converter,
+                        config=config,
+                        device=device
+                    )
+
+                model.train()
+
+                # Training loss and valation loss
+                loss_log = f"[{i}/{config.n_iter}]\nTraining loss: {loss_avg.val():0.5f} | Validation loss: {val_loss:0.5f} | {get_elapsed_time(start_time)} elapsed"
+                loss_avg.reset()
+
+                current_model_log = f'{"Current_accuracy":17s}: {current_accuracy:0.3f}  |  {"Current_norm_ED":17s}: {current_norm_ED:0.4f}'
+
+                # Keep best accuracy model (on validation set)
+                if current_accuracy > best_accuracy:
+                    best_accuracy = current_accuracy
+                    torch.save(
+                        model.state_dict(), experiment_dir/"best_accuracy.pth"
+                    )
+                if current_norm_ED > best_norm_ED:
+                    best_norm_ED = current_norm_ED
+                    torch.save(
+                        model.state_dict(), experiment_dir/"best_norm_ED.pth"
+                    )
+                best_model_log = f'{"Best_accuracy":17s}: {best_accuracy:0.3f} | {"Best_norm_ED":17s}: {best_norm_ED:0.4f}'
+
+                loss_model_log = f'{loss_log}\n{current_model_log}\n{best_model_log}'
+                print(loss_model_log)
+                log.write(loss_model_log + '\n')
+
+                # Show some predicted results.
+                # dashed_line = "-" * 80
+                head = f'{"Ground Truth":25s} | {"Prediction":25s}  |  Confidence Score & T/F'
+                predicted_result_log = f'{dashed_line}\n{head}\n{dashed_line}\n'
+                
+                start = random.randint(0, len(labels) - config.show_number)
+                for gt, pred, confidence in zip(
+                    labels[start: start + config.show_number],
+                    preds[start: start + config.show_number],
+                    confidence_score[start: start + config.show_number]
+                ):
+                    if 'Attn' in config.Prediction:
+                        gt = gt[: gt.find('[s]')]
+                        pred = pred[: pred.find('[s]')]
+
+                    predicted_result_log += f"{gt:25s} | {pred:25s} | {confidence:0.4f}\t{str(pred == gt)}\n"
+                predicted_result_log += f'{dashed_line}'
+                print(predicted_result_log)
+                log.write(predicted_result_log + '\n')
+                print(f"Validation time: {get_elapsed_time(t1)}\n")
                 t1 = time()
-                elapsed = time() - start_time
-                # for log
-                with open(experiment_dir/"log_train.txt", mode='a', encoding="utf8") as log:
-                    model.eval()
-                    with torch.no_grad():
-                        (
-                            val_loss,
-                            current_accuracy,
-                            current_norm_ED,
-                            preds,
-                            confidence_score,
-                            labels,
-                            infer_time,
-                            length_of_data
-                        ) = validation(
-                            model=model,
-                            criterion=criterion,
-                            val_loader=val_loader,
-                            converter=converter,
-                            config=config,
-                            device=device
-                        )
+        # Save model every 1e+4 iteration.
+        if (i + 1) % 1e+4 == 0:
+            torch.save(
+                model.state_dict(), experiment_dir/f"iter_{i + 1}.pth"
+            )
 
-                    model.train()
+        if i == config.n_iter:
+            print("The end the training")
+            sys.exit()
 
-                    # Training loss and valation loss
-                    loss_log = f"[{i}/{config.n_iter}]\nTraining loss: {loss_avg.val():0.5f} | Validation loss: {val_loss:0.5f} | {elapsed:0.5f} elapsed"
-                    loss_avg.reset()
-
-                    current_model_log = f'{"Current_accuracy":17s}: {current_accuracy:0.3f}  |  {"Current_norm_ED":17s}: {current_norm_ED:0.4f}'
-
-                    # Keep best accuracy model (on validation set)
-                    if current_accuracy > best_accuracy:
-                        best_accuracy = current_accuracy
-                        torch.save(
-                            model.state_dict(), experiment_dir/"best_accuracy.pth"
-                        )
-                    if current_norm_ED > best_norm_ED:
-                        best_norm_ED = current_norm_ED
-                        torch.save(
-                            model.state_dict(), experiment_dir/"best_norm_ED.pth"
-                        )
-                    best_model_log = f'{"Best_accuracy":17s}: {best_accuracy:0.3f} | {"Best_norm_ED":17s}: {best_norm_ED:0.4f}'
-
-                    loss_model_log = f'{loss_log}\n{current_model_log}\n{best_model_log}'
-                    print(loss_model_log)
-                    log.write(loss_model_log + '\n')
-
-                    # Show some predicted results.
-                    # dashed_line = "-" * 80
-                    head = f'{"Ground Truth":25s} | {"Prediction":25s}  |  Confidence Score & T/F'
-                    predicted_result_log = f'{dashed_line}\n{head}\n{dashed_line}\n'
-                    
-                    # show_number = min(show_number, len(labels))
-                    
-                    start = random.randint(0, len(labels) - show_number)
-                    for gt, pred, confidence in zip(
-                        labels[start: start + show_number],
-                        preds[start : start + show_number],
-                        confidence_score[start : start + show_number]
-                    ):
-                        if 'Attn' in config.Prediction:
-                            gt = gt[: gt.find('[s]')]
-                            pred = pred[: pred.find('[s]')]
-
-                        predicted_result_log += f"{gt:25s} | {pred:25s} | {confidence:0.4f}\t{str(pred == gt)}\n"
-                    predicted_result_log += f'{dashed_line}'
-                    print(predicted_result_log)
-                    log.write(predicted_result_log + '\n')
-                    print(f"Validation time: {get_elapsed_time(t1)}\n")
-                    t1 = time()
-            # Save model every 1e+4 iteration.
-            if (i + 1) % 1e+4 == 0:
-                torch.save(
-                    model.state_dict(), experiment_dir/f"iter_{i + 1}.pth"
-                )
-
-            if i == config.n_iter:
-                print("The end the training")
-                sys.exit()
-
-            i += 1
-            pbar.update(1)
+        i += 1
+        # pbar.update(1)
 
 
 def main():

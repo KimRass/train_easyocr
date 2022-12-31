@@ -1,6 +1,6 @@
 # Environment
 seed: 1111
-experiment_name: none-vgg-bilstm-ctc_1111
+experiment_name: "2020_12_31"
 
 # Characters
 number: 
@@ -28,9 +28,10 @@ val_period: 10_000 # Period to run validation
 # continue_from: /home/ubuntu/project/korean_g2.pth
 continue_from: /home/ubuntu/project/text_spotting/train_easyocr/saved_models/none-vgg-bilstm-ctc_1111/best_accuracy.pth
 strict: True # If `False` ignore non-matching keys when loading a model from checkpoint
+show_number: 8
 
 # Optimizer
-optim: False # `Adadelta()` if `False`
+adam: False # `Adadelta()` if `False`
 lr: 1.
 rho: 0.95
 eps: 0.00000001
