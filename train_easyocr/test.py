@@ -16,7 +16,7 @@ from utils import Averager
 # from model import Model
 
 
-def validation(model, criterion, evaluation_loader, converter, config, device):
+def validation(model, criterion, val_loader, converter, config, device):
     """ validation or evaluation """
     n_correct = 0
     norm_ED = 0
@@ -24,10 +24,10 @@ def validation(model, criterion, evaluation_loader, converter, config, device):
     infer_time = 0
     valid_loss_avg = Averager()
 
-    # for i, (image_tensors, labels) in enumerate(evaluation_loader):
-    #     if i % 1000 == 0 and i != 0:
-    #         print(i)
-    for image_tensors, labels in tqdm(evaluation_loader):
+    for i, (image_tensors, labels) in enumerate(val_loader):
+        if i % 1000 == 0 and i != 0:
+            print(i)
+    # for image_tensors, labels in tqdm(val_loader):
         batch_size = image_tensors.size(0)
         length_of_data = length_of_data + batch_size
         image = image_tensors.to(device)

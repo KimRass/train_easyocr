@@ -1,7 +1,9 @@
 import torch
 import pickle
 import numpy as np
+
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
 
 class AttrDict(dict):
     def __init__(self, *args, **kwargs):
@@ -19,6 +21,7 @@ class BeamEntry:
         self.prText = 1 # LM score
         self.lmApplied = False # flag if LM was already applied to this beam
         self.labeling = () # beam-labeling
+
 
 class BeamState:
     "information about the beams at specific time-step"
@@ -72,7 +75,7 @@ def addBeam(beamState, labeling):
     if labeling not in beamState.entries:
         beamState.entries[labeling] = BeamEntry()
 
-def ctcBeamSearch(mat, classes, ignore_idx, lm, beamWidth=25, dict_list = []):
+def ctcBeamSearch(mat, classes, ignore_idx, lm, beamWidth=25, dict_list = list()):
     "beam search as described by the paper of Hwang et al. and the paper of Graves et al."
 
     #blankIdx = len(classes)
@@ -154,7 +157,7 @@ def ctcBeamSearch(mat, classes, ignore_idx, lm, beamWidth=25, dict_list = []):
     #    if l not in ignore_idx and (not (idx > 0 and bestLabeling[idx - 1] == bestLabeling[idx])):  # removing repeated characters and blank.
     #        res += classes[l]
 
-    if dict_list == []:
+    if dict_list == list():
         bestLabeling = last.sort()[0] # get most probable labeling
         res = ''
         for i,l in enumerate(bestLabeling):
@@ -175,8 +178,8 @@ def consecutive(data, mode ='first', stepsize=1):
     return result
 
 def word_segmentation(mat, separator_idx =  {'th': [1,2],'en': [3,4]}, separator_idx_list = [1,2,3,4]):
-    result = []
-    sep_list = []
+    result = list()
+    sep_list = list()
     start_idx = 0
     for sep_idx in separator_idx_list:
         if sep_idx % 2 == 0: mode ='first'
@@ -205,10 +208,11 @@ def word_segmentation(mat, separator_idx =  {'th': [1,2],'en': [3,4]}, separator
         result.append( ['', [start_idx, len(mat)-1] ] )
     return result
 
+
 class CTCLabelConverter(object):
     """ Convert between text-label and text-index """
 
-    #def __init__(self, character, separator = []):
+    #def __init__(self, character, separator = list()):
     def __init__(self, character, separator_list = {}, dict_pathlist = {}):
         # character (str): set of the possible characters.
         dict_character = list(character)
@@ -226,7 +230,7 @@ class CTCLabelConverter(object):
         #self.character = ['[blank]']+ self.separator_char + dict_character  # dummy '[blank]' token for CTCLoss (index 0)
         self.separator_list = separator_list
 
-        separator_char = []
+        separator_char = list()
         for lang, sep in separator_list.items():
             separator_char += sep
 
@@ -257,15 +261,14 @@ class CTCLabelConverter(object):
 
     def decode_greedy(self, text_index, length):
         """ convert text-index into text-label. """
-        texts = []
+        texts = list()
         index = 0
         for l in length:
             t = text_index[index:index + l]
 
-            char_list = []
+            char_list = list()
             for i in range(l):
-                if t[i] not in self.ignore_idx and (not (i > 0 and t[i - 1] == t[i])):  # removing repeated characters and blank (and separator).
-                #if (t[i] != 0) and (not (i > 0 and t[i - 1] == t[i])):  # removing repeated characters and blank (and separator).
+                if t[i] not in self.ignore_idx and (not (i > 0 and t[i - 1] == t[i])):  # Removing repeated characters and blank (and separator).
                     char_list.append(self.character[t[i]])
             text = ''.join(char_list)
 
@@ -274,7 +277,7 @@ class CTCLabelConverter(object):
         return texts
 
     def decode_beamsearch(self, mat, beamWidth=5):
-        texts = []
+        texts = list()
 
         for i in range(mat.shape[0]):
             t = ctcBeamSearch(mat[i], self.character, self.ignore_idx, None, beamWidth=beamWidth)
@@ -282,23 +285,23 @@ class CTCLabelConverter(object):
         return texts
 
     def decode_wordbeamsearch(self, mat, beamWidth=5):
-        texts = []
+        texts = list()
         argmax = np.argmax(mat, axis = 2)
         for i in range(mat.shape[0]):
             words = word_segmentation(argmax[i])
             string = ''
             for word in words:
                 matrix = mat[i, word[1][0]:word[1][1]+1,:]
-                if word[0] == '': dict_list = []
+                if word[0] == '': dict_list = list()
                 else: dict_list = self.dict_list[word[0]]
                 t = ctcBeamSearch(matrix, self.character, self.ignore_idx, None, beamWidth=beamWidth, dict_list=dict_list)
                 string += t
             texts.append(string)
         return texts
 
+
 class AttnLabelConverter(object):
     """ Convert between text-label and text-index """
-
     def __init__(self, character):
         # character (str): set of the possible characters.
         # [GO] for the start token of the attention decoder. [s] for end-of-sentence token.
@@ -336,7 +339,7 @@ class AttnLabelConverter(object):
 
     def decode(self, text_index, length):
         """ convert text-index into text-label. """
-        texts = []
+        texts = list()
         for index, l in enumerate(length):
             text = ''.join([self.character[i] for i in text_index[index, :]])
             texts.append(text)
