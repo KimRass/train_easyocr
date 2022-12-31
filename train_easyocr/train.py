@@ -98,7 +98,7 @@ def train(config, amp=False):
         
         model = DataParallel(model).to(device)
         print(
-            f"Loaded trained parameters from checkpoint\
+            f"Loaded trained parameters from checkpoint\n\
                 '{config.continue_from}'"
         )
         if config.strict:
