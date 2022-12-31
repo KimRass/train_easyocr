@@ -280,7 +280,7 @@ def train(config, show_number=5, amp=False):
                         ) = validation(
                             model=model,
                             criterion=criterion,
-                            evaluation_loader=val_loader,
+                            val_loader=val_loader,
                             converter=converter,
                             config=config,
                             device=device
