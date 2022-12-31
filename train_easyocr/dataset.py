@@ -6,7 +6,7 @@ import pandas  as pd
 from pathlib import Path
 from PIL import Image
 import numpy as np
-from torch.utils.data import Dataset, ConcatDataset, Subset
+from torch.utils.data import Dataset, ConcatDataset, Subset, DataLoader
 from torch._utils import _accumulate
 import torchvision.transforms as T
 
@@ -98,11 +98,16 @@ class BatchBalancedDataset(object):
             batch_size_list.append(str(_batch_size))
             Total_batch_size += _batch_size
 
-            _data_loader = torch.utils.data.DataLoader(
-                _dataset, batch_size=_batch_size,
+            _data_loader = DataLoader(
+                dataset=_dataset,
+                batch_size=_batch_size,
                 shuffle=True,
-                num_workers=int(config.workers), #prefetch_factor=2,persistent_workers=True,
-                collate_fn=_AlignCollate, pin_memory=True
+                num_workers=int(config.workers),
+                collate_fn=_AlignCollate,
+                pin_memory=True,
+                drop_last=True,
+                prefetch_factor=2,
+                persistent_workers=True,
             )
             self.data_loader_list.append(_data_loader)
             self.dataloader_iter_list.append(iter(_data_loader))

@@ -65,13 +65,15 @@ def train(config, show_number=5, amp=False):
     )
     val_dataset, val_dataset_log = hierarchical_dataset(root=config.val_data, config=config)
     val_loader = DataLoader(
-        val_dataset,
+        dataset=val_dataset,
         batch_size=config.batch_size,
         shuffle=True,  # 'True' to check training progress with validation function.
         num_workers=int(config.workers),
         prefetch_factor=512,
         collate_fn=AlignCollate_val,
-        pin_memory=True
+        pin_memory=True,
+        drop_last=True
+        
     )
     log.write(val_dataset_log)
 
@@ -98,7 +100,8 @@ def train(config, show_number=5, amp=False):
                 model.SequenceModeling_output, len(state['module.Prediction.weight'])
             )
         
-        model = DataParallel(model).to(device) 
+        model = DataParallel(model, device=device)
+        # model = DataParallel(model).to(device)
         print(
             f"Loaded trained parameters from checkpoint\
                 '{config.continue_from}'"
@@ -130,7 +133,8 @@ def train(config, show_number=5, amp=False):
                 if 'weight' in name:
                     param.data.fill_(1)
                 continue
-        model = DataParallel(model).to(device)
+        model = DataParallel(model, device=device)
+        # model = DataParallel(model).to(device)
     
     model.train()
 
@@ -143,7 +147,7 @@ def train(config, show_number=5, amp=False):
         criterion = nn.CTCLoss(zero_infinity=True).to(device)
     else:
         criterion = nn.CrossEntropyLoss(ignore_index=0).to(device)  # ignore [GO] token = ignore index 0
-    # loss averager
+    # Loss averager
     loss_avg = Averager()
 
     # Freeze some layers
@@ -283,10 +287,11 @@ def train(config, show_number=5, amp=False):
                             config=config,
                             device=device
                         )
+
                     model.train()
 
                     # Training loss and valation loss
-                    loss_log = f'[{i}/{config.n_iter}]\nTrain loss: {loss_avg.val():0.5f} | Valid loss: {val_loss:0.5f} | elapsed: {elapsed:0.5f}'
+                    loss_log = f"[{i}/{config.n_iter}]\nTraining loss: {loss_avg.val():0.5f} | Validation loss: {val_loss:0.5f} | {elapsed:0.5f} elapsed"
                     loss_avg.reset()
 
                     current_model_log = f'{"Current_accuracy":17s}: {current_accuracy:0.3f}  |  {"Current_norm_ED":17s}: {current_norm_ED:0.4f}'

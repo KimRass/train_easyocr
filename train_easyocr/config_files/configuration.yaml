@@ -17,12 +17,13 @@ batch_ratio: "1"
   # For example, when `select_data` is `MJ-ST` and `batch_ratio` is `0.5-0.5`,
   # the 50% of the batch is filled with 'MJ' and the other 50% of the batch is filled with 'ST'.
 total_data_usage_ratio: 1.0
-n_train_images: 20000
-n_val_images: 2000
+n_train_images: 20_000
+n_val_images: 2_000
 
 # Training
 workers: 4
-batch_size: 8
+# batch_size: 8
+batch_size: 16
 n_iter: 400_000
 val_period: 10_000 # Period to run validation
 # continue_from: /home/ubuntu/project/korean_g2.pth

@@ -25,6 +25,8 @@ def validation(model, criterion, evaluation_loader, converter, config, device):
     valid_loss_avg = Averager()
 
     # for i, (image_tensors, labels) in enumerate(evaluation_loader):
+    #     if i % 1000 == 0 and i != 0:
+    #         print(i)
     for image_tensors, labels in tqdm(evaluation_loader):
         batch_size = image_tensors.size(0)
         length_of_data = length_of_data + batch_size
@@ -42,8 +44,13 @@ def validation(model, criterion, evaluation_loader, converter, config, device):
 
             # Calculate evaluation loss for CTC decoder.
             preds_size = torch.IntTensor([preds.size(1)] * batch_size)
-            # permute 'preds' to use CTCloss format
-            cost = criterion(preds.log_softmax(2).permute(1, 0, 2), text_for_loss, preds_size, length_for_loss)
+            loss = criterion(
+                # Permute 'preds' to use `nn.CTCloss` format
+                log_probs=preds.log_softmax(2).permute(1, 0, 2),
+                targets=text_for_loss,
+                input_lengths=preds_size,
+                target_lengths=length_for_loss
+            )
 
             if config.decode == 'greedy':
                 # Select max probabilty (greedy decoding) then decode index to character
@@ -59,7 +66,7 @@ def validation(model, criterion, evaluation_loader, converter, config, device):
 
             preds = preds[:, :text_for_loss.shape[1] - 1, :]
             target = text_for_loss[:, 1:]  # without [GO] Symbol
-            cost = criterion(preds.contiguous().view(-1, preds.shape[-1]), target.contiguous().view(-1))
+            loss = criterion(preds.contiguous().view(-1, preds.shape[-1]), target.contiguous().view(-1))
 
             # select max probabilty (greedy decoding) then decode index to character
             _, preds_index = preds.max(2)
@@ -67,7 +74,7 @@ def validation(model, criterion, evaluation_loader, converter, config, device):
             labels = converter.decode(text_for_loss[:, 1:], length_for_loss)
 
         infer_time += forward_time
-        valid_loss_avg.add(cost)
+        valid_loss_avg.add(loss)
 
         # calculate accuracy & confidence score
         preds_prob = F.softmax(preds, dim=2)
