@@ -100,8 +100,7 @@ def train(config, show_number=5, amp=False):
                 model.SequenceModeling_output, len(state['module.Prediction.weight'])
             )
         
-        model = DataParallel(model, device=device)
-        # model = DataParallel(model).to(device)
+        model = DataParallel(model).to(device)
         print(
             f"Loaded trained parameters from checkpoint\
                 '{config.continue_from}'"
@@ -133,8 +132,7 @@ def train(config, show_number=5, amp=False):
                 if 'weight' in name:
                     param.data.fill_(1)
                 continue
-        model = DataParallel(model, device=device)
-        # model = DataParallel(model).to(device)
+        model = DataParallel(model).to(device)
     
     model.train()
 
