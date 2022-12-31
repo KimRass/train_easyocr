@@ -21,9 +21,8 @@ n_train_images: 20_000
 n_val_images: 2_000
 
 # Training
-workers: 4
-# batch_size: 8
-batch_size: 16
+workers: 6
+batch_size: 8
 n_iter: 400_000
 val_period: 10_000 # Period to run validation
 # continue_from: /home/ubuntu/project/korean_g2.pth
