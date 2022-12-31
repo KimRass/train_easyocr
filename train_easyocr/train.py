@@ -99,7 +99,10 @@ def train(config, show_number=5, amp=False):
             )
         
         model = DataParallel(model).to(device) 
-        print(f"Loaded trained parameters from checkpoint '{config.continue_from}'")
+        print(
+            f"Loaded trained parameters from checkpoint\
+                '{config.continue_from}'"
+        )
         if config.strict:
             model.load_state_dict(state, strict=False)
         else:

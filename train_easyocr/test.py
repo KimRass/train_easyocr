@@ -1,8 +1,8 @@
 # import os
 import time
+from tqdm.auto import tqdm
 # import string
 # import argparse
-
 import torch
 # import torch.backends.cudnn as cudnn
 import torch.utils.data
@@ -24,7 +24,8 @@ def validation(model, criterion, evaluation_loader, converter, config, device):
     infer_time = 0
     valid_loss_avg = Averager()
 
-    for i, (image_tensors, labels) in enumerate(evaluation_loader):
+    # for i, (image_tensors, labels) in enumerate(evaluation_loader):
+    for image_tensors, labels in tqdm(evaluation_loader):
         batch_size = image_tensors.size(0)
         length_of_data = length_of_data + batch_size
         image = image_tensors.to(device)
