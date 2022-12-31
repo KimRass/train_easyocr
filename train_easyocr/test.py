@@ -34,10 +34,10 @@ def validation(model, criterion, val_loader, converter, config, device):
 
         text_for_loss, length_for_loss = converter.encode(labels, batch_max_length=config.batch_max_length)
         
-        start_time = time.time()
+        start_time = time()
         if 'CTC' in config.Prediction:
             preds = model(image, text_for_pred)
-            forward_time = time.time() - start_time
+            forward_time = time() - start_time
 
             # Calculate evaluation loss for CTC decoder.
             preds_size = torch.IntTensor([preds.size(1)] * batch_size)
@@ -59,7 +59,7 @@ def validation(model, criterion, val_loader, converter, config, device):
 
         else:
             preds = model(image, text_for_pred, is_train=False)
-            forward_time = time.time() - start_time
+            forward_time = time() - start_time
 
             preds = preds[:, :text_for_loss.shape[1] - 1, :]
             target = text_for_loss[:, 1:]  # without [GO] Symbol
