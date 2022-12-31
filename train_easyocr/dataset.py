@@ -156,7 +156,7 @@ def hierarchical_dataset(root, config, select_data="/"):
 
             if select_flag:
                 dataset = OCRDataset(dirpath, config)
-                sub_dataset_log = f"Subdirectory: '{os.path.relpath(dirpath, root)}'\nNumber of samples: {len(dataset):,}\n"
+                sub_dataset_log = f"Subdirectory: '{os.path.relpath(dirpath, root)}'\nNumber of samples: {len(dataset):,}"
                 print(sub_dataset_log)
                 dataset_log += f'{sub_dataset_log}\n'
                 dataset_list.append(dataset)

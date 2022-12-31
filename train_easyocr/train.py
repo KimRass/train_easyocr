@@ -43,10 +43,12 @@ def train(config, show_number=5, amp=False):
     experiment_dir = Path(f"continue_froms/{config.experiment_name}")
     experiment_dir.mkdir(parents=True, exist_ok=True)
 
+    dashed_line = "-" * 80
     """ Dataset preparation """
     if not config.data_filtering_off:
+        print(dashed_line)
         print("Filtering the images containing characters not in `config.character`")
-        print("Filtering the images whose label is longer than `config.batch_max_length`\n")
+        print("Filtering the images whose label is longer than `config.batch_max_length`")
 
     config.select_data = config.select_data.split("-")
     config.batch_ratio = config.batch_ratio.split("-")
@@ -304,7 +306,7 @@ def train(config, show_number=5, amp=False):
                     log.write(loss_model_log + '\n')
 
                     # Show some predicted results.
-                    dashed_line = "-" * 80
+                    # dashed_line = "-" * 80
                     head = f'{"Ground Truth":25s} | {"Prediction":25s}  |  Confidence Score & T/F'
                     predicted_result_log = f'{dashed_line}\n{head}\n{dashed_line}\n'
                     
