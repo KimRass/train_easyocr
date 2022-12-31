@@ -255,7 +255,7 @@ def train(config, show_number=5, amp=False):
             loss_avg.add(loss)
 
             # Validation part
-            if (i % config.val_period == 0) and (i!=0):
+            if (i % config.val_period == 0) and (i != 0):
                 print(f"Training time: {get_elapsed_time(t1)}")
 
                 t1 = time()

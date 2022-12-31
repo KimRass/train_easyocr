@@ -1,4 +1,4 @@
-import time
+from time import time
 from tqdm.auto import tqdm
 import torch
 import torch.utils.data
