@@ -45,7 +45,7 @@ def train(config, show_number=5, amp=False):
     """ Dataset preparation """
     if not config.data_filtering_off:
         print("Filtering the images containing characters not in `config.character`")
-        print("Filtering the images whose label is longer than `config.batch_max_length`", end="\n\n")
+        print("Filtering the images whose label is longer than `config.batch_max_length`\n\n")
 
     config.select_data = config.select_data.split("-")
     config.batch_ratio = config.batch_ratio.split("-")
@@ -97,7 +97,7 @@ def train(config, show_number=5, amp=False):
         
         model = DataParallel(model).to(device) 
         print(f"Loaded trained parameters from checkpoint '{config.continue_from}'")
-        if config.FT:
+        if config.strict:
             model.load_state_dict(state, strict=False)
         else:
             model.load_state_dict(state)
@@ -197,7 +197,10 @@ def train(config, show_number=5, amp=False):
     scaler = GradScaler()
     t1= time()
         
-    while(True):
+    while True:
+        if i % 500 and i != 0:
+            print(f"Iteration: {i}")
+
         # Training part
         optimizer.zero_grad(set_to_none=True)
 
@@ -319,7 +322,7 @@ def train(config, show_number=5, amp=False):
                 predicted_result_log += f'{dashed_line}'
                 print(predicted_result_log)
                 log.write(predicted_result_log + '\n')
-                print(f"Validation time: {get_elapsed_time(t1)}", end="\n\n")
+                print(f"Validation time: {get_elapsed_time(t1)}\n\n")
                 t1 = time()
         # Save model every 1e+4 iteration.
         if (i + 1) % 1e+4 == 0:

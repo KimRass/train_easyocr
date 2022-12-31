@@ -88,7 +88,6 @@ evaluation_set
 ## Preprocessing
 - 일부 좌표가 음수인 경우 0으로 수정했습니다.
 
-
 # Configuration
 - Batch size: 64
 - Optimizer: Adadelta (Learning rate: 1, rho: 0.95, eps: 1e-8)
@@ -193,3 +192,5 @@ wer = jiwer.wer(gt, pred)
 - Metric: https://gist.github.com/tarlen5/008809c3decf19313de216b9208f3734
 - [What Is Wrong With Scene Text Recognition Model Comparisons? Dataset and Model Analysis](https://github.com/clovaai/deep-text-recognition-benchmark/blob/master/train.py)
 - https://davelogs.tistory.com/82
+
+Total number of trainable parameters: 4,015,729
