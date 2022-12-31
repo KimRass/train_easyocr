@@ -1,6 +1,6 @@
 # Environment
 seed: 1111
-experiment_name: "2020_12_31"
+experiment_name: phase3
 
 # Characters
 number: 
@@ -25,8 +25,7 @@ workers: 2
 batch_size: 8
 n_iter: 400_000
 val_period: 10_000 # Period to run validation
-# continue_from: /home/ubuntu/project/korean_g2.pth
-continue_from: /home/ubuntu/project/text_spotting/train_easyocr/saved_models/none-vgg-bilstm-ctc_1111/best_accuracy.pth
+continue_from: /home/ubuntu/project/text_spotting/train_easyocr/saved_models/phase2/iter_190000.pth
 strict: True # If `False` ignore non-matching keys when loading a model from checkpoint
 show_number: 8
 

@@ -36,7 +36,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 def train(config, amp=False):
-    experiment_dir = Path(f"continue_froms/{config.experiment_name}")
+    experiment_dir = Path(__file__).parent/f"saved_models/{config.experiment_name}"
     experiment_dir.mkdir(parents=True, exist_ok=True)
 
     dashed_line = "-" * 80
