@@ -1,8 +1,14 @@
 import torch
 import pickle
 import numpy as np
+from time import time
+from datetime import timedelta
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+
+def get_elapsed_time(time_start):
+    return timedelta(seconds=round(time() - time_start))
 
 
 class AttrDict(dict):

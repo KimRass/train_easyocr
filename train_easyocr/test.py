@@ -1,19 +1,14 @@
-# import os
 import time
 from tqdm.auto import tqdm
-# import string
-# import argparse
 import torch
-# import torch.backends.cudnn as cudnn
 import torch.utils.data
 import torch.nn.functional as F
-# import numpy as np
 from nltk.metrics.distance import edit_distance
 
-# from utils import CTCLabelConverter, AttnLabelConverter, Averager
-from utils import Averager
-# from dataset import hierarchical_dataset, AlignCollate
-# from model import Model
+from utils import (
+    get_elapsed_time,
+    Averager
+)
 
 
 def validation(model, criterion, val_loader, converter, config, device):
@@ -24,9 +19,11 @@ def validation(model, criterion, val_loader, converter, config, device):
     infer_time = 0
     valid_loss_avg = Averager()
 
+    t1 = time()
     for i, (image_tensors, labels) in enumerate(val_loader):
         if i % 1000 == 0 and i != 0:
-            print(i)
+            print(i, get_elapsed_time(t1))
+            t1 = time()
     # for image_tensors, labels in tqdm(val_loader):
         batch_size = image_tensors.size(0)
         length_of_data = length_of_data + batch_size

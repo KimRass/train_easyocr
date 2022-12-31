@@ -1,7 +1,6 @@
 import sys
 from pathlib import Path
 from time import time
-from datetime import timedelta
 import random
 import numpy as np
 import yaml
@@ -16,6 +15,7 @@ from torch.cuda.amp import autocast, GradScaler
 from tqdm.auto import tqdm
 
 from utils import (
+    get_elapsed_time,
     AttrDict,
     CTCLabelConverter,
     AttnLabelConverter,
@@ -33,10 +33,6 @@ cudnn.benchmark = True
 cudnn.deterministic = False
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-
-def get_elapsed_time(time_start):
-    return timedelta(seconds=round(time() - time_start))
 
 
 def train(config, show_number=5, amp=False):
