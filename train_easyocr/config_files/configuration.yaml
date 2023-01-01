@@ -17,8 +17,9 @@ batch_ratio: "1"
   # For example, when `select_data` is `MJ-ST` and `batch_ratio` is `0.5-0.5`,
   # the 50% of the batch is filled with 'MJ' and the other 50% of the batch is filled with 'ST'.
 total_data_usage_ratio: 1.0
-n_train_images: 20_000
-n_val_images: 2_000
+train_images: 40_000
+val_images: 2_000
+eval_images: 500
 
 # Training
 workers: 2
