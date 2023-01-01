@@ -166,13 +166,13 @@ if __name__ == "__main__":
 
     unzipped_dir = Path(args.dataset).parent/"unzipped"
 
-    train_set = random.choices(
+    train_set = random.sample(
         list((unzipped_dir/"training"/"labels").glob("**/*.json")), k=config.train_images
     )
-    val_set = random.choices(
+    val_set = random.sample(
         list((unzipped_dir/"validation"/"labels").glob("**/*.json")), k=config.val_images
     )
-    eval_set = random.choices(
+    eval_set = random.sample(
         list(
             set((unzipped_dir/"validation"/"labels").glob("**/*.json")) - set(val_set)
         ), k=config.eval_images
