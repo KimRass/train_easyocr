@@ -1,12 +1,10 @@
 from time import time
-from tqdm.auto import tqdm
 import torch
 import torch.utils.data
 import torch.nn.functional as F
 from nltk.metrics.distance import edit_distance
 
 from train_easyocr.utils import (
-    get_elapsed_time,
     Averager
 )
 
@@ -19,12 +17,12 @@ def validation(model, criterion, val_loader, converter, config, device):
     infer_time = 0
     valid_loss_avg = Averager()
 
-    t1 = time()
-    for i, (image_tensors, labels) in enumerate(val_loader):
-        if i % 10000 == 0 and i != 0:
-            print(i, get_elapsed_time(t1))
-            t1 = time()
-    # for image_tensors, labels in tqdm(val_loader):
+    # t1 = time()
+    for image_tensors, labels in val_loader:
+    # for i, (image_tensors, labels) in enumerate(val_loader):
+        # if i % 10000 == 0 and i != 0:
+        #     print(i, get_elapsed_time(t1))
+        #     t1 = time()
         batch_size = image_tensors.size(0)
         length_of_data = length_of_data + batch_size
         image = image_tensors.to(device)
