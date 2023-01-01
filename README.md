@@ -44,8 +44,8 @@
     --cuda # Whether to use GPU
   ```
 
-# Dataset
-## Original
+# Dataset Preparation
+## Original ('공공행정문서 OCR')
 ```
 공공행정문서 OCR
 ├── Training (102,477)
