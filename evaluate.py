@@ -180,7 +180,7 @@ def evaluate_using_finetuned_model(dataset_dir, reader, eval_result, craft, cuda
 
     dataset_dir = Path(dataset_dir)
 
-    for json_path in tqdm(list(dataset_dir.glob("**/*.json"))[:5]):
+    for json_path in tqdm(list(dataset_dir.glob("**/*.json"))):
         fname = "/".join(str(json_path).rsplit("/", 4)[1:])
 
         try:
