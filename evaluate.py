@@ -169,7 +169,7 @@ def evaluate_using_baseline_model(dataset_dir, reader, eval_result):
             pred_bboxes, pred_texts = spot_texts_using_baseline_model(img=img, reader=reader)
             f1 = get_end_to_end_f1_score(gt_bboxes, gt_texts, pred_texts, pred_bboxes, iou_thr=0.5)
             
-            eval_result[fname][type] = f1
+            eval_result[fname]["baseline"] = f1
         except Exception:
             print(f"    No image file paring with '{json_path}'")
     return eval_result
@@ -191,7 +191,7 @@ def evaluate_using_finetuned_model(dataset_dir, reader, eval_result, craft, cuda
             )
             f1 = get_end_to_end_f1_score(gt_bboxes, gt_texts, pred_texts, pred_bboxes, iou_thr=0.5)
             
-            eval_result[fname][type] = f1
+            eval_result[fname]["finetuned"] = f1
         except Exception:
             print(f"    No image file paring with '{json_path}'")
     return eval_result
