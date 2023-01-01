@@ -20,7 +20,7 @@ from prepare_dataset import (
 
 
 def get_arguments():
-    parser = argparse.ArgumentParser(description="ocr")
+    parser = argparse.ArgumentParser(description="evaluate")
 
     parser.add_argument("--eval_set")
     # parser.add_argument("--baseline", action="store_true", default=False)

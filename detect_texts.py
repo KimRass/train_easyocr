@@ -1,12 +1,6 @@
 import cv2
 import math
 import pandas as pd
-import numpy as np
-import easyocr
-
-from process_image import(
-    get_masked_image
-)
 
 
 def get_horizontal_list(img, text_score_map, link_score_map, thr=300):
@@ -45,38 +39,4 @@ def get_horizontal_list(img, text_score_map, link_score_map, thr=300):
 
     bboxes = bboxes[["xmin", "xmax", "ymin", "ymax"]]
     return bboxes.values.tolist()
-    # return bboxes
-
-
-# def detect_texts_baseline(img, reader):
-#     result = reader.detect(img)
-#     bboxes_pred = np.array(result[0][0])
-#     return bboxes_pred
-#     # cols = ["xmin", "xmax", "ymin", "ymax"]
-#     # if result:
-#     #     rectangles = pd.DataFrame(result[0][0], columns=cols)
-#     # else:
-#     #     rectangles = pd.DataFrame(columns=cols)
-#     # return rectangles
-
-
-# def detect_texts(img, reader):
-#     # reader = easyocr.Reader(lang_list=["ko", "en"], gpu=cuda)
-#     result = reader.detect(
-#         img=img,
-#         min_size=20,
-#         text_threshold=0.7,
-#         low_text=0.4,
-#         link_threshold=0.4,
-#         canvas_size=2560,
-#         # slope_ths=0, # No merge
-#         # ycenter_ths=0.5,
-#         # height_ths=0.5,
-#         width_ths=0 # No merge
-#     )
-#     cols = ["xmin", "xmax", "ymin", "ymax"]
-#     if result:
-#         rectangles = pd.DataFrame(result[0][0], columns=cols)
-#     else:
-#         rectangles = pd.DataFrame(columns=cols)
-#     return rectangles
+ 
