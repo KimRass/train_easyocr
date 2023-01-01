@@ -1,1 +1,1 @@
-python3 train/train.py
+python3 train_easyocr/train.py

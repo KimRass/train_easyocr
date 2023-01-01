@@ -25,8 +25,8 @@ def get_arguments():
     parser = argparse.ArgumentParser(description="evaluate")
 
     parser.add_argument("--eval_set")
-    # parser.add_argument("--baseline", action="store_true", default=False)
-    # parser.add_argument("--finetuned", action="store_true", default=False)
+    parser.add_argument("--baseline", action="store_true", default=False)
+    parser.add_argument("--finetuned", action="store_true", default=False)
     parser.add_argument("--cuda", default=False, action="store_true")
 
     args = parser.parse_args()

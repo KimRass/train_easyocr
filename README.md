@@ -1,7 +1,7 @@
 # How to Run
 ## Step1: Environment Setting
 - run `source step1_set_environment.sh`
-- set 'train/config_files/config.yaml'
+- set 'train_easyocr/config_files/config.yaml'
 ## Step2: Dataset Preparation
 - run `bash step2_run_prepare_dataset_py.sh`
 - The example of 'step2_run_prepare_dataset_py.sh':
@@ -20,7 +20,7 @@
 - run `bash step4_set_finetuned_model.sh`
 - The example of 'step4_set_finetuned_model.sh':
   ```sh
-  cp train/saved_models/phase4/best_accuracy.pth ~/.EasyOCR/model/finetuned.pth
+  cp train_easyocr/saved_models/phase4/best_accuracy.pth ~/.EasyOCR/model/finetuned.pth
   cp finetuned/finetuned.py ~/.EasyOCR/user_network/finetuned.py
   cp finetuned/finetuned.yaml ~/.EasyOCR/user_network/finetuned.yaml
   ```

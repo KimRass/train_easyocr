@@ -1,0 +1,75 @@
+Dataset root: '/data/training_and_validation_set/validation'	Dataset: '/'
+Subdirectory: select_data/images	Number of samples: 379235
+--------------------------------------------------------------------------------
+Dataset root: '/data/training_and_validation_set/validation'	Dataset: '/'
+Subdirectory: select_data/images	Number of samples: 379235
+--------------------------------------------------------------------------------
+Dataset root: '/data/training_and_validation_set/validation'	Dataset: '/'
+Subdirectory: select_data/images	Number of samples: 379235
+--------------------------------------------------------------------------------
+Dataset root: '/data/training_and_validation_set/validation'
+Subdirectory: select_data/images
+Number of samples: 379,235
+--------------------------------------------------------------------------------
+Dataset root: '/data/training_and_validation_set/validation'
+Subdirectory: 'select_data/images'
+Number of samples: 379,235
+--------------------------------------------------------------------------------
+Dataset root: '/data/training_and_validation_set/validation'
+Subdirectory: 'select_data/images'
+Number of samples: 379,235
+
+--------------------------------------------------------------------------------
+Dataset root: '/data/training_and_validation_set/validation'
+Subdirectory: 'select_data/images'
+Number of samples: 379,235
+
+--------------------------------------------------------------------------------
+Dataset root: '/data/training_and_validation_set/validation'
+Subdirectory: 'select_data/images'
+Number of samples: 379,235
+--------------------------------------------------------------------------------
+Dataset root: '/data/training_and_validation_set/validation'
+Subdirectory: 'select_data/images'
+Number of samples: 379,235
+--------------------------------------------------------------------------------
+Dataset root: '/data/training_and_validation_set/validation'
+Subdirectory: 'select_data/images'
+Number of samples: 201,254
+--------------------------------------------------------------------------------
+Dataset root: '/data/training_and_validation_set/validation'
+Subdirectory: 'select_data/images'
+Number of samples: 201,254
+--------------------------------------------------------------------------------
+Dataset root: '/data/training_and_validation_set/validation'
+Subdirectory: 'select_data/images'
+Number of samples: 201,254
+--------------------------------------------------------------------------------
+Dataset root: '/data/training_and_validation_set/validation'
+Subdirectory: 'select_data/images'
+Number of samples: 201,254
+--------------------------------------------------------------------------------
+Dataset root: '/data/training_and_validation_set/validation'
+Subdirectory: 'select_data/images'
+Number of samples: 201,254
+--------------------------------------------------------------------------------
+Dataset root: '/data/training_and_validation_set/validation'
+Subdirectory: 'select_data/images'
+Number of samples: 201,254
+--------------------------------------------------------------------------------
+Dataset root: '/data/training_and_validation_set/validation'
+Subdirectory: 'select_data/images'
+Number of samples: 201,254
+--------------------------------------------------------------------------------
+Dataset root: '/data/training_and_validation_set/validation'
+Subdirectory: 'select_data/images'
+Number of samples: 201,254
+--------------------------------------------------------------------------------
+Dataset root: '/data/training_and_validation_set/validation'
+Subdirectory: 'select_data/images'
+Number of samples: 201,254
+--------------------------------------------------------------------------------
+Dataset root: '/data/training_and_validation_set/validation'
+Subdirectory: 'select_data/images'
+Number of samples: 201,254
+--------------------------------------------------------------------------------

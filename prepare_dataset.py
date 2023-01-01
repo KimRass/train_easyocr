@@ -11,7 +11,7 @@ import yaml
 import shutil
 from csv import writer
 
-from train.utils import (
+from train_easyocr.utils import (
     AttrDict
 )
 from process_image import (

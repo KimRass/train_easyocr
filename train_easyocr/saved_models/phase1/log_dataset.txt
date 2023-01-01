@@ -1,0 +1,45 @@
+--------------------------------------------------------------------------------
+dataset_root: /data/training_and_validation_set/training
+opt.select_data: ['select_data']
+opt.batch_ratio: ['1']
+--------------------------------------------------------------------------------
+dataset_root:    /data/training_and_validation_set/training	 dataset: select_data
+sub-directory:	/select_data/images	 num samples: 1065237
+num total samples of select_data: 1065237 x 1.0 (total_data_usage_ratio) = 1065237
+num samples of select_data per batch: 64 x 1.0 (batch_ratio) = 64
+--------------------------------------------------------------------------------
+Total_batch_size: 64 = 64
+--------------------------------------------------------------------------------
+dataset_root:    /data/training_and_validation_set/validation	 dataset: /
+sub-directory:	/select_data/images	 num samples: 201254
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+dataset_root: /data/training_and_validation_set/training
+opt.select_data: ['select_data']
+opt.batch_ratio: ['1']
+--------------------------------------------------------------------------------
+dataset_root:    /data/training_and_validation_set/training	 dataset: select_data
+sub-directory:	/select_data/images	 num samples: 1065237
+num total samples of select_data: 1065237 x 1.0 (total_data_usage_ratio) = 1065237
+num samples of select_data per batch: 32 x 1.0 (batch_ratio) = 32
+--------------------------------------------------------------------------------
+Total_batch_size: 32 = 32
+--------------------------------------------------------------------------------
+dataset_root:    /data/training_and_validation_set/validation	 dataset: /
+sub-directory:	/select_data/images	 num samples: 201254
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+dataset_root: /data/training_and_validation_set/training
+opt.select_data: ['select_data']
+opt.batch_ratio: ['1']
+--------------------------------------------------------------------------------
+dataset_root:    /data/training_and_validation_set/training	 dataset: select_data
+sub-directory:	/select_data/images	 num samples: 1065237
+num total samples of select_data: 1065237 x 1.0 (total_data_usage_ratio) = 1065237
+num samples of select_data per batch: 16 x 1.0 (batch_ratio) = 16
+--------------------------------------------------------------------------------
+Total_batch_size: 16 = 16
+--------------------------------------------------------------------------------
+dataset_root:    /data/training_and_validation_set/validation	 dataset: /
+sub-directory:	/select_data/images	 num samples: 201254
+--------------------------------------------------------------------------------
