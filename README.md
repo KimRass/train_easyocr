@@ -15,12 +15,12 @@ python3 prepare_dataset.py\
 ```
 ## Training (Fine-tunning)
 ```sh
-python3 train_easyocr/train.py
+python3 train/train.py
 ```
 ## Fine-tuned Model Setting
 ```sh
 # Example
-cp train_easyocr/saved_models/none-vgg-bilstm-ctc_1111/best_accuracy.pth ~/.EasyOCR/model/finetuned.pth
+cp train/saved_models/none-vgg-bilstm-ctc_1111/best_accuracy.pth ~/.EasyOCR/model/finetuned.pth
 ```
 ## Evaluation
 ```sh
