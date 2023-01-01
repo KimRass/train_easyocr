@@ -21,7 +21,7 @@ def validation(model, criterion, val_loader, converter, config, device):
 
     t1 = time()
     for i, (image_tensors, labels) in enumerate(val_loader):
-        if i % 5000 == 0 and i != 0:
+        if i % 10000 == 0 and i != 0:
             print(i, get_elapsed_time(t1))
             t1 = time()
     # for image_tensors, labels in tqdm(val_loader):
