@@ -1,36 +1,48 @@
 # How to Run
-## Environment Setting
-```sh
-source set_environment.sh
+## Step1: Environment Setting
+- run `source step1_set_environment.sh`
+- set 'train/config_files/config.yaml'
+## Step2: Dataset Preparation
+- run `bash step2_run_prepare_dataset_py.sh`
+- The example of 'step2_run_prepare_dataset_py.sh':
+  ```sh
+  python3 prepare_dataset.py\
+    --dataset="/data/original"\ # Path to the original dataset directory "공공행정문서 OCR"
+    --unzip\ # Whether to unzip
+    --training\ # Whether to generate training set
+    --validation\ # Whether to generate validation set
+    --evaluation # Whether to generate evaluation set
+  ```
+## Step3: Training (Fine-tunning)
+- run `bash step3_run_train_py.sh`
+## Step4: Fine-tuned Model Setting
+- Reference: [Custom recognition models](https://github.com/JaidedAI/EasyOCR/blob/master/custom_model.md)
+- run `bash step4_set_finetuned_model.sh`
+- The example of 'step4_set_finetuned_model.sh':
+  ```sh
+  cp train/saved_models/phase4/best_accuracy.pth ~/.EasyOCR/model/finetuned.pth
+  cp finetuned/finetuned.py ~/.EasyOCR/user_network/finetuned.py
+  cp finetuned/finetuned.yaml ~/.EasyOCR/user_network/finetuned.yaml
+  ```
+- Then the structure of directory '~/.EasyOCR' would be like,
 ```
-## Dataset Preparation
-```sh
-# Example
-python3 prepare_dataset.py\
-  --dataset="/data/original"\ # Path to the original dataset "공공행정문서 OCR"
-  --unzip\ # Whether to unzip
-  --training\ # Whether to generate training set
-  --validation\ # Whether to generate validation set
-  --evaluation # Whether to generate evaluation set
+~/.EasyOCR
+├── model
+│   └── finetuned.pth
+└── user_network
+    ├── finetuned.py
+    └── finetuned.yaml
 ```
-## Training (Fine-tunning)
-```sh
-python3 train/train.py
-```
-## Fine-tuned Model Setting
-```sh
-# Example
-cp train/saved_models/none-vgg-bilstm-ctc_1111/best_accuracy.pth ~/.EasyOCR/model/finetuned.pth
-```
-## Evaluation
-```sh
-# Example
-python3 evaluate.py\
-  --eval_set="/data/evaluation_set"\ # Path to the evaluation set
-  --baseline\ # Whether to evaluate EasyOCR baseline model
-  --finetuned\ # Whether to evaluate fine-tuned model
-  --cuda # Whether to use GPU
-```
+## Step5: Evaluation
+- run `bash step5_run_evaluate_py.sh`
+- The example of 'step5_run_evaluate_py.sh':
+  ```sh
+  python3 evaluate.py\
+    --eval_set="/data/evaluation_set"\ # Path to the evaluation set
+    --baseline\ # Whether to evaluate EasyOCR baseline model
+    --finetuned\ # Whether to evaluate fine-tuned model
+    --cuda # Whether to use GPU
+  ```
 
 # Dataset
 ## Original
@@ -103,6 +115,11 @@ Parameter Group 0
     weight_decay: 0
 )
 
+# Improvements
+0.352
+0.702
+99.1% 성능 향상
+
 # Training
 - Number of image patches
   - Training set: 1,120,590
@@ -121,14 +138,7 @@ Parameter Group 0
 # Fine-tunning
 - Pre-trained Model: [korean_g2](https://github.com/JaidedAI/EasyOCR/releases/download/v1.3/korean_g2.zip)
 ## Appling Fined-tuned Model
-```
-~/.EasyOCR
-├── model
-│   ├── finetuned.pth
-└── user_network
-    ├── finetuned.py
-    └── finetuned.yaml
-```
+
 
 # Metric
 # Edit distance

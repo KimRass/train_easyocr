@@ -132,9 +132,6 @@ def save_image_patches(output_dir, split, select_data, json_file_list):
 
     print(f"Completed generating image patches for {split}.", end=" ")
 
-    df_labels = pd.read_csv(labels_csv_path)
-    print(f"({len(df_labels)})")
-
 
 def prepare_evaluation_set(eval_set) -> None:
     print(f"Preparing evaluation set...")
@@ -156,7 +153,7 @@ if __name__ == "__main__":
     args = get_arguments()
 
     with open(
-        Path(__file__).parent/"train/config_files/configuration.yaml", mode="r", encoding="utf8"
+        Path(__file__).parent/"train/config_files/config.yaml", mode="r", encoding="utf8"
     ) as f:
         config = AttrDict(
             yaml.safe_load(f)

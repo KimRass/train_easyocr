@@ -10,9 +10,6 @@ from torch_utilities import (
 from models.craft import (
     CRAFT
 )
-# from models.craft_refiner import (
-#     CRAFTRefiner
-# )
 
 
 def load_craft_checkpoint(cuda=False):
@@ -20,8 +17,7 @@ def load_craft_checkpoint(cuda=False):
     if cuda:
         craft = craft.to("cuda")
 
-    ckpt_path = Path(__file__).parent/"pretrained/craft.pth"
-    # ckpt_path = "/Users/jongbeom.kim/Desktop/workspace/text_spotting/pretrained/craft.pth"
+    ckpt_path = Path.home()/".EasyOCR/model/finetuned.pth"
     state = torch.load(ckpt_path, map_location="cuda" if cuda else "cpu")
     craft.load_state_dict(
         copy_state_dict(state), strict=True
@@ -29,22 +25,6 @@ def load_craft_checkpoint(cuda=False):
 
     print(f"Loaded pre-trained parameters for 'CRAFT' from checkpoint '{ckpt_path}'.")
     return craft
-
-
-# def load_craft_refiner_checkpoint(cuda=False):
-#     craft_refiner = CRAFTRefiner()
-#     if cuda:
-#         craft_refiner = craft_refiner.to("cuda")
-
-#     ckpt_path = Path(__file__).parent/"pretrained/craft_refiner.pth"
-#     # ckpt_path = "/Users/jongbeom.kim/Desktop/workspace/text_spotting/pretrained/craft_refiner.pth"
-#     state = torch.load(ckpt_path, map_location="cuda" if cuda else "cpu")
-#     craft_refiner.load_state_dict(
-#         copy_state_dict(state), strict=True
-#     )
-
-#     print(f"Loaded pre-trained parameters for 'CRAFT' refiner from checkpoint '{ckpt_path}'.")
-#     return craft_refiner
 
 
 def resize_image_for_craft(img):
@@ -112,37 +92,3 @@ def get_text_score_map_and_link_score_map(img, craft, cuda=False):
     z1_resized = z1_resized[: height, : width]
     link_score_map = normalize_score_map(z1_resized)
     return text_score_map, link_score_map
-
-
-# def get_score_maps(
-#     img, craft, craft_refiner=None, cuda=False
-# ):
-#     img_resized = resize_image_for_craft(img)
-
-#     z, feature = infer_using_craft(img=img_resized, craft=craft, cuda=cuda)
-    
-#     z0 = z[0, :, :, 0].detach().cpu().numpy()
-#     z1 = z[0, :, :, 1].detach().cpu().numpy()
-
-#     height, width, _ = img.shape
-#     height_resized, width_resized, _ = img_resized.shape
-    
-#     z0_resized = cv2.resize(src=z0, dsize=(width_resized, height_resized))
-#     z0_resized = z0_resized[: height, : width]
-#     text_score_map = normalize_score_map(z0_resized)
-    
-#     z1_resized = cv2.resize(src=z1, dsize=(width_resized, height_resized))
-#     z1_resized = z1_resized[: height, : width]
-#     link_score_map = normalize_score_map(z1_resized)
-
-#     if craft_refiner is None:
-#         return text_score_map, link_score_map
-#     else:
-#         with torch.no_grad():
-#             z = craft_refiner(z, feature)
-#         z0_ref = z[0, :, :, 0].detach().cpu().numpy()
-        
-#         z0_ref_resized = cv2.resize(src=z0_ref, dsize=(width_resized, height_resized))
-#         z0_ref_resized = z0_ref_resized[: height, : width]
-#         line_score_map = normalize_score_map(z0_ref_resized)
-#         return text_score_map, link_score_map, line_score_map

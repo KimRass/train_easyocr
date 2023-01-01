@@ -18,6 +18,8 @@ from prepare_dataset import (
     parse_json_file
 )
 
+result_csv_path = Path("evaluation_result.csv")
+
 
 def get_arguments():
     parser = argparse.ArgumentParser(description="evaluate")
@@ -202,7 +204,22 @@ def save_evaluation_result_as_csv(eval_result) -> None:
     df_result.reset_index(inplace=True)
     df_result.rename({"index": "file"}, axis=1, inplace=True)
 
-    df_result.to_csv("evaluation_result.csv", index=False)
+    df_result.to_csv(result_csv_path, index=False)
+
+
+def print_summary():
+    if result_csv_path.exists():
+        df_result = pd.read_csv(result_csv_path)
+
+    cols = df_result.columns.tolist()
+    if "baseline" in cols:
+        f1_bl = df_result["baseline"].mean()
+        print(f"Mean f1 score for baseline model:   {f1_bl:.3f}")
+    if "finetuned" in cols:
+        f1_ft = df_result["finetuned"].mean()
+        print(f"Mean f1 score for fine-tuned model: {f1_ft:.3f}")
+    if "baseline" in cols and "finetuned" in cols:
+        print(f"F1 score increased {(f1_ft - f1_bl) / f1_bl:.1%}")
 
 
 def main():
@@ -221,36 +238,24 @@ def main():
         recog_network="finetuned"
     )
 
-    # if args.baseline and args.finetuned:
-    eval_result = evaluate_using_baseline_model(
-        dataset_dir=args.eval_set, reader=reader_bl, eval_result=defaultdict(dict)
-    )
-    save_evaluation_result_as_csv(eval_result)
+    if args.baseline:
+        eval_result = evaluate_using_baseline_model(
+            dataset_dir=args.eval_set, reader=reader_bl, eval_result=defaultdict(dict)
+        )
+        save_evaluation_result_as_csv(eval_result)
+        if args.finetuned:
+            eval_result = evaluate_using_finetuned_model(
+                dataset_dir=args.eval_set, reader=reader_ft, eval_result=eval_result, craft=craft, cuda=args.cuda
+            )
+            save_evaluation_result_as_csv(eval_result)
+    elif args.finetuned:
+        eval_result = evaluate_using_finetuned_model(
+            dataset_dir=args.eval_set, reader=reader_ft, eval_result=defaultdict(dict), craft=craft, cuda=args.cuda
+        )
+        save_evaluation_result_as_csv(eval_result)
 
-    eval_result = evaluate_using_finetuned_model(
-        dataset_dir=args.eval_set, reader=reader_ft, eval_result=eval_result, craft=craft, cuda=args.cuda
-    )
-    save_evaluation_result_as_csv(eval_result)
-
-    # elif args.baseline and not args.finetuned:
-    #     eval_result = evaluate_using_baseline_model(
-    #         dataset_dir=args.eval_set, reader=reader_bl, eval_result=defaultdict(dict)
-    #     )
-    #     save_evaluation_result_as_csv(eval_result)
-
-    # elif not args.baseline and args.finetuned:
-    #     eval_result = evaluate_using_finetuned_model(
-    #         dataset_dir=args.eval_set, reader=reader_ft, eval_result=defaultdict(dict), craft=craft, cuda=args.cuda
-    #     )
-    #     save_evaluation_result_as_csv(eval_result)
+    print_summary()
 
 
 if __name__ == "__main__":
     main()
-
-    # f1_bl = df_result["baseline"].mean()
-    # f1_ft = df_result["finetuned"].mean()
-
-    # print(f"Mean f1 score for baseline model:   {f1_bl:.3f}")
-    # print(f"Mean f1 score for fine-tuned model: {f1_ft:.3f}")
-    # print(f"Increased {(f1_ft - f1_bl) / f1_bl:.1%}")
