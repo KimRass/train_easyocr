@@ -27,12 +27,12 @@ from dataset import (
     BatchBalancedDataset
 )
 from model import Model
-from train_easyocr.test import validation
+from train.test import validation
 
 cudnn.benchmark = True
 cudnn.deterministic = False
 
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def train(config, amp=False):
