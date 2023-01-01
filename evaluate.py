@@ -1,25 +1,20 @@
 import numpy as np
-import jiwer
+import pandas as pd
 from pathlib import Path
 from tqdm.auto import tqdm
-import numpy as np
-import pandas as pd
+import jiwer
 import easyocr
 import argparse
 from collections import defaultdict
 
-# from process_image import (
-    # convert_quadrilaterals_to_rectangles
-# )
 from craft_utilities import (
     load_craft_checkpoint,
-    # load_craft_refiner_checkpoint,
     get_text_score_map_and_link_score_map
 )
 from detect_texts import (
     get_horizontal_list
 )
-from train_easyocr.prepare_dataset import (
+from prepare_dataset import (
     parse_json_file
 )
 

@@ -34,20 +34,12 @@ def adjust_contrast_grey(img, target = 0.4):
 
 class BatchBalancedDataset(object):
     def __init__(self, config):
-        # print(dashed_line)
-
         log = open(
             Path(__file__).parent/f"saved_models/{config.experiment_name}/log_dataset.txt",
             mode="a"
         )
         dashed_line = "-" * 80
         log.write(f"{dashed_line}\n")
-
-        # msg = f"dataset_root: {config.train_data}\n\
-        #     config.select_data: {config.select_data}\n\
-        #     config.batch_ratio: {config.batch_ratio}"
-        # print(msg)
-        # log.write(f"{msg}\n")
 
         assert len(config.select_data) == len(config.batch_ratio)
 
@@ -88,9 +80,7 @@ class BatchBalancedDataset(object):
                 )
             ]
             selected_d_log = f"Number of samples of '{selected_d}': {len(_dataset):,}\n"
-            # selected_d_log = f"Total number of samples of '{selected_d}': {total_number_dataset:,} x {config.total_data_usage_ratio} ('total_data_usage_ratio') = {len(_dataset):,}\n"
             selected_d_log += f"Number of samples of '{selected_d}' per batch: {_batch_size}"
-            # selected_d_log += f"Number of samples of '{selected_d}' per batch: {config.batch_size} x {float(batch_ratio_d)} ('batch_ratio') = {_batch_size}"
 
             print(selected_d_log)
             log.write(f"{selected_d_log}\n")
@@ -146,7 +136,6 @@ class BatchBalancedDataset(object):
 # `select_data="/"` contains all sub-directory of root directory
 def hierarchical_dataset(root, config, select_data="/"):
     dataset_list = list()
-    # dataset_log = f"Dataset root: '{root}'\tDataset: '{select_data[0]}'"
     dataset_log = f"Dataset root: '{root}'"
     print(dataset_log)
 
@@ -174,7 +163,6 @@ class OCRDataset(Dataset):
     def __init__(self, root, config):
         self.root = root
         self.config = config
-        # print(root)
         self.df = pd.read_csv(
             os.path.join(
                 os.path.dirname(root), 'labels.csv'
@@ -251,8 +239,8 @@ class NormalizePAD(object):
         img.sub_(0.5).div_(0.5)
         c, h, w = img.size()
         Pad_img = torch.FloatTensor(*self.max_size).fill_(0)
-        Pad_img[:, :, :w] = img  # right pad
-        if self.max_size[2] != w:  # add border Pad
+        Pad_img[:, :, :w] = img  # Right pad
+        if self.max_size[2] != w:  # Add border Pad
             Pad_img[:, :, w:] = img[:, :, w - 1].unsqueeze(2).expand(c, h, self.max_size[2] - w)
         return Pad_img
 
@@ -268,7 +256,7 @@ class AlignCollate(object):
         batch = filter(lambda x: x is not None, batch)
         images, labels = zip(*batch)
 
-        if self.keep_ratio_with_pad:  # same concept with 'Rosetta' paper
+        if self.keep_ratio_with_pad:  # Same concept with 'Rosetta' paper
             resized_max_w = self.img_width
             input_channel = 3 if images[0].mode == 'RGB' else 1
             transform = NormalizePAD((input_channel, self.img_height, resized_max_w))
@@ -277,7 +265,7 @@ class AlignCollate(object):
             for image in images:
                 w, h = image.size
 
-                #### augmentation here - change contrast
+                # Augmentation here - change contrast
                 if self.contrast_adjust > 0:
                     image = np.array(image.convert("L"))
                     image = adjust_contrast_grey(image, target = self.contrast_adjust)
@@ -291,7 +279,6 @@ class AlignCollate(object):
 
                 resized_image = image.resize((resized_w, self.img_height), Image.BICUBIC)
                 resized_images.append(transform(resized_image))
-                # resized_image.save('./image_test/%d_test.jpg' % w)
 
             image_tensors = torch.cat([t.unsqueeze(0) for t in resized_images], 0)
 

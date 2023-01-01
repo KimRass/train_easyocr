@@ -1,12 +1,12 @@
 # How to Run
-## Set `PYTHONPATH`
+## Environment Setting
 ```sh
 source set_environment.sh
 ```
 ## Dataset Preparation
 ```sh
 # Example
-python3 train_easyocr/prepare_dataset.py\
+python3 prepare_dataset.py\
   --dataset="/data/original"\ # Path to the original dataset "공공행정문서 OCR"
   --unzip\ # Whether to unzip
   --training\ # Whether to generate training set
@@ -15,10 +15,11 @@ python3 train_easyocr/prepare_dataset.py\
 ```
 ## Training (Fine-tunning)
 ```sh
-python3 train_easyocr/train.py 
+python3 train_easyocr/train.py
 ```
-## Setting Fine-tuned Model
+## Fine-tuned Model Setting
 ```sh
+# Example
 cp train_easyocr/saved_models/none-vgg-bilstm-ctc_1111/best_accuracy.pth ~/.EasyOCR/model/finetuned.pth
 ```
 ## Evaluation

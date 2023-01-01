@@ -109,7 +109,6 @@ def save_image_patches(output_dir, split, select_data, json_file_list):
         try:
             img, gt_bboxes, gt_texts = parse_json_file(json_path)
         except Exception:
-            # print(f"    No image file paring with '{json_path}'")
             continue
 
         for text, (xmin, ymin, xmax, ymax) in zip(gt_texts, gt_bboxes):
@@ -151,22 +150,6 @@ def prepare_evaluation_set(eval_set) -> None:
         shutil.copy(src=img_path, dst=new_img_path)
     
     print(f"Completed preparing evaluation set.")
-
-
-# def count_images(dataset):
-#     tr = Path(dataset).parent/"training_and_validation_set/training"
-#     val = Path(dataset).parent/"training_and_validation_set/validation"
-
-#     n_img_tr = len(list(tr.glob("select_data/images/*.png")))
-#     n_img_val = len(list(val.glob("select_data/images/*.png")))
-
-#     df_labels_tr = pd.read_csv(tr/"select_data/labels.csv")
-#     df_labels_val = pd.read_csv(val/"select_data/labels.csv")
-    
-#     if n_img_tr == len(df_labels_tr):
-#         print(f"Number of image patches for training: {n_img_tr:,}")
-#     if n_img_val == len(df_labels_val):
-#         print(f"Number of image patches for validation: {n_img_val:,}")
 
 
 if __name__ == "__main__":
@@ -212,5 +195,3 @@ if __name__ == "__main__":
         )
     if args.evaluation:
         prepare_evaluation_set(eval_set)
-
-    # count_images(args.dataset)
