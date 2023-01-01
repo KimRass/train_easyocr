@@ -50,7 +50,7 @@ def get_iou(bbox1, bbox2):
     return iou
 
 
-def get_end_to_end_f1_score(gt_bboxes, gt_texts, pred_texts, pred_bboxes, iou_thr=0.5, rec=False):
+def get_end_to_end_f1_score(gt_bboxes, gt_texts, pred_texts, pred_bboxes, iou_thr=0.5):
     # gt_bboxes = np.array(gt_bboxes[["xmin", "ymin", "xmax", "ymax"]])
     # pred_bboxes = np.array(pred_bboxes[["xmin", "ymin", "xmax", "ymax"]])
     
@@ -86,31 +86,30 @@ def get_end_to_end_f1_score(gt_bboxes, gt_texts, pred_texts, pred_bboxes, iou_th
             cer = jiwer.cer(gt_label, pred_label)
             score = 1 - cer
 
-            if rec:
-                if (
-                    idx_gt not in ls_idx_match_gt and
-                    idx_pred not in ls_idx_match_pred
-                ):
-                    ls_idx_match_gt.append(score)
-                    ls_idx_match_pred.append(score)
-            else:
-                if (
-                    idx_gt not in ls_idx_match_gt and
-                    idx_pred not in ls_idx_match_pred and
-                    score == 1
-                    # cer == 0
-                ):
-                    ls_idx_match_gt.append(idx_gt)
-                    ls_idx_match_pred.append(idx_pred)
+            # if rec:
+            if (
+                idx_gt not in ls_idx_match_gt and
+                idx_pred not in ls_idx_match_pred
+            ):
+                ls_idx_match_gt.append(score)
+                ls_idx_match_pred.append(score)
+            # else:
+            #     if (
+            #         idx_gt not in ls_idx_match_gt and
+            #         idx_pred not in ls_idx_match_pred and
+            #         score == 1
+            #     ):
+            #         ls_idx_match_gt.append(idx_gt)
+            #         ls_idx_match_pred.append(idx_pred)
 
-        if rec:
-            tp = sum(ls_idx_match_gt)
-            fp = len(pred_bboxes) - sum(ls_idx_match_pred)
-            fn = len(gt_bboxes) - sum(ls_idx_match_gt)
-        else:
-            tp = len(ls_idx_match_gt)
-            fp = len(pred_bboxes) - len(ls_idx_match_pred)
-            fn = len(gt_bboxes) - len(ls_idx_match_gt)
+        # if rec:
+        tp = sum(ls_idx_match_gt)
+        fp = len(pred_bboxes) - sum(ls_idx_match_pred)
+        fn = len(gt_bboxes) - sum(ls_idx_match_gt)
+        # else:
+        #     tp = len(ls_idx_match_gt)
+        #     fp = len(pred_bboxes) - len(ls_idx_match_pred)
+        #     fn = len(gt_bboxes) - len(ls_idx_match_gt)
 
         precision = tp / (tp + fp)
         recall = tp / (tp + fn)
@@ -161,14 +160,14 @@ def evaluate_using_baseline_model(dataset_dir, reader, eval_result):
 
     dataset_dir = Path(dataset_dir)
 
-    for json_path in tqdm(list(dataset_dir.glob("**/*.json"))[:5]):
+    for json_path in tqdm(list(dataset_dir.glob("**/*.json"))):
         fname = "/".join(str(json_path).rsplit("/", 4)[1:])
 
         try:
             img, gt_bboxes, gt_texts = parse_json_file(json_path)
 
             pred_bboxes, pred_texts = spot_texts_using_baseline_model(img=img, reader=reader)
-            f1 = get_end_to_end_f1_score(gt_bboxes, gt_texts, pred_texts, pred_bboxes, iou_thr=0.5, rec=True)
+            f1 = get_end_to_end_f1_score(gt_bboxes, gt_texts, pred_texts, pred_bboxes, iou_thr=0.5)
             
             eval_result[fname][type] = f1
         except Exception:
@@ -190,7 +189,7 @@ def evaluate_using_finetuned_model(dataset_dir, reader, eval_result, craft, cuda
             pred_bboxes, pred_texts = spot_texts_using_finetuned_model(
                 img=img, craft=craft, reader=reader, cuda=cuda
             )
-            f1 = get_end_to_end_f1_score(gt_bboxes, gt_texts, pred_texts, pred_bboxes, iou_thr=0.5, rec=True)
+            f1 = get_end_to_end_f1_score(gt_bboxes, gt_texts, pred_texts, pred_bboxes, iou_thr=0.5)
             
             eval_result[fname][type] = f1
         except Exception:
