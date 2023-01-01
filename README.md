@@ -79,7 +79,7 @@ training_and_validation_set
   |5350178-1999-0001-0344_1405-259-1620-324.png|행복하게|
   |...|...|
 ## "evaluation_set"
-- 484 - 1
+- 484 - 1개
 ```
 evaluation_set
 ├── images
