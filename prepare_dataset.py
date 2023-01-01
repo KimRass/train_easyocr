@@ -156,7 +156,7 @@ if __name__ == "__main__":
     args = get_arguments()
 
     with open(
-        Path(__file__)/"train/config_files/configuration.yaml", mode="r", encoding="utf8"
+        Path(__file__).parent/"train/config_files/configuration.yaml", mode="r", encoding="utf8"
     ) as f:
         config = AttrDict(
             yaml.safe_load(f)
