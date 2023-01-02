@@ -146,6 +146,10 @@
   ```
 - Number of training images: 102,477
 - Number of validation images: 11,397
+- Original image
+  - <img src="https://i.imgur.com/fH2MI2X.jpg" alt="original" width="500"/>
+- Ground truth bounding boxes
+  - <img src="https://i.imgur.com/6MVTy3X.png" alt="gt_bboxes" width="500"/>
 ## 'unzipped'
 - 'step2_run_prepare_dataset_py.sh' 실행시 `--unzip`을 옵션으로 주면 아래와 같은 디렉토리 구조로 압축을 풉니다.
   ```
@@ -227,11 +231,7 @@ evaluation_set
 - 그 이유는 첫째, 네트워크 속도가 제한되어 있는 상황 하에서 데이터셋을 다운로드 받는 데 매우 많은 시간이 소요되었으며 둘째, 사용 가능한  
 
 # Improvements
-## Hyperparameter Tunning
-### Beam Search
-- `decoder`: `"greedy"` -> `"beamsearch"`?
-## Image Processing
-## Fine Tunning
+
 
 # To Do
 

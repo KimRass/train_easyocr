@@ -17,7 +17,7 @@ def load_craft_checkpoint(cuda=False):
     if cuda:
         craft = craft.to("cuda")
 
-    ckpt_path = Path.home()/".EasyOCR/model/finetuned.pth"
+    ckpt_path = Path.home()/".EasyOCR/model/craft_mlt_25k.pth"
     state = torch.load(ckpt_path, map_location="cuda" if cuda else "cpu")
     craft.load_state_dict(
         copy_state_dict(state), strict=True

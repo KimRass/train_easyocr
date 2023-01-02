@@ -35,7 +35,7 @@ def get_arguments():
 
 
 def parse_json_file(json_path):
-    img_path = str(json_path).replace("/labels/", "/images/").replace(".json", ".jpg")
+    img_path = str(json_path).replace("labels/", "images/").replace(".json", ".jpg")
     img = load_image_as_array(img_path)
 
     with open(json_path, mode="r") as f:
@@ -94,7 +94,7 @@ def unzip_dataset(dataset_dir) -> None:
     print("Completed unzipping the original dataset.")
 
 
-def save_image_patches(output_dir, split, select_data, json_file_list):
+def save_image_patches(output_dir, split, select_data, jpg_file_list):
     print(f"Generating image patches for {split}...")
 
     save_dir = Path(output_dir)/split/select_data
@@ -105,11 +105,13 @@ def save_image_patches(output_dir, split, select_data, json_file_list):
     df_labels = pd.DataFrame(columns=["filename", "words"])
     df_labels.to_csv(labels_csv_path, index=False)
 
-    for json_path in tqdm(json_file_list):
-        try:
-            img, gt_bboxes, gt_texts = parse_json_file(json_path)
-        except Exception:
+    for jpg_path in tqdm(jpg_file_list):
+        json_path = Path(str(jpg_path).replace("images/", "labels/").replace(".jpg", ".json"))
+        if not json_path.exists():
             continue
+        
+        img = load_image_as_array(jpg_path)
+        _, gt_bboxes, gt_texts = parse_json_file(json_path)
 
         for text, (xmin, ymin, xmax, ymax) in zip(gt_texts, gt_bboxes):
             xmin = max(0, xmin)
@@ -167,14 +169,14 @@ if __name__ == "__main__":
     unzipped_dir = Path(args.dataset).parent/"unzipped"
 
     train_set = random.sample(
-        list((unzipped_dir/"training"/"labels").glob("**/*.json")), k=config.train_images
+        list((unzipped_dir/"training"/"images").glob("**/*.jpg")), k=config.train_images
     )
     val_set = random.sample(
-        list((unzipped_dir/"validation"/"labels").glob("**/*.json")), k=config.val_images
+        list((unzipped_dir/"validation"/"images").glob("**/*.jpg")), k=config.val_images
     )
     eval_set = random.sample(
         list(
-            set((unzipped_dir/"validation"/"labels").glob("**/*.json")) - set(val_set)
+            set((unzipped_dir/"validation"/"images").glob("**/*.jpg")) - set(val_set)
         ), k=config.eval_images
     )
 
@@ -183,14 +185,14 @@ if __name__ == "__main__":
             output_dir=Path(args.dataset).parent/"training_and_validation_set",
             split="training",
             select_data=config.select_data,
-            json_file_list=train_set,
+            jpg_file_list=train_set,
         )
     if args.validation:
         save_image_patches(
             output_dir=Path(args.dataset).parent/"training_and_validation_set",
             split="validation",
             select_data=config.select_data,
-            json_file_list=val_set,
+            jpg_file_list=val_set,
         )
     if args.evaluation:
         prepare_evaluation_set(eval_set)
