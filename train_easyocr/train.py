@@ -167,7 +167,7 @@ def train(config, amp=False):
     # print("optimizer:")
     # print(f"    {optimizer}")
 
-    """ Final configions """
+    """ Final configs """
     with open(experiment_dir/"config.txt", mode='a', encoding="utf8") as f:
         config_log = '------------ Configuration -------------\n'
         args = vars(config)
@@ -183,13 +183,13 @@ def train(config, amp=False):
     if config.continue_from != "":
         try:
             start_iter = int(config.continue_from.split('_')[-1].split('.')[0])
-            print(f"Continue to train, start_iter: {start_iter}")
+            print(f"Continue to train from iteration {start_iter}")
         except:
             pass
 
     start_time = time()
     best_accuracy = -1
-    best_norm_ED = -1
+    best_norm_ed = -1
     i = start_iter
 
     scaler = GradScaler()
@@ -255,7 +255,7 @@ def train(config, amp=False):
                     (
                         val_loss,
                         current_accuracy,
-                        current_norm_ED,
+                        current_norm_ed,
                         preds,
                         confidence_score,
                         labels,
@@ -276,7 +276,7 @@ def train(config, amp=False):
                 loss_log = f"[{i}/{config.n_iter}]\nTraining loss: {loss_avg.val():0.5f} | Validation loss: {val_loss:0.5f} | Total {get_elapsed_time(start_time)} elapsed"
                 loss_avg.reset()
 
-                current_model_log = f'{"Current_accuracy":17s}: {current_accuracy:0.3f}  |  {"Current_norm_ED":17s}: {current_norm_ED:0.4f}'
+                current_model_log = f'{"Current accuracy":17s}: {current_accuracy:0.3f}  |  {"Current normalized edit distance":17s}: {current_norm_ed:0.4f}'
 
                 # Keep best accuracy model (on validation set)
                 if current_accuracy > best_accuracy:
@@ -284,19 +284,19 @@ def train(config, amp=False):
                     torch.save(
                         model.state_dict(), experiment_dir/"best_accuracy.pth"
                     )
-                if current_norm_ED > best_norm_ED:
-                    best_norm_ED = current_norm_ED
+                if current_norm_ed > best_norm_ed:
+                    best_norm_ed = current_norm_ed
                     torch.save(
-                        model.state_dict(), experiment_dir/"best_norm_ED.pth"
+                        model.state_dict(), experiment_dir/"best_norm_ed.pth"
                     )
-                best_model_log = f'{"Best_accuracy":17s}: {best_accuracy:0.3f} | {"Best_norm_ED":17s}: {best_norm_ED:0.4f}'
+                best_model_log = f'{"Best accuracy":17s}: {best_accuracy:0.3f} | {"Best normalized edit distance":17s}: {best_norm_ed:0.4f}'
 
                 loss_model_log = f'{loss_log}\n{current_model_log}\n{best_model_log}'
                 print(loss_model_log)
                 log.write(loss_model_log + '\n')
 
                 # Show some predicted results.
-                head = f'{"Ground Truth":25s} | {"Prediction":25s}  |  Confidence Score & T/F'
+                head = f'{"Ground Truth":25s}  |  {"Prediction":25s}  |  Confidence Score & T/F'
                 predicted_result_log = f'{dashed_line}\n{head}\n{dashed_line}\n'
                 
                 start = random.randint(0, len(labels) - config.show_number)

@@ -12,7 +12,7 @@ from train_easyocr.utils import (
 def validation(model, criterion, val_loader, converter, config, device):
     """ Validation or evaluation """
     n_correct = 0
-    norm_ED = 0
+    norm_ed = 0
     length_of_data = 0
     infer_time = 0
     valid_loss_avg = Averager()
@@ -85,18 +85,18 @@ def validation(model, criterion, val_loader, converter, config, device):
             (old version) ICDAR2017 DOST Normalized Edit Distance https://rrc.cvc.uab.es/?ch=7&com=tasks
             "For each word we calculate the normalized edit distance to the length of the ground truth transcription." 
             if len(gt) == 0:
-                norm_ED += 1
+                norm_ed += 1
             else:
-                norm_ED += edit_distance(pred, gt) / len(gt)
+                norm_ed += edit_distance(pred, gt) / len(gt)
             '''
             
             # ICDAR2019 Normalized Edit Distance 
             if len(gt) == 0 or len(pred) ==0:
-                norm_ED += 0
+                norm_ed += 0
             elif len(gt) > len(pred):
-                norm_ED += 1 - edit_distance(pred, gt) / len(gt)
+                norm_ed += 1 - edit_distance(pred, gt) / len(gt)
             else:
-                norm_ED += 1 - edit_distance(pred, gt) / len(pred)
+                norm_ed += 1 - edit_distance(pred, gt) / len(pred)
 
             # Calculate confidence score (= multiply of pred_max_prob)
             try:
@@ -106,12 +106,12 @@ def validation(model, criterion, val_loader, converter, config, device):
             confidence_score_list.append(confidence_score)
 
     accuracy = n_correct / float(length_of_data) * 100
-    norm_ED = norm_ED / float(length_of_data) # ICDAR2019 Normalized Edit Distance
+    norm_ed = norm_ed / float(length_of_data) # ICDAR2019 Normalized Edit Distance
 
     return (
         valid_loss_avg.val(),
         accuracy,
-        norm_ED,
+        norm_ed,
         preds_str,
         confidence_score_list,
         labels,

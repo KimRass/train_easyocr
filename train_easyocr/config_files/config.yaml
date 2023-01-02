@@ -1,5 +1,5 @@
 seed: 1111
-experiment_name: phase6
+experiment_name: phase7
 train_data: /data/training_and_validation_set/training
 val_data: /data/training_and_validation_set/validation
 select_data: select_data
@@ -18,10 +18,10 @@ batch_max_length: 34
 data_filtering_off: False
 workers: 2
 batch_size: 8
-n_iter: 800_000
+n_iter: 1_000_000
 val_period: 20_000
 show_number: 8
-continue_from: /home/ubuntu/project/text_spotting/train_easyocr/saved_models/phase4/iter_560000.pth
+continue_from: /home/ubuntu/project/text_spotting/train_easyocr/saved_models/phase6/iter_720000.pth
 strict: True
 adam: False
 lr: 1.
