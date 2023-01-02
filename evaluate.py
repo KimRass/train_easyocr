@@ -1,3 +1,5 @@
+# Reference: https://gist.github.com/tarlen5/008809c3decf19313de216b9208f3734
+
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -146,7 +148,7 @@ def evaluate_using_baseline_model(dataset_dir, reader, eval_result):
         fname = "/".join(str(json_path).rsplit("/", 4)[1:])
 
         try:
-            img, gt_bboxes, gt_texts = parse_json_file(json_path)
+            img, gt_bboxes, gt_texts = parse_json_file(json_path, img=True)
 
             pred_bboxes, pred_texts = spot_texts_using_baseline_model(img=img, reader=reader)
             f1 = get_end_to_end_f1_score(gt_bboxes, gt_texts, pred_texts, pred_bboxes, iou_thr=0.5)
@@ -166,7 +168,7 @@ def evaluate_using_finetuned_model(dataset_dir, reader, eval_result, craft, cuda
         fname = "/".join(str(json_path).rsplit("/", 4)[1:])
 
         try:
-            img, gt_bboxes, gt_texts = parse_json_file(json_path)
+            img, gt_bboxes, gt_texts = parse_json_file(json_path, img=True)
 
             pred_bboxes, pred_texts = spot_texts_using_finetuned_model(
                 img=img, craft=craft, reader=reader, cuda=cuda

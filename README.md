@@ -1,11 +1,10 @@
 # Library Comparison
 ## PaddleOCR
-- Text detection: DBNet (AAAI'2020)
-- Text recognition: ABINet (CVPR'2021)
-- 문자에 마침표가 없는 치명적인 단점
+- 다양한 Text detection, text recongnition 모델을 지원합니다.
+- 자체 개발한 'PP-OCRv3'는 DB + CRNN입니다.
+- 다수의 한자를 포함하여 3,687개의 문자를 지원하나 마침표와 쉼표 등이 없습니다. ([korean_dict.txt](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/ppocr/utils/dict/korean_dict.txt))
 ## MMOCR
-- Text detection: DB_r18
-- Text recognition: ABINet
+- 다양한 Text detection, text recongnition 모델을 지원합니다. ([Model Zoo](https://mmocr.readthedocs.io/en/latest/modelzoo.html))
 ## EasyOCR
 - Text detection: CRAFT (Default), DBNet (18)
 - Text recognition
@@ -182,8 +181,8 @@
           └── labels.csv
   ```
 - 'train_easyocr/config_files/config.yaml'에서 `train_images`와 `val_images`에 어떤 값을 주느냐에 따라 이미지 패치의 수가 달라지며 제가 사용한 이미지 패치의 수는 다음과 같습니다.
-  - Number of training image patches: 3,708,486
-  - Number of validation image patches: 234,252
+  - Number of training images: 40,000 / image patches: 3,708,486 -> 4,727,554
+  - Number of validation images: 2,000 / image patches: 234,252
 - Structure of 'labels.csv':
   |filename|words|
   |-|-|
@@ -228,12 +227,7 @@ evaluation_set
 ## Dataset
 - 데이터를 조금밖에 사용하지 못함
 - '공종행정문서 OCR'의 전체 384.9GB 중 79.4GB (20%)밖에 사용하지 못했습니다.
-- 그 이유는 첫째, 네트워크 속도가 제한되어 있는 상황 하에서 데이터셋을 다운로드 받는 데 매우 많은 시간이 소요되었으며 둘째, 사용 가능한  
-
-# Improvements
-
-
-# To Do
+- 그 이유는 첫째, 네트워크 속도가 제한되어 있는 상황 하에서 데이터셋을 다운로드 받는 데 매우 많은 시간이 소요되었으며 둘째, 사용 가능한 컴퓨팅 자원의 한계로 학습 중 자꾸 서버가 다운되는 현상이 발생하였기 때문입니다. 따라서 부득이하게 전체 데이터셋의 극히 일부만을 사용할 수밖에 없었습니다.
 
 # References
 - [1] Baseline: [EasyOCR](https://github.com/JaidedAI/EasyOCR)

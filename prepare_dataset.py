@@ -34,9 +34,10 @@ def get_arguments():
     return args
 
 
-def parse_json_file(json_path):
-    img_path = str(json_path).replace("labels/", "images/").replace(".json", ".jpg")
-    img = load_image_as_array(img_path)
+def parse_json_file(json_path, img=False):
+    if img:
+        img_path = str(json_path).replace("labels/", "images/").replace(".json", ".jpg")
+        img = load_image_as_array(img_path)
 
     with open(json_path, mode="r") as f:
         label = json.load(f)
@@ -50,7 +51,10 @@ def parse_json_file(json_path):
     gt_texts = np.array(
         [i["annotation.text"] for i in label["annotations"]]
     )
-    return img, gt_bboxes, gt_texts
+    if img:
+        return img, gt_bboxes, gt_texts
+    else:
+        return gt_bboxes, gt_texts
 
 
 def _unzip(zip_file, unzip_to):
@@ -111,7 +115,7 @@ def save_image_patches(output_dir, split, select_data, jpg_file_list):
             continue
         
         img = load_image_as_array(jpg_path)
-        _, gt_bboxes, gt_texts = parse_json_file(json_path)
+        gt_bboxes, gt_texts = parse_json_file(json_path, img=False)
 
         for text, (xmin, ymin, xmax, ymax) in zip(gt_texts, gt_bboxes):
             xmin = max(0, xmin)
