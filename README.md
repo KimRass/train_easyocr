@@ -160,7 +160,7 @@
   ```
 - 'train_easyocr/config_files/config.yaml'에서 `train_images`와 `val_images`에 어떤 값을 주느냐에 따라 이미지 패치의 수가 달라지며 제가 사용한 이미지 패치의 수는 다음과 같습니다.
   - Number of training image patches: 3,708,486
-  - Number of validation image patches: 201,254
+  - Number of validation image patches: 448,120
 - Structure of 'labels.csv':
   |filename|words|
   |-|-|
@@ -171,7 +171,7 @@
   |...|...|
   - 일부 좌표가 음수인 경우 0으로 수정했습니다.
 ## Evaluation Set
-- Validation set과 중복되지 않도록 'training_and_validation_set/validation'에서 무작위로 483개의 이미지를 뽑아 Evaluation set으로 선정했습니다.
+- Validation set과 중복되지 않도록 'training_and_validation_set/validation'에서 무작위로 500개의 이미지를 뽑아 Evaluation set으로 선정했습니다.
 ```
 evaluation_set
 ├── images
@@ -181,7 +181,6 @@ evaluation_set
 ```
 
 # Step3: Training (Fine-tunning)
-
 
 # Configuration
 # Improvements
@@ -220,11 +219,6 @@ wer = jiwer.wer(gt, pred)
 ## Smal Dataset
 - 데이터를 조금밖에 사용하지 못함
 
-# Evaluation
-- Number of images: 484
-## Baseline
-- F1 score: 0.53
-
 # Library Comparison
 ## PaddleOCR
 - Text detection: DBNet (AAAI'2020)
@@ -251,7 +245,6 @@ wer = jiwer.wer(gt, pred)
 ## Fine Tunning
 
 # To Do
-- 문맥을 고려한 교정
 
 # References
 - Baseline: https://github.com/JaidedAI/EasyOCR

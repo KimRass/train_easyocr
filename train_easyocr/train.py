@@ -303,7 +303,6 @@ def train(config, amp=False):
                 log.write(loss_model_log + '\n')
 
                 # Show some predicted results.
-                # dashed_line = "-" * 80
                 head = f'{"Ground Truth":25s} | {"Prediction":25s}  |  Confidence Score & T/F'
                 predicted_result_log = f'{dashed_line}\n{head}\n{dashed_line}\n'
                 

@@ -7,7 +7,7 @@ select_data: select_data
 batch_ratio: "1"
 total_data_usage_ratio: 1
 train_images: 40_000
-val_images: 4_000
+val_images: 2_000
 eval_images: 500
 sensitive: True
 PAD: True
