@@ -1,20 +1,34 @@
 # Library Comparison
 ## PaddleOCR
-- 다양한 Text detection, text recongnition 모델을 지원합니다.
-- 자체 개발한 'PP-OCRv3'는 DB + CRNN입니다.
+- Source: [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR)
+- 다양한 Text detection, text recongnition 모델을 지원합니다. ([Algorithms](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_en/algorithm_overview_en.md))
+- 자체 개발한 Text detection + Text recongnition 모델 'PP-OCRv3'를 제공합니다.
 - 다수의 한자를 포함하여 3,687개의 문자를 지원하나 마침표와 쉼표 등이 없습니다. ([korean_dict.txt](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/ppocr/utils/dict/korean_dict.txt))
 ## MMOCR
+- Source: [MMOCR](https://github.com/open-mmlab/mmocr)
 - 다양한 Text detection, text recongnition 모델을 지원합니다. ([Model Zoo](https://mmocr.readthedocs.io/en/latest/modelzoo.html))
 ## EasyOCR
-- Text detection: CRAFT (Default), DBNet (18)
+- Source: [EasyOCR](https://github.com/JaidedAI/EasyOCR)
+- Text detection: [CRAFT](https://github.com/clovaai/CRAFT-pytorch) (Default), DBNet
 - Text recognition
   - Transformation: None or TPS ([Thin Plate Spline](https://en.wikipedia.org/wiki/Thin_plate_spline))
   - Feature extraction: VGG, RCNN or ResNet
   - Sequence modeling: None or BiLSTM
   - Prediction: CTC or Attention
-  - (None-VGG-BiLSTM-CTC)
+- Pre-trained model로서 사용할 [korean_g2](https://github.com/JaidedAI/EasyOCR/releases/download/v1.3/korean_g2.zip)의 구조는 'None-VGG-BiLSTM-CTC'입니다.
+- 한국어에 대해서는 1,008개의 문자를 지원하고 한자는 없습니다.
 
-# How to Run
+# Improvements
+## Text Detection
+- 'CRAFT'의 예측값을 바탕으로 Bounding boxes를 정하는 알고리즘을 개선했습니다. ('detect_texts.py': `get_horizontal_list()`)
+  - Baseline text detection result
+    - <img src="https://i.imgur.com/WJSRjjA.png" alt="baseline" width="500"/>
+  - Improved text detection result
+    - <img src="https://i.imgur.com/L2Ea0bL.png" alt="improved" width="500"/>
+## Text Recognition
+- AIHub의 [공공행정문서 OCR](https://aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&aihubDataSe=realm&dataSetSn=88) 데이터셋을 사용하여 Fine-tunning을 진행했습니다.
+
+# How to Fine-tune
 ## Step 1: Environment Setting
 - run `source step1_set_environment.sh`
 - set 'train_easyocr/config_files/config.yaml'
@@ -41,14 +55,14 @@
   cp finetuned/finetuned.yaml ~/.EasyOCR/user_network/finetuned.yaml
   ```
 - Then the structure of directory '~/.EasyOCR' would be like,
-```
-~/.EasyOCR
-├── model
-│   └── finetuned.pth
-└── user_network
-    ├── finetuned.py
-    └── finetuned.yaml
-```
+  ```
+  ~/.EasyOCR
+  ├── model
+  │   └── finetuned.pth
+  └── user_network
+      ├── finetuned.py
+      └── finetuned.yaml
+  ```
 ## Step 5: Evaluation
 - run `bash step5_run_evaluate_py.sh`
 - The example of 'step5_run_evaluate_py.sh':
@@ -145,10 +159,6 @@
   ```
 - Number of training images: 102,477
 - Number of validation images: 11,397
-- Original image
-  - <img src="https://i.imgur.com/fH2MI2X.jpg" alt="original" width="500"/>
-- Ground truth bounding boxes
-  - <img src="https://i.imgur.com/6MVTy3X.png" alt="gt_bboxes" width="500"/>
 ## 'unzipped'
 - 'step2_run_prepare_dataset_py.sh' 실행시 `--unzip`을 옵션으로 주면 아래와 같은 디렉토리 구조로 압축을 풉니다.
   ```
@@ -181,8 +191,8 @@
           └── labels.csv
   ```
 - 'train_easyocr/config_files/config.yaml'에서 `train_images`와 `val_images`에 어떤 값을 주느냐에 따라 이미지 패치의 수가 달라지며 제가 사용한 이미지 패치의 수는 다음과 같습니다.
-  - Number of training images: 40,000 / image patches: 3,708,486 -> 4,727,554
-  - Number of validation images: 2,000 / image patches: 234,252
+  - Number of training images: 40,000, image patches: 4,727,554
+  - Number of validation images: 2,000, image patches: 234,410
 - Structure of 'labels.csv':
   |filename|words|
   |-|-|
@@ -203,9 +213,10 @@ evaluation_set
 ```
 
 # Step 3: Training (Fine-tunning)
+- Server specification: [AWS EC2 g5.xlarge](https://instances.vantage.sh/aws/ec2/g5.xlarge)
 - Total number of trainable parameters: 4,015,729
-## 학습 환경
-- [AWS EC2 g5.xlarge](https://instances.vantage.sh/aws/ec2/g5.xlarge)
+- Total iterations: 약 600,000 (약 1 epoch)
+- Total training time: 약 35시간
 
 # Step 5: Evaluation
 ## Metric
@@ -219,21 +230,37 @@ evaluation_set
 
 # Limitations
 ## Metric
-- Reference: [7]
-- IoU + CRW (Correctly Recognized Words)
-- One-to-many 또는 Many-to-one 상황에서 대응 x
-## CLEval
-- Not IoU-based evaluation metric.
+- IoU를 기반으로 하는 Metric을 사용하므로 성능을 제대로 측정할 수 없는 상황이 발생할 수 있습니다. (Source: https://arxiv.org/pdf/2006.06244.pdf)
+  - Split case
+    - <img src="https://i.imgur.com/TjlMSm9.png" alt="split_case" width="300"/>
+    - 바람직한 점수는 1입니다.
+    - 예측 결과 'RIVER'의 부분점수는 0.56 ('1 - CER')이고 예측 결과 'SIDE'는 'IoU < 0.5'이므로 부분점수가 0입니다. 따라서 합은 0.56입니다.
+  - Merged case:
+    - <img src="https://i.imgur.com/eTM8mxc.png" alt="merged_case" width="300"/>
+    - 바람직한 점수는 1입니다.
+    - 예측 결과 'RIVERSIDE'는 IoU가 가장 정답 'RIVER'과 대응합니다. 따라서 정답 'SIDE'에 대한 부분점수는 0이고 정답 'RIVER'에 대한 부분점수는 0.2입니다. 따라서 합은 0.2입니다.
+  - Missing characters 
+    - <img src="https://i.imgur.com/8P3WNa8.png" alt="missing_characters" width="300"/>
+    - 바람직한 점수는 0.56입니다.
+    - 예측 결과 'SIDE'는 'IoU < 0.5'이므로 부분점수가 0입니다.
+  - Overlapping characters
+    - <img src="https://i.imgur.com/tmDV7b7.png" alt="overlapping_characters" width="300"/>
+    - 바람직한 점수는 1입니다.
+    - 예측 결과 'RIVER'과 'RSIDE' 모두 'IoU >= 0.5'라고 가정하면 둘 다 부분점수가 0.56이므로 합은 1.12입니다.
 ## Dataset
-- 데이터를 조금밖에 사용하지 못함
-- '공종행정문서 OCR'의 전체 384.9GB 중 79.4GB (20%)밖에 사용하지 못했습니다.
-- 그 이유는 첫째, 네트워크 속도가 제한되어 있는 상황 하에서 데이터셋을 다운로드 받는 데 매우 많은 시간이 소요되었으며 둘째, 사용 가능한 컴퓨팅 자원의 한계로 학습 중 자꾸 서버가 다운되는 현상이 발생하였기 때문입니다. 따라서 부득이하게 전체 데이터셋의 극히 일부만을 사용할 수밖에 없었습니다.
+- '공종행정문서 OCR'의 전체 384.9GB 중 79.4GB (20%)밖에 사용하지 못했습니다. 그 이유는 첫째, 네트워크 속도가 제한되어 있는 상황 하에서 데이터셋을 다운로드 받는 데 매우 많은 시간이 소요되었으며 둘째, 사용 가능한 컴퓨팅 자원의 한계로 학습 중 자꾸 서버가 다운되는 현상이 발생하였기 때문입니다.
+- 위와 비슷한 이유로 40,000개의 이미지에 대해서 약 1 epoch밖에 학습시키지 못했습니다.
+
+# Future Improvements
+## Metric
+- CLEval ([CLEval: Character-Level Evaluation for Text Detection and Recognition Tasks](https://arxiv.org/pdf/2006.06244.pdf))
+  - Not IoU-based evaluation metric.
+  - 문자 단위로 Text detection and recognition을 평가하므로 좀 더 정교하게 성능 측정이 가능합니다.
 
 # References
-- [1] Baseline: [EasyOCR](https://github.com/JaidedAI/EasyOCR)
-- [2] CRAFT: [CRAFT: Character-Region Awareness For Text detection](https://github.com/clovaai/CRAFT-pytorch)
-- [3] Intersection over Union: [GIoU(Generalized Intersection over Union)](https://gaussian37.github.io/vision-detection-giou/)
-- [4] Metric: https://gist.github.com/tarlen5/008809c3decf19313de216b9208f3734
-- [5] [What Is Wrong With Scene Text Recognition Model Comparisons? Dataset and Model Analysis](https://github.com/clovaai/deep-text-recognition-benchmark/blob/master/train.py)
-- [6] https://davelogs.tistory.com/82
+- Intersection over Union: [GIoU(Generalized Intersection over Union)](https://gaussian37.github.io/vision-detection-giou/)
+- Metric: [calculate_mean_ap.py](https://gist.github.com/tarlen5/008809c3decf19313de216b9208f3734)
+- EasyOCR training
+  - [What Is Wrong With Scene Text Recognition Model Comparisons? Dataset and Model Analysis](https://github.com/clovaai/deep-text-recognition-benchmark/blob/master/train.py)
+  - [EasyOCR 사용자 모델 학습하기](https://davelogs.tistory.com/76)
 - [7] [CLEval: Character-Level Evaluation for Text Detection and Recognition Tasks](https://arxiv.org/pdf/2006.06244.pdf)

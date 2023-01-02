@@ -124,17 +124,13 @@ def train(config, amp=False):
                     init.constant_(param, 0.0)
                 elif 'weight' in name:
                     init.kaiming_normal_(param)
-            except Exception as e:  # for batchnorm.
+            except Exception as e:  # For batch normalization.
                 if 'weight' in name:
                     param.data.fill_(1)
                 continue
         model = DataParallel(model).to(device)
     
     model.train()
-
-    # print("Model:")
-    # print(model)
-    # count_parameters(model)
     
     """ Loss function """
     if "CTC" in config.Prediction:
@@ -199,7 +195,6 @@ def train(config, amp=False):
     scaler = GradScaler()
     t1= time()
 
-    # with tqdm(total=config.n_iter) as pbar:
     while True:
         # Training part
         optimizer.zero_grad(set_to_none=True)
@@ -219,8 +214,8 @@ def train(config, amp=False):
                     loss = criterion(preds, text.to(device), preds_size.to(device), length.to(device))
                     cudnn.enabled = True
                 else:
-                    preds = model(image, text[:, :-1])  # align with Attention.forward
-                    target = text[:, 1:]  # without [GO] Symbol
+                    preds = model(image, text[:, :-1])  # Align with Attention.forward
+                    target = text[:, 1:]  # Without [GO] Symbol
                     loss = criterion(preds.view(-1, preds.shape[-1]), target.contiguous().view(-1))
             scaler.scale(loss).backward()
             scaler.unscale_(optimizer)
@@ -241,8 +236,8 @@ def train(config, amp=False):
                 loss = criterion(preds, text.to(device), preds_size.to(device), length.to(device))
                 cudnn.enabled = True
             else:
-                preds = model(image, text[:, :-1])  # align with Attention.forward
-                target = text[:, 1:]  # without [GO] Symbol
+                preds = model(image, text[:, :-1])  # Align with Attention.forward
+                target = text[:, 1:]  # Without [GO] Symbol
                 loss = criterion(preds.view(-1, preds.shape[-1]), target.contiguous().view(-1))
             loss.backward()
             nn.utils.clip_grad_norm_(parameters=model.parameters(), max_norm=config.grad_clip) 
@@ -254,8 +249,6 @@ def train(config, amp=False):
             print(f"Training time: {get_elapsed_time(t1)}")
 
             t1 = time()
-            elapsed = time() - start_time
-            # for log
             with open(experiment_dir/"log_train.txt", mode='a', encoding="utf8") as log:
                 model.eval()
                 with torch.no_grad():
@@ -280,7 +273,7 @@ def train(config, amp=False):
                 model.train()
 
                 # Training loss and valation loss
-                loss_log = f"[{i}/{config.n_iter}]\nTraining loss: {loss_avg.val():0.5f} | Validation loss: {val_loss:0.5f} | {get_elapsed_time(start_time)} elapsed"
+                loss_log = f"[{i}/{config.n_iter}]\nTraining loss: {loss_avg.val():0.5f} | Validation loss: {val_loss:0.5f} | Total {get_elapsed_time(start_time)} elapsed"
                 loss_avg.reset()
 
                 current_model_log = f'{"Current_accuracy":17s}: {current_accuracy:0.3f}  |  {"Current_norm_ED":17s}: {current_norm_ED:0.4f}'
@@ -333,7 +326,6 @@ def train(config, amp=False):
             sys.exit()
 
         i += 1
-        # pbar.update(1)
 
 
 def main():

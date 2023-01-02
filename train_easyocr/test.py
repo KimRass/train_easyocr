@@ -10,19 +10,14 @@ from train_easyocr.utils import (
 
 
 def validation(model, criterion, val_loader, converter, config, device):
-    """ validation or evaluation """
+    """ Validation or evaluation """
     n_correct = 0
     norm_ED = 0
     length_of_data = 0
     infer_time = 0
     valid_loss_avg = Averager()
 
-    # t1 = time()
     for image_tensors, labels in val_loader:
-    # for i, (image_tensors, labels) in enumerate(val_loader):
-        # if i % 10000 == 0 and i != 0:
-        #     print(i, get_elapsed_time(t1))
-        #     t1 = time()
         batch_size = image_tensors.size(0)
         length_of_data = length_of_data + batch_size
         image = image_tensors.to(device)
@@ -60,10 +55,10 @@ def validation(model, criterion, val_loader, converter, config, device):
             forward_time = time() - start_time
 
             preds = preds[:, :text_for_loss.shape[1] - 1, :]
-            target = text_for_loss[:, 1:]  # without [GO] Symbol
+            target = text_for_loss[:, 1:]  # Without [GO] Symbol
             loss = criterion(preds.contiguous().view(-1, preds.shape[-1]), target.contiguous().view(-1))
 
-            # select max probabilty (greedy decoding) then decode index to character
+            # Select max probabilty (greedy decoding) then decode index to character
             _, preds_index = preds.max(2)
             preds_str = converter.decode(preds_index, length_for_pred)
             labels = converter.decode(text_for_loss[:, 1:], length_for_loss)
@@ -71,7 +66,7 @@ def validation(model, criterion, val_loader, converter, config, device):
         infer_time += forward_time
         valid_loss_avg.add(loss)
 
-        # calculate accuracy & confidence score
+        # Calculate accuracy & confidence score
         preds_prob = F.softmax(preds, dim=2)
         preds_max_prob, _ = preds_prob.max(dim=2)
         confidence_score_list = []
@@ -80,7 +75,7 @@ def validation(model, criterion, val_loader, converter, config, device):
             if 'Attn' in config.Prediction:
                 gt = gt[:gt.find('[s]')]
                 pred_EOS = pred.find('[s]')
-                pred = pred[:pred_EOS]  # prune after "end of sentence" token ([s])
+                pred = pred[:pred_EOS]  # Prune after "end of sentence" token ([s])
                 pred_max_prob = pred_max_prob[:pred_EOS]
 
             if pred == gt:
@@ -103,13 +98,12 @@ def validation(model, criterion, val_loader, converter, config, device):
             else:
                 norm_ED += 1 - edit_distance(pred, gt) / len(pred)
 
-            # calculate confidence score (= multiply of pred_max_prob)
+            # Calculate confidence score (= multiply of pred_max_prob)
             try:
                 confidence_score = pred_max_prob.cumprod(dim=0)[-1]
             except:
-                confidence_score = 0  # for empty pred case, when prune after "end of sentence" token ([s])
+                confidence_score = 0  # For empty pred case, when prune after "end of sentence" token ([s])
             confidence_score_list.append(confidence_score)
-            # print(pred, gt, pred==gt, confidence_score)
 
     accuracy = n_correct / float(length_of_data) * 100
     norm_ED = norm_ED / float(length_of_data) # ICDAR2019 Normalized Edit Distance
