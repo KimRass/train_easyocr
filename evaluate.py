@@ -55,28 +55,29 @@ def get_iou(bbox1, bbox2):
 
 
 def get_end_to_end_f1_score(gt_bboxes, gt_texts, pred_texts, pred_bboxes, iou_thr=0.5):
-    ls_idx_thr_gt = list()
-    ls_idx_thr_pred = list()
+    ls_idx_gt = list()
+    ls_idx_pred = list()
     ls_iou = list()
-    for ipb, pred_bbox in enumerate(pred_bboxes):
-        for igb, gt_bbox in enumerate(gt_bboxes):
+    for idx_pred, pred_bbox in enumerate(pred_bboxes):
+        for idx_gt, gt_bbox in enumerate(gt_bboxes):
             iou = get_iou(pred_bbox, gt_bbox)
 
             if iou >= iou_thr:
-                ls_idx_thr_gt.append(igb)
-                ls_idx_thr_pred.append(ipb)
+                ls_idx_gt.append(idx_gt)
+                ls_idx_pred.append(idx_pred)
                 ls_iou.append(iou)
 
-    args_desc = np.argsort(ls_iou)[::-1]
+    argsort_iou_desc = np.argsort(ls_iou)[:: -1]
     # No matches
-    if len(args_desc) == 0:
+    if len(argsort_iou_desc) == 0:
         return 0
     else:
         ls_idx_match_gt = list()
         ls_idx_match_pred = list()
-        for idx in args_desc:
-            idx_gt = ls_idx_thr_gt[idx]
-            idx_pred = ls_idx_thr_pred[idx]
+        ls_score = list()
+        for idx in argsort_iou_desc:
+            idx_gt = ls_idx_gt[idx]
+            idx_pred = ls_idx_pred[idx]
             
             gt_label = gt_texts[idx_gt]
             pred_label = pred_texts[idx_pred]
@@ -88,18 +89,20 @@ def get_end_to_end_f1_score(gt_bboxes, gt_texts, pred_texts, pred_bboxes, iou_th
                 idx_gt not in ls_idx_match_gt and
                 idx_pred not in ls_idx_match_pred
             ):
-                ls_idx_match_gt.append(score)
-                ls_idx_match_pred.append(score)
+                ls_idx_match_gt.append(idx_gt)
+                ls_idx_match_pred.append(idx_pred)
 
-        tp = sum(ls_idx_match_gt)
-        fp = len(pred_bboxes) - sum(ls_idx_match_pred)
-        fn = len(gt_bboxes) - sum(ls_idx_match_gt)
-
-        precision = tp / (tp + fp)
-        recall = tp / (tp + fn)
+                ls_score.append(score)
+        
+        sum_score = sum(ls_score)
+        # tp = sum_score
+        # fp = len(pred_bboxes) - sum_score
+        # fn = len(gt_bboxes) - sum_score
+        precision = sum_score / len(pred_bboxes)
+        recall = sum_score / len(gt_bboxes)
 
         f1_score = 2 * (precision * recall) / (precision + recall)
-        f1_score = round(f1_score, 3)
+        f1_score = round(f1_score, 4)
         return f1_score
 
 
@@ -148,7 +151,7 @@ def evaluate_using_baseline_model(dataset_dir, reader, eval_result):
         fname = "/".join(str(json_path).rsplit("/", 4)[1:])
 
         try:
-            img, gt_bboxes, gt_texts = parse_json_file(json_path, img=True)
+            img, gt_bboxes, gt_texts = parse_json_file(json_path, load_image=True)
 
             pred_bboxes, pred_texts = spot_texts_using_baseline_model(img=img, reader=reader)
             f1 = get_end_to_end_f1_score(gt_bboxes, gt_texts, pred_texts, pred_bboxes, iou_thr=0.5)
@@ -168,7 +171,7 @@ def evaluate_using_finetuned_model(dataset_dir, reader, eval_result, craft, cuda
         fname = "/".join(str(json_path).rsplit("/", 4)[1:])
 
         try:
-            img, gt_bboxes, gt_texts = parse_json_file(json_path, img=True)
+            img, gt_bboxes, gt_texts = parse_json_file(json_path, load_image=True)
 
             pred_bboxes, pred_texts = spot_texts_using_finetuned_model(
                 img=img, craft=craft, reader=reader, cuda=cuda
