@@ -191,8 +191,8 @@
           └── labels.csv
   ```
 - 'train_easyocr/config_files/config.yaml'에서 `train_images`와 `val_images`에 어떤 값을 주느냐에 따라 이미지 패치의 수가 달라지며 제가 사용한 이미지 패치의 수는 다음과 같습니다.
-  - Number of training images: 40,000, image patches: 4,727,554
-  - Number of validation images: 2,000, image patches: 234,410
+  - Number of training images: 40,000, image patches: 4,494,278
+  - Number of validation images: 2,000, image patches: 223,115
 - Structure of 'labels.csv':
   |filename|words|
   |-|-|
