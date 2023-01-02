@@ -17,12 +17,12 @@ def contrast_grey(img):
     return (high - low) / (high + low), high, low
 
 
-def adjust_contrast_grey(img, target = 0.4):
+def adjust_contrast_grey(img, target=0.4):
     contrast, high, low = contrast_grey(img)
     if contrast < target:
         img = img.astype(int)
-        ratio = 200./(high-low)
-        img = (img - low + 25)*ratio
+        ratio = 200. / (high - low)
+        img = (img - low + 25) * ratio
         img = np.maximum(
             np.full(img.shape, 0),
             np.minimum(

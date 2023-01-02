@@ -1,8 +1,25 @@
+# Library Comparison
+## PaddleOCR
+- Text detection: DBNet (AAAI'2020)
+- Text recognition: ABINet (CVPR'2021)
+- 문자에 마침표가 없는 치명적인 단점
+## MMOCR
+- Text detection: DB_r18
+- Text recognition: ABINet
+## EasyOCR
+- Text detection: CRAFT (Default), DBNet (18)
+- Text recognition
+  - Transformation: None or TPS ([Thin Plate Spline](https://en.wikipedia.org/wiki/Thin_plate_spline))
+  - Feature extraction: VGG, RCNN or ResNet
+  - Sequence modeling: None or BiLSTM
+  - Prediction: CTC or Attention
+  - (None-VGG-BiLSTM-CTC)
+
 # How to Run
-## Step1: Environment Setting
+## Step 1: Environment Setting
 - run `source step1_set_environment.sh`
 - set 'train_easyocr/config_files/config.yaml'
-## Step2: Dataset Preparation
+## Step 2: Dataset Preparation
 - run `bash step2_run_prepare_dataset_py.sh`
 - The example of 'step2_run_prepare_dataset_py.sh':
   ```sh
@@ -13,9 +30,9 @@
     --validation\ # Whether to generate validation set
     --evaluation # Whether to generate evaluation set
   ```
-## Step3: Training (Fine-tunning)
+## Step 3: Training (Fine-tunning)
 - run `bash step3_run_train_py.sh`
-## Step4: Fine-tuned Model Setting
+## Step 4: Fine-tuned Model Setting
 - Reference: [Custom recognition models](https://github.com/JaidedAI/EasyOCR/blob/master/custom_model.md)
 - run `bash step4_set_finetuned_model.sh`
 - The example of 'step4_set_finetuned_model.sh':
@@ -33,7 +50,7 @@
     ├── finetuned.py
     └── finetuned.yaml
 ```
-## Step5: Evaluation
+## Step 5: Evaluation
 - run `bash step5_run_evaluate_py.sh`
 - The example of 'step5_run_evaluate_py.sh':
   ```sh
@@ -44,74 +61,76 @@
     --cuda # Whether to use GPU
   ```
 
-# Step1: Environment Setting
+# Step 1: Environment Setting
 ## Configurations ('train_easyocr/config_files/config.yaml')
   ```yaml
   # Environment
-  seed: 1111
-  experiment_name: phase4 # 'train_easyocr/saved_models'에 생성될 폴더 이름입니다.
+  seed: # Seed
+  experiment_name: # 'train_easyocr/saved_models'에 생성될 폴더 이름입니다.
 
   # Dataset
-  train_data: /data/training_and_validation_set/training # Training set의 디렉토리
-  val_data: /data/training_and_validation_set/validation # Validation set의 디렉토리
-  select_data: select_data # Subdirectory
-  batch_ratio: "1"
+  train_data: # Training set의 디렉토리
+  val_data: # Validation set의 디렉토리
+  select_data: # Subdirectory
+  batch_ratio: 
     # Modulate the data ratio in the batch.
     # For example, when `select_data` is `MJ-ST` and `batch_ratio` is `0.5-0.5`,
     # the 50% of the batch is filled with 'MJ' and the other 50% of the batch is filled with 'ST'.
-  total_data_usage_ratio: 1 # How much ratio of the data to use
-  train_images: 40_000 # Number of training images
-  val_images: 2_000 # Number of validation images
-  eval_images: 500 # Number of evaluation images
+  total_data_usage_ratio: # How much ratio of the data to use
+  train_images: # Number of training images
+  val_images: # Number of validation images
+  eval_images: # Number of evaluation images
   # Data processing
-  sensitive: True # Case sensitivity
-  PAD: True
-  contrast_adjust: 0.0
-  data_filtering_off: False
+    img_height: # Height of input image
+  img_width: # Width of input image
+  PAD: # If `True` pad to input images to keep aspect ratio
+  contrast_adjust: # Adjust contrast
+  character:
+    # 예측에 사용할 문자들
+    # Pre-trained model로서 'korean_g2'를 사용할 것이므로 사용할 문자들을 다음을 참고하여 동일하게 설정합니다. (https://github.com/JaidedAI/EasyOCR/blob/master/easyocr/config.py)
+  sensitive: # Case sensitivity
+  batch_max_length: # Maximum length of label
+  data_filtering_off: 
+    # If `False` filter images containing characters not in `character`
+    # and whose label is longer than `batch_max_length`
 
   # Training
-  workers: 2 # Same as `num_workers` from `torch.utils.data.DataLoader`
-  batch_size: 8 # Batch size
-  n_iter: 600_000 # Number of iterations
-  val_period: 10_000 # Period to run validation
-  show_number: 8 # How many validation result to show
-  continue_from: /home/ubuntu/project/text_spotting/train_easyocr/saved_models/phase4/iter_510000.pth
+  workers: # Same as `num_workers` from `torch.utils.data.DataLoader`
+  batch_size: # Batch size
+  n_iter: # Number of iterations
+  val_period: # Period to run validation
+  show_number: # How many validation result to show
+  continue_from: 
     # Checkpoint from which to continue training
     # 첫 학습시에는 'korean_g2' (https://github.com/JaidedAI/EasyOCR/releases/download/v1.3/korean_g2.zip)를 사용합니다.
-  strict: True # If `False` ignore non-matching keys when loading a model from checkpoint
+  strict: # If `False` ignore non-matching keys when loading a model from checkpoint
   # Optimizer
-  adam: False # If `True` use `torch.optim.Adam`, if `False` use `torch.optim.Adadelta`
-  lr: 1.
-  rho: 0.95
-  eps: 0.00000001
-  grad_clip: 5
+  adam: # If `True` use `torch.optim.Adam`, if `False` use `torch.optim.Adadelta`
+  lr: 
+  rho: 
+  eps: 
+  grad_clip: 
 
   # Model
-  Transformation: None
-  FeatureExtraction: VGG
-  SequenceModeling: BiLSTM
-  Prediction: CTC
-  # Input
-  img_height: 64 # Height of input image
-  img_width: 600 # Width of input image
-  batch_max_length: 34 # Maximum length of label
+  Transformation: # `None` or `TPS`
+  FeatureExtraction: # `VGG`, `RCNN` or `ResNet`
+  SequenceModeling: # `None` or `BiLSTM`
+  Prediction: # `CTC` or `Attn`
   # VGG
-  freeze_FeatureFxtraction: False
+  freeze_FeatureFxtraction: # If `True` do not update feature extraction parameters
   rgb: False # `True` for RGB input image
   input_channel: 1 # `1` for grayscale input image, `3` for RGB
   output_channel: 256
   # BiLSTM
-  freeze_SequenceModeling: False
-  hidden_size: 256
+  freeze_SequenceModeling: # If `True` do not update sequence modeling parameters
+  hidden_size: # `hidden_size` of `torch.nn.LSTM`
   # Prediction
   new_prediction: False
-  # Characters
-  character: " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~가각간갇갈감갑값강갖같갚갛개객걀거걱건걷걸검겁것겉게겨격겪견결겹경곁계고곡곤곧골곰곱곳공과관광괜괴굉교구국군굳굴굵굶굽궁권귀규균그극근글긁금급긋긍기긴길김깅깊까깎깐깔깜깝깥깨꺼꺾껍껏껑께껴꼬꼭꼴꼼꼽꽂꽃꽉꽤꾸꿀꿈뀌끄끈끊끌끓끔끗끝끼낌나낙낚난날낡남납낫낭낮낯낱낳내냄냉냐냥너넉널넓넘넣네넥넷녀녁년념녕노녹논놀놈농높놓놔뇌뇨누눈눕뉘뉴늄느늑는늘늙능늦늬니닐님다닥닦단닫달닭닮담답닷당닿대댁댐더덕던덜덤덥덧덩덮데델도독돈돌돕동돼되된두둑둘둠둡둥뒤뒷드득든듣들듬듭듯등디딩딪따딱딴딸땀땅때땜떠떡떤떨떻떼또똑뚜뚫뚱뛰뜨뜩뜯뜰뜻띄라락란람랍랑랗래랜램랫략량러럭런럴럼럽럿렁렇레렉렌려력련렬렵령례로록론롬롭롯료루룩룹룻뤄류륙률륭르른름릇릎리릭린림립릿마막만많말맑맘맙맛망맞맡맣매맥맨맵맺머먹먼멀멈멋멍멎메멘멩며면멸명몇모목몰몸몹못몽묘무묵묶문묻물뭄뭇뭐뭣므미민믿밀밉밌및밑바박밖반받발밝밟밤밥방밭배백뱀뱃뱉버번벌범법벗베벤벼벽변별볍병볕보복볶본볼봄봇봉뵈뵙부북분불붉붐붓붕붙뷰브블비빌빗빚빛빠빨빵빼뺨뻐뻔뻗뼈뽑뿌뿐쁘쁨사삭산살삶삼상새색샌생서석섞선설섬섭섯성세센셈셋션소속손솔솜솟송솥쇄쇠쇼수숙순술숨숫숲쉬쉽슈스슨슬슴습슷승시식신싣실싫심십싱싶싸싹쌀쌍쌓써썩썰썹쎄쏘쏟쑤쓰쓸씀씌씨씩씬씹씻아악안앉않알앓암압앗앙앞애액야약얇양얗얘어억언얹얻얼엄업없엇엉엌엎에엔엘여역연열엷염엽엿영옆예옛오옥온올옮옳옷와완왕왜왠외왼요욕용우욱운울움웃웅워원월웨웬위윗유육율으윽은을음응의이익인일읽잃임입잇있잊잎자작잔잖잘잠잡장잦재쟁저적전절젊점접젓정젖제젠젯져조족존졸좀좁종좋좌죄주죽준줄줌줍중쥐즈즉즌즐즘증지직진질짐집짓징짙짚짜짝짧째쨌쩌쩍쩐쪽쫓쭈쭉찌찍찢차착찬찮찰참창찾채책챔챙처척천철첫청체쳐초촉촌총촬최추축춘출춤춥춧충취츠측츰층치칙친칠침칭카칸칼캐캠커컨컬컴컵컷켓켜코콜콤콩쾌쿠퀴크큰클큼키킬타탁탄탈탑탓탕태택탤터턱털텅테텍텔템토톤톱통퇴투툼퉁튀튜트특튼튿틀틈티틱팀팅파팎판팔패팩팬퍼퍽페펴편펼평폐포폭표푸푹풀품풍퓨프플픔피픽필핏핑하학한할함합항해핵핸햄햇행향허헌험헤헬혀현혈협형혜호혹혼홀홍화확환활황회획횟효후훈훌훔훨휘휴흉흐흑흔흘흙흡흥흩희흰히힘" # Pre-trained model로서 'korean_g2'를 사용할 것이므로 사용할 문자들을 다음을 참고하여 동일하게 설정합니다. (https://github.com/JaidedAI/EasyOCR/blob/master/easyocr/config.py)
   # CTC
-  decode: greedy # `greedy` or `beamsearch`
+  decode: # `greedy` or `beamsearch`
   ```
 
-# Step2: Dataset Preparation
+# Step 2: Dataset Preparation
 ## Original ('공공행정문서 OCR')
 - 전체 데이터셋의 크기가 너무 커서 학습시키기에 어려움이 있으므로 아래 디렉토리 구조에 나타난 데이터만을 대상으로 했습니다.
   ```
@@ -135,7 +154,7 @@
   │   ├── images
   │   │   └── ...
   │   └── labels
-  │   │   └── ...
+  │       └── ...
   └── validation
       ├── images
       │   └── ...
@@ -160,7 +179,7 @@
   ```
 - 'train_easyocr/config_files/config.yaml'에서 `train_images`와 `val_images`에 어떤 값을 주느냐에 따라 이미지 패치의 수가 달라지며 제가 사용한 이미지 패치의 수는 다음과 같습니다.
   - Number of training image patches: 3,708,486
-  - Number of validation image patches: 448,120
+  - Number of validation image patches: 234,252
 - Structure of 'labels.csv':
   |filename|words|
   |-|-|
@@ -180,78 +199,47 @@ evaluation_set
     └── ...
 ```
 
-# Step3: Training (Fine-tunning)
+# Step 3: Training (Fine-tunning)
+- Total number of trainable parameters: 4,015,729
+## 학습 환경
+- [AWS EC2 g5.xlarge](https://instances.vantage.sh/aws/ec2/g5.xlarge)
 
-# Configuration
-# Improvements
-0.352
-0.702
-99.1% 성능 향상
+# Step 5: Evaluation
+## Metric
+- Text detection에 대해서는 'IoU >= 0.5'인 경우를 True positive로 하는 F1 score를, Text recognition에 대해서는 CER (Character Error Rate)를 사용했습니다.
+- 그러나 위와 같이 Text detection과 Text recognition 각각에 대해서 평가하는 방법으로는 End-to-end evaluation을 실현할 수 없습니다. 따라서 'IoU >= 0.5'인 경우에 한해 CER을 측정하여 '1 - CER'로서 계산한 Score를 사용해 True positive, False positive, False negative를 측정했습니다. 이를 바탕으로 F1 score를 계산하여 최종 Metric으로 사용했습니다.
+- 즉 완전히 Ground truth를 맞히기 위해서는 'IoU >= 0.5'이 되도록 Text detection을 수행하고 'CER = 0'이 되도록 Text recognition을 수행해야만 합니다. 'CER = 0'이라 하더라도 'IoU < 0.5'라면 예측이 전혀 맞지 않은 것이며 `IoU >= 0.5'라면 CER에 따라서 일종의 부분점수를 받게 됩니다.
+## Result
+- Baseline: 0.352
+- Fine-tuned: 0.702
+- 99.1% 성능 향상
 
-## Appling Fined-tuned Model
-
-
-# Metric
-# Edit distance
-- Reference: https://en.wikipedia.org/wiki/Edit_distance
-- Edit distance is a way of quantifying how dissimilar two strings (e.g., words) are to one another by counting the minimum number of operations required to transform one string into the other.
-Types of edit distance
-  - Levenshtein distance allows deletion, insertion and substitution.
-
-# Error Rate (CER (Character Error Rate), WER (Word Error Rate))
-## CER
-- CER calculation is based on the concept of Levenshtein distance, where we count the minimum number of character-level operations required to transform the ground truth text (aka reference text) into the OCR output.
-- CER = (S + D + I) / N
-  - N: Number of characters in grund truth (= S + D + C)
-```python
-import jiwer
-
-cer = jiwer.cer(gt, pred)
-wer = jiwer.wer(gt, pred)
-```
 # Limitations
-## Limitations of Evaluation Metric
-- Reference: https://arxiv.org/pdf/2006.06244.pdf
+## Metric
+- Reference: [7]
 - IoU + CRW (Correctly Recognized Words)
 - One-to-many 또는 Many-to-one 상황에서 대응 x
 ## CLEval
 - Not IoU-based evaluation metric.
-## Smal Dataset
+## Dataset
 - 데이터를 조금밖에 사용하지 못함
-
-# Library Comparison
-## PaddleOCR
-- Text detection: DBNet (AAAI'2020)
-- Text recognition: ABINet (CVPR'2021)
-- 문자에 마침표가 없는 치명적인 단점
-## MMOCR
-- Text detection: DB_r18
-- Text recognition: ABINet
-## EasyOCR
-- Text detection: CRAFT (Default), DBNet (18)
-- Text recognition
-  - Transformation: None or TPS ([Thin Plate Spline](https://en.wikipedia.org/wiki/Thin_plate_spline))
-  - Feature extraction: VGG, RCNN or ResNet
-  - Sequence modeling: None or BiLSTM
-  - Prediction: CTC or Attention
-  - (None-VGG-BiLSTM-CTC)
-
+- '공종행정문서 OCR'의 전체 384.9GB 중 79.4GB (20%)밖에 사용하지 못했습니다.
+- 그 이유는 첫째, 네트워크 속도가 제한되어 있는 상황 하에서 데이터셋을 다운로드 받는 데 매우 많은 시간이 소요되었으며 둘째, 사용 가능한  
 
 # Improvements
 ## Hyperparameter Tunning
 ### Beam Search
-- `decoder`: `"greedy"` -> `"beam"`?
+- `decoder`: `"greedy"` -> `"beamsearch"`?
 ## Image Processing
 ## Fine Tunning
 
 # To Do
 
 # References
-- Baseline: https://github.com/JaidedAI/EasyOCR
-- CRAFT: https://github.com/clovaai/CRAFT-pytorch
-- Intersection over Union: https://gaussian37.github.io/vision-detection-giou/
-- Metric: https://gist.github.com/tarlen5/008809c3decf19313de216b9208f3734
-- [What Is Wrong With Scene Text Recognition Model Comparisons? Dataset and Model Analysis](https://github.com/clovaai/deep-text-recognition-benchmark/blob/master/train.py)
-- https://davelogs.tistory.com/82
-
-Total number of trainable parameters: 4,015,729
+- [1] Baseline: [EasyOCR](https://github.com/JaidedAI/EasyOCR)
+- [2] CRAFT: [CRAFT: Character-Region Awareness For Text detection](https://github.com/clovaai/CRAFT-pytorch)
+- [3] Intersection over Union: [GIoU(Generalized Intersection over Union)](https://gaussian37.github.io/vision-detection-giou/)
+- [4] Metric: https://gist.github.com/tarlen5/008809c3decf19313de216b9208f3734
+- [5] [What Is Wrong With Scene Text Recognition Model Comparisons? Dataset and Model Analysis](https://github.com/clovaai/deep-text-recognition-benchmark/blob/master/train.py)
+- [6] https://davelogs.tistory.com/82
+- [7] [CLEval: Character-Level Evaluation for Text Detection and Recognition Tasks](https://arxiv.org/pdf/2006.06244.pdf)
