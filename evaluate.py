@@ -8,7 +8,12 @@ import jiwer
 import easyocr
 import argparse
 from collections import defaultdict
+import os
 
+from process_image import (
+    draw_easyocr_result,
+    save_image
+)
 from craft_utilities import (
     load_craft_checkpoint,
     get_text_score_map_and_link_score_map
@@ -20,7 +25,8 @@ from prepare_dataset import (
     parse_json_file
 )
 
-result_csv_path = Path("evaluation_result.csv")
+save_dir = Path(os.environ["PYTHONPATH"])/"evaluation_result"
+result_csv_path = save_dir/"evaluation_result.csv"
 
 
 def get_arguments():
@@ -54,12 +60,15 @@ def get_iou(bbox1, bbox2):
     return iou
 
 
-def get_end_to_end_f1_score(gt_bboxes, gt_texts, pred_texts, pred_bboxes, iou_thr=0.5):
+def get_end_to_end_f1_score(gt_bboxes, pred_bboxes, iou_thr=0.5):
     ls_idx_gt = list()
     ls_idx_pred = list()
     ls_iou = list()
-    for idx_pred, pred_bbox in enumerate(pred_bboxes):
-        for idx_gt, gt_bbox in enumerate(gt_bboxes):
+    for idx_pred, pred_bbox in enumerate(pred_bboxes.values):
+        pred_bbox = pred_bbox[: 4]
+        for idx_gt, gt_bbox in enumerate(gt_bboxes.values):
+            gt_bbox = gt_bbox[: 4]
+
             iou = get_iou(pred_bbox, gt_bbox)
 
             if iou >= iou_thr:
@@ -78,9 +87,9 @@ def get_end_to_end_f1_score(gt_bboxes, gt_texts, pred_texts, pred_bboxes, iou_th
         for idx in argsort_iou_desc:
             idx_gt = ls_idx_gt[idx]
             idx_pred = ls_idx_pred[idx]
-            
-            gt_label = gt_texts[idx_gt]
-            pred_label = pred_texts[idx_pred]
+
+            gt_label = gt_bboxes.iloc[idx_gt, 4]
+            pred_label = gt_bboxes.iloc[idx_pred, 4]
             
             cer = jiwer.cer(gt_label, pred_label)
             score = 1 - cer
@@ -107,21 +116,19 @@ def get_end_to_end_f1_score(gt_bboxes, gt_texts, pred_texts, pred_bboxes, iou_th
 
 
 def spot_texts_using_baseline_model(img, reader):
+    reader = easyocr.Reader(lang_list=["ko"], gpu=False)
     result = reader.readtext(img)
 
     ls_bbox = list()
-    ls_text = list()
     for ((x1, y1), (x2, y2), (x3, y3), (x4, y4)), text, _ in result:
         if x1.dtype != "int64":
             continue
 
         xmin, _, _, xmax = sorted([x1, x2, x3, x4])
         ymin, _, _, ymax = sorted([y1, y2, y3, y4])
-        ls_bbox.append((xmin, ymin, xmax, ymax))
-        ls_text.append(text)
-    pred_bboxes = np.array(ls_bbox)
-    pred_texts = np.array(ls_text)
-    return pred_bboxes, pred_texts
+        ls_bbox.append((xmin, ymin, xmax, ymax, text))
+    pred_bboxes = pd.DataFrame(ls_bbox, columns=["xmin", "ymin", "xmax", "ymax", "text"])
+    return pred_bboxes
 
 
 def spot_texts_using_finetuned_model(img, craft, reader, cuda=False):
@@ -131,15 +138,12 @@ def spot_texts_using_finetuned_model(img, craft, reader, cuda=False):
     result = reader.recognize(img_cv_grey=img, horizontal_list=horizontal_list, free_list=list())
 
     ls_bbox = list()
-    ls_text = list()
     for ((x1, y1), (x2, y2), (x3, y3), (x4, y4)), text, _ in result:
         xmin, _, _, xmax = sorted([x1, x2, x3, x4])
         ymin, _, _, ymax = sorted([y1, y2, y3, y4])
-        ls_bbox.append((xmin, ymin, xmax, ymax))
-        ls_text.append(text)
-    pred_bboxes = np.array(ls_bbox)
-    pred_texts = np.array(ls_text)
-    return pred_bboxes, pred_texts
+        ls_bbox.append((xmin, ymin, xmax, ymax, text))
+    pred_bboxes = pd.DataFrame(ls_bbox, columns=["xmin", "ymin", "xmax", "ymax", "text"])
+    return pred_bboxes
 
 
 def evaluate_using_baseline_model(dataset_dir, reader, eval_result):
@@ -151,12 +155,15 @@ def evaluate_using_baseline_model(dataset_dir, reader, eval_result):
         fname = "/".join(str(json_path).rsplit("/", 4)[1:])
 
         try:
-            img, gt_bboxes, gt_texts = parse_json_file(json_path, load_image=True)
+            img, gt_bboxes = parse_json_file(json_path, load_image=True)
 
-            pred_bboxes, pred_texts = spot_texts_using_baseline_model(img=img, reader=reader)
-            f1 = get_end_to_end_f1_score(gt_bboxes, gt_texts, pred_texts, pred_bboxes, iou_thr=0.5)
+            pred_bboxes = spot_texts_using_baseline_model(img=img, reader=reader)
+            f1 = get_end_to_end_f1_score(gt_bboxes=gt_bboxes, pred_bboxes=pred_bboxes, iou_thr=0.5)
             
             eval_result[fname]["baseline"] = f1
+
+            drawn = draw_easyocr_result(img=img, bboxes=pred_bboxes)
+            save_image(img=drawn, path=save_dir/"baseline"/fname.replace(".json", ".jpg"))
         except Exception:
             print(f"    No image file paring with '{json_path}'")
     return eval_result
@@ -171,14 +178,17 @@ def evaluate_using_finetuned_model(dataset_dir, reader, eval_result, craft, cuda
         fname = "/".join(str(json_path).rsplit("/", 4)[1:])
 
         try:
-            img, gt_bboxes, gt_texts = parse_json_file(json_path, load_image=True)
+            img, gt_bboxes = parse_json_file(json_path, load_image=True)
 
-            pred_bboxes, pred_texts = spot_texts_using_finetuned_model(
+            pred_bboxes = spot_texts_using_finetuned_model(
                 img=img, craft=craft, reader=reader, cuda=cuda
             )
-            f1 = get_end_to_end_f1_score(gt_bboxes, gt_texts, pred_texts, pred_bboxes, iou_thr=0.5)
+            f1 = get_end_to_end_f1_score(gt_bboxes=gt_bboxes, pred_bboxes=pred_bboxes, iou_thr=0.5)
             
             eval_result[fname]["finetuned"] = f1
+
+            drawn = draw_easyocr_result(img=img, bboxes=pred_bboxes)
+            save_image(img=drawn, path=save_dir/"finetuned"/fname.replace(".json", ".jpg"))
         except Exception:
             print(f"    No image file paring with '{json_path}'")
     return eval_result

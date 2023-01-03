@@ -3,6 +3,7 @@ from PIL import Image
 from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
+from PIL import Image, ImageDraw, ImageFont
 
 
 def load_image_as_array(img_path="", gray=False):
@@ -36,19 +37,36 @@ def show_image(img1, img2=None, alpha=0.5):
     plt.show()
 
 
-def draw_rectangles_on_image(img, rectangles1, rectangles2=None, thickness=2):
-    img_copied = img.copy()
+def draw_easyocr_result(img, bboxes):
+    img_copied = convert_to_pil(img.copy())
 
-    for xmin, ymin, xmax, ymax in rectangles1[["xmin", "ymin", "xmax", "ymax"]].values:
-        cv2.rectangle(
-            img=img_copied, pt1=(xmin, ymin), pt2=(xmax, ymax), color=(255, 0, 0), thickness=thickness
+    draw = ImageDraw.Draw(img_copied)
+    for xmin, ymin, xmax, ymax, text in bboxes.values:
+        draw.rectangle(xy=(xmin, ymin, xmax, ymax), outline=(255, 0, 0), width=2)
+        draw.text(
+            xy=(xmin, ymin),
+            text=text,
+            fill=(255, 0, 0),
+            font=ImageFont.truetype(font="fonts/VITRO_Font_TTF/VITRO CORE TTF.ttf", size=26),
+            anchor="ls"
         )
-    if rectangles2 is not None:
-        for xmin, ymin, xmax, ymax in rectangles2[["xmin", "ymin", "xmax", "ymax"]].values:
-            cv2.rectangle(
-                img=img_copied, pt1=(xmin, ymin), pt2=(xmax, ymax), color=(0, 0, 255), thickness=thickness
-            )
+    img_copied = convert_to_array(img_copied)
     return img_copied
+
+
+# def draw_rectangles_on_image(img, rectangles1, rectangles2=None, thickness=2):
+#     img_copied = img.copy()
+
+#     for xmin, ymin, xmax, ymax in rectangles1[["xmin", "ymin", "xmax", "ymax"]].values:
+#         cv2.rectangle(
+#             img=img_copied, pt1=(xmin, ymin), pt2=(xmax, ymax), color=(255, 0, 0), thickness=thickness
+#         )
+#     if rectangles2 is not None:
+#         for xmin, ymin, xmax, ymax in rectangles2[["xmin", "ymin", "xmax", "ymax"]].values:
+#             cv2.rectangle(
+#                 img=img_copied, pt1=(xmin, ymin), pt2=(xmax, ymax), color=(0, 0, 255), thickness=thickness
+#             )
+#     return img_copied
 
 
 def set_colormap_jet(img):

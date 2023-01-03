@@ -32,7 +32,7 @@ class CRAFT(nn.Module):
     def __init__(self):
         super().__init__()
 
-        self.basenet = vgg16_bn()
+        self.basenet = vgg16_bn(pretrained=False, freeze=False)
 
         # U-Net
         self.upconv1 = double_conv(in_ch=1024, mid_ch=512, out_ch=256)

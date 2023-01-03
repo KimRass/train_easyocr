@@ -276,7 +276,7 @@ def train(config, amp=False):
                 loss_log = f"[{i}/{config.n_iter}]\nTraining loss: {loss_avg.val():0.5f} | Validation loss: {val_loss:0.5f} | Total {get_elapsed_time(start_time)} elapsed"
                 loss_avg.reset()
 
-                current_model_log = f'{"Current accuracy":17s}: {current_accuracy:0.3f}  |  {"Current normalized edit distance":17s}: {current_norm_ed:0.4f}'
+                current_model_log = f'{"Current accuracy":17s}: {current_accuracy:0.3f} | {"Current normalized edit distance":30s}: {current_norm_ed:0.4f}'
 
                 # Keep best accuracy model (on validation set)
                 if current_accuracy > best_accuracy:
@@ -289,7 +289,7 @@ def train(config, amp=False):
                     torch.save(
                         model.state_dict(), experiment_dir/"best_norm_ed.pth"
                     )
-                best_model_log = f'{"Best accuracy":17s}: {best_accuracy:0.3f} | {"Best normalized edit distance":17s}: {best_norm_ed:0.4f}'
+                best_model_log = f'{"Best accuracy":17s}: {best_accuracy:0.3f} | {"Best normalized edit distance":30s}: {best_norm_ed:0.4f}'
 
                 loss_model_log = f'{loss_log}\n{current_model_log}\n{best_model_log}'
                 print(loss_model_log)

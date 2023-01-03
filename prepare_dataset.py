@@ -42,19 +42,16 @@ def parse_json_file(json_path, load_image=False):
     with open(json_path, mode="r") as f:
         label = json.load(f)
 
-    gt_bboxes = np.array(
-        [i["annotation.bbox"] for i in label["annotations"]]
+    gt_bboxes = pd.DataFrame(
+        [(*i["annotation.bbox"], i["annotation.text"]) for i in label["annotations"]],
+        columns=["xmin", "ymin", "xmax", "ymax", "text"]
     )
-    gt_bboxes[:, 2] += gt_bboxes[:, 0]
-    gt_bboxes[:, 3] += gt_bboxes[:, 1]
-
-    gt_texts = np.array(
-        [i["annotation.text"] for i in label["annotations"]]
-    )
+    gt_bboxes["xmax"] += gt_bboxes["xmin"]
+    gt_bboxes["ymax"] += gt_bboxes["ymin"]
     if load_image:
-        return img, gt_bboxes, gt_texts
+        return img, gt_bboxes
     else:
-        return gt_bboxes, gt_texts
+        return gt_bboxes
 
 
 def _unzip(zip_file, unzip_to):
