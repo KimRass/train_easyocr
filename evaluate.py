@@ -186,7 +186,7 @@ def evaluate_using_finetuned_model(dataset_dir, reader, eval_result, craft, cuda
         eval_result[fname]["finetuned"] = f1
 
         drawn = draw_easyocr_result(img=img, bboxes=pred_bboxes)
-        save_path = save_dir/"baseline"/str(Path(fname).name).replace(".json", ".jpg")
+        save_path = save_dir/"finetuned"/str(Path(fname).name).replace(".json", ".jpg")
         save_path.parent.mkdir(parents=True, exist_ok=True)
         save_image(img=drawn, path=save_path)
     return eval_result
@@ -194,8 +194,11 @@ def evaluate_using_finetuned_model(dataset_dir, reader, eval_result, craft, cuda
 
 def save_evaluation_result_as_csv(eval_result) -> None:
     df_result = pd.DataFrame.from_dict(eval_result, orient="index")
+
     df_result.reset_index(inplace=True)
     df_result.rename({"index": "file"}, axis=1, inplace=True)
+
+    df_result.sort_values(by=["file"], inplace=True)
 
     df_result.to_csv(result_csv_path, index=False)
 
