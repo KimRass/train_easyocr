@@ -216,7 +216,7 @@ evaluation_set
 - Server specification: [AWS EC2 g5.xlarge](https://instances.vantage.sh/aws/ec2/g5.xlarge)
 - Total number of trainable parameters: 4,015,729
 - Total iterations: 약 600,000 (약 1 epoch)
-- Total training time: 약 35시간
+- Total training time: 약 50시간
 
 # Step 5: Evaluation
 ## Metric
@@ -263,4 +263,3 @@ evaluation_set
 - EasyOCR training
   - [What Is Wrong With Scene Text Recognition Model Comparisons? Dataset and Model Analysis](https://github.com/clovaai/deep-text-recognition-benchmark/blob/master/train.py)
   - [EasyOCR 사용자 모델 학습하기](https://davelogs.tistory.com/76)
-- [7] [CLEval: Character-Level Evaluation for Text Detection and Recognition Tasks](https://arxiv.org/pdf/2006.06244.pdf)
