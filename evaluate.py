@@ -146,6 +146,7 @@ def spot_texts_using_finetuned_model(img, craft, reader, cuda=False):
 
 
 def evaluate_using_baseline_model(dataset_dir, reader, eval_result):
+    dataset_dir = "/Users/jongbeom.kim/Documents/evaluation_set"
     print(f"Evaluating '{dataset_dir}' using baseline model...")
 
     dataset_dir = Path(dataset_dir)
@@ -153,20 +154,20 @@ def evaluate_using_baseline_model(dataset_dir, reader, eval_result):
     for json_path in tqdm(list(dataset_dir.glob("**/*.json"))):
         fname = "/".join(str(json_path).rsplit("/", 4)[1:])
 
-        try:
-            img, gt_bboxes = parse_json_file(json_path, load_image=True)
+        # try:
+        img, gt_bboxes = parse_json_file(json_path, load_image=True)
 
-            pred_bboxes = spot_texts_using_baseline_model(img=img, reader=reader)
-            f1 = get_end_to_end_f1_score(gt_bboxes=gt_bboxes, pred_bboxes=pred_bboxes, iou_thr=0.5)
-            
-            eval_result[fname]["baseline"] = f1
+        pred_bboxes = spot_texts_using_baseline_model(img=img, reader=reader)
+        f1 = get_end_to_end_f1_score(gt_bboxes=gt_bboxes, pred_bboxes=pred_bboxes, iou_thr=0.5)
+        
+        eval_result[fname]["baseline"] = f1
 
-            drawn = draw_easyocr_result(img=img, bboxes=pred_bboxes)
-            save_path = save_dir/"baseline"/fname.replace(".json", ".jpg")
-            save_path.parent.mkdir(parents=True, exist_ok=True)
-            save_image(img=drawn, path=save_path)
-        except Exception:
-            print(f"    No image file paring with '{json_path}'")
+        drawn = draw_easyocr_result(img=img, bboxes=pred_bboxes)
+        save_path = save_dir/"baseline"/fname.replace(".json", ".jpg")
+        save_path.parent.mkdir(parents=True, exist_ok=True)
+        save_image(img=drawn, path=save_path)
+        # except Exception:
+        #     print(f"    No image file paring with '{json_path}'")
     return eval_result
 
 
