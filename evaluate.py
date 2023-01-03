@@ -162,7 +162,9 @@ def evaluate_using_baseline_model(dataset_dir, reader, eval_result):
             eval_result[fname]["baseline"] = f1
 
             drawn = draw_easyocr_result(img=img, bboxes=pred_bboxes)
-            save_image(img=drawn, path=save_dir/"baseline"/fname.replace(".json", ".jpg"))
+            save_path = save_dir/"baseline"/fname.replace(".json", ".jpg")
+            save_path.parent.mkdir(parents=True, exist_ok=True)
+            save_image(img=drawn, path=save_path)
         except Exception:
             print(f"    No image file paring with '{json_path}'")
     return eval_result
@@ -187,7 +189,9 @@ def evaluate_using_finetuned_model(dataset_dir, reader, eval_result, craft, cuda
             eval_result[fname]["finetuned"] = f1
 
             drawn = draw_easyocr_result(img=img, bboxes=pred_bboxes)
-            save_image(img=drawn, path=save_dir/"finetuned"/fname.replace(".json", ".jpg"))
+            save_path = save_dir/"baseline"/fname.replace(".json", ".jpg")
+            save_path.parent.mkdir(parents=True, exist_ok=True)
+            save_image(img=drawn, path=save_path)
         except Exception:
             print(f"    No image file paring with '{json_path}'")
     return eval_result

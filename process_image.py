@@ -54,19 +54,19 @@ def draw_easyocr_result(img, bboxes):
     return img_copied
 
 
-# def draw_rectangles_on_image(img, rectangles1, rectangles2=None, thickness=2):
-#     img_copied = img.copy()
+def draw_rectangles_on_image(img, rectangles1, rectangles2=None, thickness=2):
+    img_copied = img.copy()
 
-#     for xmin, ymin, xmax, ymax in rectangles1[["xmin", "ymin", "xmax", "ymax"]].values:
-#         cv2.rectangle(
-#             img=img_copied, pt1=(xmin, ymin), pt2=(xmax, ymax), color=(255, 0, 0), thickness=thickness
-#         )
-#     if rectangles2 is not None:
-#         for xmin, ymin, xmax, ymax in rectangles2[["xmin", "ymin", "xmax", "ymax"]].values:
-#             cv2.rectangle(
-#                 img=img_copied, pt1=(xmin, ymin), pt2=(xmax, ymax), color=(0, 0, 255), thickness=thickness
-#             )
-#     return img_copied
+    for xmin, ymin, xmax, ymax in rectangles1[["xmin", "ymin", "xmax", "ymax"]].values:
+        cv2.rectangle(
+            img=img_copied, pt1=(xmin, ymin), pt2=(xmax, ymax), color=(255, 0, 0), thickness=thickness
+        )
+    if rectangles2 is not None:
+        for xmin, ymin, xmax, ymax in rectangles2[["xmin", "ymin", "xmax", "ymax"]].values:
+            cv2.rectangle(
+                img=img_copied, pt1=(xmin, ymin), pt2=(xmax, ymax), color=(0, 0, 255), thickness=thickness
+            )
+    return img_copied
 
 
 def set_colormap_jet(img):
