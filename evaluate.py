@@ -116,7 +116,6 @@ def get_end_to_end_f1_score(gt_bboxes, pred_bboxes, iou_thr=0.5):
 
 
 def spot_texts_using_baseline_model(img, reader):
-    reader = easyocr.Reader(lang_list=["ko"], gpu=False)
     result = reader.readtext(img)
 
     ls_bbox = list()
