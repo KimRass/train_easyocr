@@ -154,7 +154,6 @@ def evaluate_using_baseline_model(dataset_dir, reader, eval_result):
     for json_path in tqdm(list(dataset_dir.glob("**/*.json"))):
         fname = "/".join(str(json_path).rsplit("/", 4)[1:])
 
-        # try:
         img, gt_bboxes = parse_json_file(json_path, load_image=True)
 
         pred_bboxes = spot_texts_using_baseline_model(img=img, reader=reader)
@@ -166,8 +165,6 @@ def evaluate_using_baseline_model(dataset_dir, reader, eval_result):
         save_path = save_dir/"baseline"/str(Path(fname).name).replace(".json", ".jpg")
         save_path.parent.mkdir(parents=True, exist_ok=True)
         save_image(img=drawn, path=save_path)
-        # except Exception:
-        #     print(f"    No image file paring with '{json_path}'")
     return eval_result
 
 
@@ -179,22 +176,19 @@ def evaluate_using_finetuned_model(dataset_dir, reader, eval_result, craft, cuda
     for json_path in tqdm(list(dataset_dir.glob("**/*.json"))):
         fname = "/".join(str(json_path).rsplit("/", 4)[1:])
 
-        try:
-            img, gt_bboxes = parse_json_file(json_path, load_image=True)
+        img, gt_bboxes = parse_json_file(json_path, load_image=True)
 
-            pred_bboxes = spot_texts_using_finetuned_model(
-                img=img, craft=craft, reader=reader, cuda=cuda
-            )
-            f1 = get_end_to_end_f1_score(gt_bboxes=gt_bboxes, pred_bboxes=pred_bboxes, iou_thr=0.5)
-            
-            eval_result[fname]["finetuned"] = f1
+        pred_bboxes = spot_texts_using_finetuned_model(
+            img=img, craft=craft, reader=reader, cuda=cuda
+        )
+        f1 = get_end_to_end_f1_score(gt_bboxes=gt_bboxes, pred_bboxes=pred_bboxes, iou_thr=0.5)
+        
+        eval_result[fname]["finetuned"] = f1
 
-            drawn = draw_easyocr_result(img=img, bboxes=pred_bboxes)
-            save_path = save_dir/"baseline"/str(Path(fname).name).replace(".json", ".jpg")
-            save_path.parent.mkdir(parents=True, exist_ok=True)
-            save_image(img=drawn, path=save_path)
-        except Exception:
-            print(f"    No image file paring with '{json_path}'")
+        drawn = draw_easyocr_result(img=img, bboxes=pred_bboxes)
+        save_path = save_dir/"baseline"/str(Path(fname).name).replace(".json", ".jpg")
+        save_path.parent.mkdir(parents=True, exist_ok=True)
+        save_image(img=drawn, path=save_path)
     return eval_result
 
 

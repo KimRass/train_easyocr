@@ -224,9 +224,9 @@ evaluation_set
 - 그러나 위와 같이 Text detection과 Text recognition 각각에 대해서 평가하는 방법으로는 End-to-end evaluation을 실현할 수 없습니다. 따라서 'IoU >= 0.5'인 경우에 한해 CER을 측정하여 '1 - CER'로서 계산한 Score를 사용해 True positive, False positive, False negative를 측정했습니다. 이를 바탕으로 F1 score를 계산하여 최종 Metric으로 사용했습니다.
 - 즉 완전히 Ground truth를 맞히기 위해서는 'IoU >= 0.5'이 되도록 Text detection을 수행하고 'CER = 0'이 되도록 Text recognition을 수행해야만 합니다. 'CER = 0'이라 하더라도 'IoU < 0.5'라면 예측이 전혀 맞지 않은 것이며 `IoU >= 0.5'라면 CER에 따라서 일종의 부분점수를 받게 됩니다.
 ## Result
-- Baseline: 0.352
-- Fine-tuned: 0.702
-- 99.1% 성능 향상
+- Baseline: 0.369
+- Fine-tuned: 0.710
+- 92.6% 성능이 향상됐습니다.
 
 # Limitations
 ## Metric
@@ -260,6 +260,7 @@ evaluation_set
 # References
 - Intersection over Union: [GIoU(Generalized Intersection over Union)](https://gaussian37.github.io/vision-detection-giou/)
 - Metric: [calculate_mean_ap.py](https://gist.github.com/tarlen5/008809c3decf19313de216b9208f3734)
-- EasyOCR training
+- EasyOCR training:
   - [What Is Wrong With Scene Text Recognition Model Comparisons? Dataset and Model Analysis](https://github.com/clovaai/deep-text-recognition-benchmark/blob/master/train.py)
   - [EasyOCR 사용자 모델 학습하기](https://davelogs.tistory.com/76)
+- Font: [나눔스퀘어 네오 Regular](https://campaign.naver.com/nanumsquare_neo/#download)
