@@ -147,7 +147,7 @@ def spot_texts_using_finetuned_model(img, craft, reader, cuda=False):
 
 
 def evaluate_using_baseline_model(dataset_dir, reader, eval_result):
-    dataset_dir = "/Users/jongbeom.kim/Documents/evaluation_set"
+    # dataset_dir = "/Users/jongbeom.kim/Documents/evaluation_set"
     print(f"Evaluating '{dataset_dir}' using baseline model...")
 
     dataset_dir = Path(dataset_dir)
