@@ -37,6 +37,17 @@ def show_image(img1, img2=None, alpha=0.5):
     plt.show()
 
 
+def convert_to_pil(img):
+    if not isinstance(img, Image.Image):
+        img = Image.fromarray(img)
+    return img
+
+
+def convert_to_array(img):
+    img = np.array(img)
+    return img
+
+
 def draw_easyocr_result(img, bboxes):
     img_copied = convert_to_pil(img.copy())
 
@@ -67,22 +78,6 @@ def draw_rectangles_on_image(img, rectangles1, rectangles2=None, thickness=2):
                 img=img_copied, pt1=(xmin, ymin), pt2=(xmax, ymax), color=(0, 0, 255), thickness=thickness
             )
     return img_copied
-
-
-def set_colormap_jet(img):
-    img_jet = cv2.applyColorMap(src=(255 - img), colormap=cv2.COLORMAP_JET)
-    return img_jet
-
-
-def convert_to_pil(img):
-    if not isinstance(img, Image.Image):
-        img = Image.fromarray(img)
-    return img
-
-
-def convert_to_array(img):
-    img = np.array(img)
-    return img
 
 
 def get_image_cropped_by_rectangle(img, xmin, ymin, xmax, ymax):
