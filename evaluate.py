@@ -89,9 +89,9 @@ def get_end_to_end_f1_score(gt_bboxes, pred_bboxes, iou_thr=0.5):
             idx_pred = ls_idx_pred[idx]
 
             gt_label = gt_bboxes.iloc[idx_gt, 4]
-            pred_label = gt_bboxes.iloc[idx_pred, 4]
+            pred_label = pred_bboxes.iloc[idx_pred, 4]
             
-            cer = jiwer.cer(gt_label, pred_label)
+            cer = jiwer.cer(truth=gt_label, hypothesis=pred_label)
             score = 1 - cer
 
             if (
@@ -146,12 +146,12 @@ def spot_texts_using_finetuned_model(img, craft, reader, cuda=False):
 
 
 def evaluate_using_baseline_model(dataset_dir, reader, eval_result):
-    # dataset_dir = "/Users/jongbeom.kim/Documents/evaluation_set"
     print(f"Evaluating '{dataset_dir}' using baseline model...")
 
     dataset_dir = Path(dataset_dir)
 
     for json_path in tqdm(list(dataset_dir.glob("**/*.json"))):
+        json_path = "/Users/jongbeom.kim/Documents/evaluation_set/labels/주민복지/5350129/1999/5350129-1999-0001-0282.json"
         fname = "/".join(str(json_path).rsplit("/", 4)[1:])
 
         img, gt_bboxes = parse_json_file(json_path, load_image=True)
