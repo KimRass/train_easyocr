@@ -44,7 +44,7 @@ def draw_easyocr_result(img, bboxes):
     for xmin, ymin, xmax, ymax, text in bboxes.values:
         draw.rectangle(xy=(xmin, ymin, xmax, ymax), outline=(255, 0, 0), width=2)
         draw.text(
-            xy=(xmin, ymin),
+            xy=(xmin, ymin + 4),
             text=text,
             fill=(255, 0, 0),
             font=ImageFont.truetype(font="fonts/NanumSquareNeo-bRg.ttf", size=26),
