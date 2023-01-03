@@ -47,7 +47,7 @@ def draw_easyocr_result(img, bboxes):
             xy=(xmin, ymin),
             text=text,
             fill=(255, 0, 0),
-            font=ImageFont.truetype(font="fonts/VITRO CORE TTF.ttf", size=26),
+            font=ImageFont.truetype(font="fonts/NanumSquareNeo-bRg.ttf", size=26),
             anchor="ls"
         )
     img_copied = convert_to_array(img_copied)
