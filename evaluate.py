@@ -163,7 +163,7 @@ def evaluate_using_baseline_model(dataset_dir, reader, eval_result):
         eval_result[fname]["baseline"] = f1
 
         drawn = draw_easyocr_result(img=img, bboxes=pred_bboxes)
-        save_path = save_dir/"baseline"/fname.replace(".json", ".jpg")
+        save_path = save_dir/"baseline"/str(Path(fname).name).replace(".json", ".jpg")
         save_path.parent.mkdir(parents=True, exist_ok=True)
         save_image(img=drawn, path=save_path)
         # except Exception:
@@ -190,7 +190,7 @@ def evaluate_using_finetuned_model(dataset_dir, reader, eval_result, craft, cuda
             eval_result[fname]["finetuned"] = f1
 
             drawn = draw_easyocr_result(img=img, bboxes=pred_bboxes)
-            save_path = save_dir/"baseline"/fname.replace(".json", ".jpg")
+            save_path = save_dir/"baseline"/str(Path(fname).name).replace(".json", ".jpg")
             save_path.parent.mkdir(parents=True, exist_ok=True)
             save_image(img=drawn, path=save_path)
         except Exception:
