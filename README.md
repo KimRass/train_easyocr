@@ -132,13 +132,13 @@
   # VGG
   freeze_FeatureFxtraction: # If `True` do not update feature extraction parameters
   rgb: False # `True` for RGB input image
-  input_channel: 1 # `1` for grayscale input image, `3` for RGB
-  output_channel: 256
+  input_channel: # `1` for grayscale input image, `3` for RGB
+  output_channel: # Output dimension of featrue extraction result
   # BiLSTM
   freeze_SequenceModeling: # If `True` do not update sequence modeling parameters
   hidden_size: # `hidden_size` of `torch.nn.LSTM`
   # Prediction
-  new_prediction: False
+  new_prediction: False # If `True` dimension of model prediction changes according to checkpoint
   # CTC
   decode: # `greedy` or `beamsearch`
   ```
