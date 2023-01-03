@@ -26,6 +26,7 @@ from prepare_dataset import (
 )
 
 save_dir = Path(os.environ["PYTHONPATH"])/"evaluation_result"
+save_dir.mkdir(parents=True, exist_ok=True)
 result_csv_path = save_dir/"evaluation_result.csv"
 
 
