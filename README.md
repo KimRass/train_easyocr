@@ -77,11 +77,11 @@
 # Step 1: Environment Setting
 ## Configurations ('train_easyocr/config_files/config.yaml')
   ```yaml
-  # Environment
+  ### Environment ###
   seed: # Seed
   experiment_name: # 'train_easyocr/saved_models'에 생성될 폴더 이름입니다.
 
-  # Dataset
+  ### Dataset ###
   train_data: # Training set의 디렉토리
   val_data: # Validation set의 디렉토리
   select_data: # Subdirectory
@@ -93,7 +93,7 @@
   train_images: # Number of training images
   val_images: # Number of validation images
   eval_images: # Number of evaluation images
-  # Data processing
+  ### Data processing ###
     img_height: # Height of input image
   img_width: # Width of input image
   PAD: # If `True` pad to input images to keep aspect ratio
@@ -107,7 +107,7 @@
     # If `False` filter images containing characters not in `character`
     # and whose label is longer than `batch_max_length`
 
-  # Training
+  ### Training ###
   workers: # Same as `num_workers` from `torch.utils.data.DataLoader`
   batch_size: # Batch size
   n_iter: # Number of iterations
@@ -117,29 +117,29 @@
     # Checkpoint from which to continue training
     # 첫 학습시에는 'korean_g2' (https://github.com/JaidedAI/EasyOCR/releases/download/v1.3/korean_g2.zip)를 사용합니다.
   strict: # If `False` ignore non-matching keys when loading a model from checkpoint
-  # Optimizer
+  ### Optimizer ###
   adam: # If `True` use `torch.optim.Adam`, if `False` use `torch.optim.Adadelta`
   lr: 
   rho: 
   eps: 
   grad_clip: 
 
-  # Model
+  ### Model ###
   Transformation: # `None` or `TPS`
   FeatureExtraction: # `VGG`, `RCNN` or `ResNet`
   SequenceModeling: # `None` or `BiLSTM`
   Prediction: # `CTC` or `Attn`
-  # VGG
+  ### VGG ###
   freeze_FeatureFxtraction: # If `True` do not update feature extraction parameters
   rgb: False # `True` for RGB input image
   input_channel: # `1` for grayscale input image, `3` for RGB
   output_channel: # Output dimension of featrue extraction result
-  # BiLSTM
+  ### BiLSTM ###
   freeze_SequenceModeling: # If `True` do not update sequence modeling parameters
   hidden_size: # `hidden_size` of `torch.nn.LSTM`
-  # Prediction
+  ### Prediction ###
   new_prediction: False # If `True` dimension of model prediction changes according to checkpoint
-  # CTC
+  ### CTC ###
   decode: # `greedy` or `beamsearch`
   ```
 
