@@ -190,6 +190,41 @@ evaluation_set
 - Total number of trainable parameters: 4,015,729
 - Total iterations: 약 600,000 (약 1 epoch)
 - Total training time: 약 50시간
+- Sample of training log ('log_train.txt')
+  ```
+  [720000/1400000]
+  Training loss: 0.00818 | Validation loss: 0.09826 | Total 0:21:12 elapsed
+  Current accuracy : 94.938  |  Current normalized edit distance: 0.9826
+  Best accuracy    : 94.938 | Best normalized edit distance: 0.9826
+  --------------------------------------------------------------------------------
+  Ground Truth               |  Prediction                 |  Confidence Score & T/F
+  --------------------------------------------------------------------------------
+  결 재                       | 결재                        | 0.4155	False
+  장                         | 장                         | 0.9992	True
+  김해공원                      | 김해공원                      | 0.9956	True
+  나.                        | 나.                        | 0.7449	True
+  21                        | 21                        | 0.9036	True
+  246                       | 246                       | 0.5787	True
+  심사자                       | 심사자                       | 0.9652	True
+  :                         | :                         | 0.9761	True
+  --------------------------------------------------------------------------------
+  [740000/1400000]
+  Training loss: 0.09315 | Validation loss: 0.09707 | Total 0:54:13 elapsed
+  Current accuracy : 94.940  |  Current normalized edit distance: 0.9824
+  Best accuracy    : 94.940 | Best normalized edit distance: 0.9826
+  --------------------------------------------------------------------------------
+  Ground Truth               |  Prediction                 |  Confidence Score & T/F
+  --------------------------------------------------------------------------------
+  유지에                       | 유지에                       | 0.9970	True
+  개설공사에                     | 개설공사에                     | 0.9422	True
+  거성산업                      | 거성산업                      | 0.8966	True
+  우리의                       | 우리의                       | 0.9052	True
+  및                         | 및                         | 0.9987	True
+  않는                        | 않는                        | 0.9775	True
+  국공유재산관리담당                 | 국공유재산관리담당                 | 0.9169	True
+  사후                        | 사후                        | 0.9964	True
+  --------------------------------------------------------------------------------
+  ```
 
 # Step 5: Evaluation
 ## Metric
