@@ -132,6 +132,7 @@
   ```
 - Number of training images: 102,477
 - Number of validation images: 11,397
+- Categories: '농림.축산지원', '도시개발', '산업진흥', '상.하수도관리', '인.허가', '일반행정', '주민복지', '주민생활지원', '주민자치', '지역문화', '지역환경.산림', '회계.예산'
 ## 'unzipped'
 - 'step2_run_prepare_dataset_py.sh' 실행시 `--unzip`을 옵션으로 주면 아래와 같은 디렉토리 구조로 압축을 풉니다.
   ```
