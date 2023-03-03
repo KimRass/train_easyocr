@@ -10,7 +10,7 @@ import argparse
 from collections import defaultdict
 import os
 
-from process_image import (
+from process_images import (
     draw_easyocr_result,
     save_image
 )
