@@ -14,7 +14,7 @@ from csv import writer
 from train_easyocr.utils import (
     AttrDict
 )
-from process_image import (
+from process_images import (
     load_image_as_array,
     save_image,
     get_image_cropped_by_rectangle

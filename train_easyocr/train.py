@@ -193,7 +193,7 @@ def train(config, amp=False):
     i = start_iter
 
     scaler = GradScaler()
-    t1= time()
+    t1 = time()
 
     while True:
         # Training part
