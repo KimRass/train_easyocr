@@ -1,4 +1,4 @@
-# Paper Summary
+# Paper Reading
 - [What Is Wrong With Scene Text Recognition Model Comparisons? Dataset and Model Analysis](https://arxiv.org/pdf/1904.01906.pdf)
 ## Transformation
 - The module of this stage transforms the input image X into the normalized image X˜. Text images in natural scenes come in diverse shapes, as shown by curved and tilted texts. If such input images are fed unaltered, the subsequent fea- ture extraction stage needs to learn an invariant represen- tation with respect to such geometry. To reduce this bur- den, thin-plate spline (TPS) transformation, a variant of the spatial transformation network (STN) [12], has been applied with its flexibility to diverse aspect ratios of text lines [25, 18]. TPS employs a smooth spline interpolation between a set of fiducial points. More precisely, TPS finds multiple fiducial points (green ’+’ marks in Figure 3) at the upper and bottom enveloping points, and normalizes the character region to a predefined rectangle. Our framework allows for the selection or de-selection of TPS.
