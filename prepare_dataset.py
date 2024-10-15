@@ -34,24 +34,32 @@ def get_arguments():
     return args
 
 
+def temp():
+    return 1, 2
+
+
 def parse_json_file(json_path, load_image=False):
     if load_image:
-        img_path = str(json_path).replace("labels/", "images/").replace(".json", ".jpg")
+        img_path = str(
+            json_path
+        ).replace("labels/", "images/").replace(".json", ".jpg")
         img = load_image_as_array(img_path)
+    else:
+        img = None
 
     with open(json_path, mode="r") as f:
         label = json.load(f)
 
     gt_bboxes = pd.DataFrame(
-        [(*i["annotation.bbox"], i["annotation.text"]) for i in label["annotations"]],
+        [
+            (*i["annotation.bbox"], i["annotation.text"])
+            for i in label["annotations"]
+        ],
         columns=["xmin", "ymin", "xmax", "ymax", "text"]
     )
     gt_bboxes["xmax"] += gt_bboxes["xmin"]
     gt_bboxes["ymax"] += gt_bboxes["ymin"]
-    if load_image:
-        return img, gt_bboxes
-    else:
-        return gt_bboxes
+    return img, gt_bboxes
 
 
 def _unzip(zip_file, unzip_to):
@@ -60,7 +68,9 @@ def _unzip(zip_file, unzip_to):
 
         for member in tqdm(ls_member):
             try:
-                member.filename = member.filename.encode("cp437").decode("euc-kr", "ignore")
+                member.filename = member.filename.encode("cp437").decode(
+                    "euc-kr", "ignore",
+                )
             except Exception:
                 print(member.filename)
                 continue
@@ -112,9 +122,8 @@ def save_image_patches(output_dir, split, select_data, jpg_file_list):
             continue
         
         img = load_image_as_array(jpg_path)
-        gt_bboxes, gt_texts = parse_json_file(json_path, load_image=False)
-
-        for text, (xmin, ymin, xmax, ymax) in zip(gt_texts, gt_bboxes):
+        _, gt_bboxes = parse_json_file(json_path, load_image=False)
+        for xmin, ymin, xmax, ymax, text in gt_bboxes.values:
             xmin = max(0, xmin)
             ymin = max(0, ymin)
 
